@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-mm-page="login">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập - MultiMart KOREA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/seo.js"></script>
+</head>
+<body class="min-h-screen flex">
+
+<!-- Left visual -->
+<aside class="hidden md:flex md:w-1/2 gradient-brand relative items-center justify-center p-12 overflow-hidden">
+  <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 30px 30px;"></div>
+  <div class="relative z-10 text-white max-w-md">
+    <div class="w-14 h-14 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center font-black text-3xl mb-6">M</div>
+    <h1 class="text-5xl font-black mb-4 leading-tight">Chào mừng bạn<br>đến với MultiMart Korea</h1>
+    <p class="text-white/85 text-lg mb-8">Cổng mua sắm số 1 dành cho cộng đồng người Việt sinh sống và lao động tại Hàn Quốc.</p>
+    <div class="space-y-3 text-sm">
+      <div class="flex items-center gap-3"><i class="fas fa-check-circle text-yellow-300"></i> Giao hàng siêu tốc trong 2 giờ tại Seoul</div>
+      <div class="flex items-center gap-3"><i class="fas fa-check-circle text-yellow-300"></i> Bảng giá điện thoại cập nhật hằng tháng</div>
+      <div class="flex items-center gap-3"><i class="fas fa-check-circle text-yellow-300"></i> CSKH tiếng Việt qua KakaoTalk</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Right form -->
+<main class="flex-1 flex items-center justify-center p-6">
+  <div class="w-full max-w-md">
+    <div class="md:hidden mb-8 text-center">
+      <div class="w-14 h-14 mx-auto gradient-brand rounded-2xl flex items-center justify-center font-black text-white text-3xl mb-4">M</div>
+      <h2 class="text-2xl font-black gradient-text">MultiMart Korea</h2>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex bg-slate-100 rounded-2xl p-1 mb-6">
+      <button data-form="login" class="form-tab flex-1 py-2.5 rounded-xl font-bold text-sm bg-white shadow-sm">Đăng nhập</button>
+      <button data-form="register" class="form-tab flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-500">Đăng ký</button>
+    </div>
+
+    <!-- Login -->
+    <form id="login-form" class="space-y-4">
+      <div><label class="lbl">Email hoặc SĐT</label><input class="field" placeholder="email@vidu.com hoặc 010..."></div>
+      <div>
+        <label class="lbl">Mật khẩu</label>
+        <div class="relative">
+          <input type="password" class="field !pr-10" placeholder="••••••••">
+          <i class="fas fa-eye absolute right-4 top-3.5 text-slate-400 cursor-pointer"></i>
+        </div>
+      </div>
+      <div class="flex justify-between items-center text-xs">
+        <label class="flex items-center gap-2"><input type="checkbox" class="w-4 h-4 accent-indigo-600"> Ghi nhớ tôi</label>
+        <a href="#" class="text-indigo-600 font-bold no-underline">Quên mật khẩu?</a>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">Đăng nhập <i class="fas fa-arrow-right"></i></button>
+
+      <div class="flex items-center gap-3 my-4"><div class="flex-1 h-px bg-slate-200"></div><span class="text-xs text-slate-400">hoặc</span><div class="flex-1 h-px bg-slate-200"></div></div>
+      <button type="button" class="btn btn-ghost w-full !bg-yellow-300 hover:!bg-yellow-400 text-slate-900"><i class="fas fa-comment"></i> Đăng nhập với Kakao</button>
+      <button type="button" class="btn btn-ghost w-full !bg-green-500 !text-white hover:!bg-green-600"><span class="font-black">N</span> Đăng nhập với Naver</button>
+    </form>
+
+    <!-- Register -->
+    <form id="register-form" class="space-y-4 hidden">
+      <div><label class="lbl">Họ tên</label><input class="field" placeholder="Nguyễn Văn A"></div>
+      <div><label class="lbl">Email</label><input type="email" class="field" placeholder="email@vidu.com"></div>
+      <div><label class="lbl">Số điện thoại Hàn</label><input class="field" placeholder="010-XXXX-XXXX"></div>
+      <div><label class="lbl">Mật khẩu</label><input type="password" class="field" placeholder="Tối thiểu 8 ký tự"></div>
+      <div><label class="lbl">Xác nhận mật khẩu</label><input type="password" class="field"></div>
+      <label class="flex items-start gap-2 text-xs text-slate-600"><input type="checkbox" class="w-4 h-4 accent-indigo-600 mt-0.5"> Tôi đồng ý với <a href="#" class="text-indigo-600 font-bold no-underline">Điều khoản dịch vụ</a> và <a href="#" class="text-indigo-600 font-bold no-underline">Chính sách bảo mật</a></label>
+      <button type="submit" class="btn btn-primary w-full">Tạo tài khoản</button>
+    </form>
+
+    <p class="text-center text-xs text-slate-400 mt-8">© 2026 MultiMart Korea · Tiếng Việt 🇻🇳</p>
+  </div>
+</main>
+
+<script src="assets/data/products.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/state.js"></script>
+<script>
+document.querySelectorAll('.form-tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.form-tab').forEach(x => x.className = 'form-tab flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-500');
+  t.className = 'form-tab flex-1 py-2.5 rounded-xl font-bold text-sm bg-white shadow-sm';
+  document.getElementById('login-form').classList.toggle('hidden', t.dataset.form !== 'login');
+  document.getElementById('register-form').classList.toggle('hidden', t.dataset.form !== 'register');
+}));
+document.getElementById('login-form').addEventListener('submit', e => {
+  e.preventDefault();
+  MM_STATE.login(window.MM_DATA.user);
+  MM_UTILS.toast('Đăng nhập thành công 🎉');
+  setTimeout(() => location.href = 'index.html', 800);
+});
+document.getElementById('register-form').addEventListener('submit', e => {
+  e.preventDefault();
+  MM_UTILS.toast('Tạo tài khoản thành công!');
+  setTimeout(() => location.href = 'index.html', 800);
+});
+</script>
+<script src="assets/js/enhancements.js"></script>
+</body>
+</html>

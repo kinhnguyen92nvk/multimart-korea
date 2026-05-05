@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MultiMart - 10 Demo Giao Diện</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Be Vietnam Pro', sans-serif; background:#f1f5f9; }
+  .screen-card { background:white; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.08); overflow:hidden; }
+  .phone-frame { width:380px; max-width:100%; border:10px solid #1e293b; border-radius:36px; overflow:hidden; background:white; }
+  .web-frame { border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; background:white; }
+  .web-frame .topbar { background:#e2e8f0; padding:6px 10px; display:flex; gap:6px; }
+  .web-frame .topbar span { width:10px; height:10px; border-radius:50%; }
+  .scroll-x { overflow-x:auto; scrollbar-width:thin; }
+  .badge-hot { background:linear-gradient(135deg,#ef4444,#f97316); }
+  .grad-1 { background:linear-gradient(135deg,#6366f1,#8b5cf6); }
+  .grad-2 { background:linear-gradient(135deg,#ec4899,#f43f5e); }
+  .grad-3 { background:linear-gradient(135deg,#10b981,#059669); }
+  .grad-4 { background:linear-gradient(135deg,#f59e0b,#ef4444); }
+  .grad-5 { background:linear-gradient(135deg,#0ea5e9,#6366f1); }
+  .chip { padding:4px 10px; border-radius:999px; font-size:11px; font-weight:500; }
+</style>
+</head>
+<body class="p-4 md:p-8">
+
+<header class="max-w-7xl mx-auto mb-8 text-center">
+  <div class="inline-flex items-center gap-3 mb-3">
+    <div class="w-12 h-12 grad-1 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">M</div>
+    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800">MultiMart — 10 Demo Giao Diện</h1>
+  </div>
+  <p class="text-slate-500">Tạp hóa · Điện thoại · SIM · Quà tặng · Sâm Nấm TPCN · Sách · Quần áo — Responsive Mobile + Web</p>
+</header>
+
+<main class="max-w-7xl mx-auto space-y-12">
+
+<!-- ============ DEMO 1: TRANG CHỦ MOBILE ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">① Trang chủ — Mobile</h2>
+  <p class="text-sm text-slate-500 mb-4">Bottom nav, banner xoay, danh mục đa ngành, flash sale, gợi ý theo mùa lễ</p>
+  <div class="flex justify-center">
+  <div class="phone-frame">
+    <!-- status bar -->
+    <div class="bg-white px-4 py-2 flex justify-between text-xs"><span>9:41</span><span>📶 🔋</span></div>
+    <!-- header -->
+    <div class="grad-1 p-4 text-white">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="bg-white/20 rounded-lg px-3 py-2 flex-1 flex items-center gap-2">
+          <span>🔍</span><span class="text-sm opacity-90">Tìm sâm, sách, iPhone…</span>
+        </div>
+        <span class="text-xl">🛒</span><span class="text-xl">🔔</span>
+      </div>
+      <div class="bg-white/15 rounded-xl p-3 text-sm">
+        <div class="font-semibold">🎉 Sale tháng 5 — Giảm tới 50%</div>
+        <div class="text-xs opacity-90">Áp dụng toàn bộ ngành hàng</div>
+      </div>
+    </div>
+    <!-- categories -->
+    <div class="p-4">
+      <div class="grid grid-cols-4 gap-3 text-center text-xs">
+        <div><div class="w-12 h-12 mx-auto bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">🛒</div><div class="mt-1">Tạp hóa</div></div>
+        <div><div class="w-12 h-12 mx-auto bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">📱</div><div class="mt-1">Điện thoại</div></div>
+        <div><div class="w-12 h-12 mx-auto bg-green-100 rounded-2xl flex items-center justify-center text-2xl">📶</div><div class="mt-1">SIM số</div></div>
+        <div><div class="w-12 h-12 mx-auto bg-pink-100 rounded-2xl flex items-center justify-center text-2xl">🎁</div><div class="mt-1">Quà lễ</div></div>
+        <div><div class="w-12 h-12 mx-auto bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">🌿</div><div class="mt-1">Sâm Nấm</div></div>
+        <div><div class="w-12 h-12 mx-auto bg-amber-100 rounded-2xl flex items-center justify-center text-2xl">📚</div><div class="mt-1">Sách</div></div>
+        <div><div class="w-12 h-12 mx-auto bg-purple-100 rounded-2xl flex items-center justify-center text-2xl">👕</div><div class="mt-1">Thời trang</div></div>
+        <div><div class="w-12 h-12 mx-auto bg-slate-100 rounded-2xl flex items-center justify-center text-2xl">⋯</div><div class="mt-1">Tất cả</div></div>
+      </div>
+    </div>
+    <!-- flash sale -->
+    <div class="px-4 pb-4">
+      <div class="flex justify-between items-center mb-2">
+        <div class="font-bold text-red-500">⚡ FLASH SALE</div>
+        <div class="text-xs bg-slate-800 text-white px-2 py-1 rounded">02:34:18</div>
+      </div>
+      <div class="scroll-x flex gap-3 pb-2">
+        <div class="min-w-[110px] bg-slate-50 rounded-lg p-2">
+          <div class="bg-gradient-to-br from-blue-200 to-blue-400 h-20 rounded mb-1 flex items-center justify-center text-3xl">📱</div>
+          <div class="text-xs font-medium truncate">iPhone 15 PM</div>
+          <div class="text-red-500 font-bold text-sm">28.9tr</div>
+          <div class="text-[10px] text-slate-400 line-through">34.9tr</div>
+        </div>
+        <div class="min-w-[110px] bg-slate-50 rounded-lg p-2">
+          <div class="bg-gradient-to-br from-emerald-200 to-emerald-400 h-20 rounded mb-1 flex items-center justify-center text-3xl">🌿</div>
+          <div class="text-xs font-medium truncate">Sâm Hàn 6 năm</div>
+          <div class="text-red-500 font-bold text-sm">1.2tr</div>
+          <div class="text-[10px] text-slate-400 line-through">1.8tr</div>
+        </div>
+        <div class="min-w-[110px] bg-slate-50 rounded-lg p-2">
+          <div class="bg-gradient-to-br from-amber-200 to-amber-400 h-20 rounded mb-1 flex items-center justify-center text-3xl">📚</div>
+          <div class="text-xs font-medium truncate">Đắc Nhân Tâm</div>
+          <div class="text-red-500 font-bold text-sm">68k</div>
+          <div class="text-[10px] text-slate-400 line-through">120k</div>
+        </div>
+      </div>
+    </div>
+    <!-- bottom nav -->
+    <div class="border-t flex justify-around py-2 text-[11px] text-slate-500">
+      <div class="text-center text-indigo-600"><div class="text-xl">🏠</div>Trang chủ</div>
+      <div class="text-center"><div class="text-xl">📦</div>Danh mục</div>
+      <div class="text-center"><div class="text-xl">⚡</div>Sale</div>
+      <div class="text-center"><div class="text-xl">🛒</div>Giỏ</div>
+      <div class="text-center"><div class="text-xl">👤</div>Tôi</div>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 2: TRANG CHỦ WEB ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">② Trang chủ — Web (Desktop)</h2>
+  <p class="text-sm text-slate-500 mb-4">Header đa cấp, mega menu, banner lớn, ngành hàng dạng grid</p>
+  <div class="web-frame">
+    <div class="topbar"><span class="bg-red-400"></span><span class="bg-yellow-400"></span><span class="bg-green-400"></span><span class="ml-2 text-xs text-slate-600">multimart.vn</span></div>
+    <div class="bg-white">
+      <!-- top header -->
+      <div class="bg-slate-100 px-6 py-1 text-xs text-slate-600 flex justify-between"><span>📞 Hotline 1900-xxxx · Giao toàn quốc</span><span>VN | EN · Đăng nhập</span></div>
+      <!-- main header -->
+      <div class="grad-1 px-6 py-4 flex items-center gap-6 text-white">
+        <div class="text-2xl font-extrabold">M MultiMart</div>
+        <div class="bg-white rounded-full flex flex-1 max-w-2xl">
+          <input class="flex-1 px-4 py-2 rounded-l-full text-slate-700 outline-none text-sm" placeholder="Tìm sản phẩm, thương hiệu...">
+          <button class="bg-orange-500 px-6 rounded-r-full text-sm font-medium">🔍 Tìm</button>
+        </div>
+        <div class="flex gap-4 text-sm">
+          <div>🛒 Giỏ <span class="bg-red-500 text-xs px-1.5 rounded-full">3</span></div>
+          <div>👤 Tài khoản</div>
+        </div>
+      </div>
+      <!-- nav -->
+      <div class="border-b px-6 py-2 flex gap-6 text-sm font-medium text-slate-700">
+        <span class="text-indigo-600">🛒 Tạp hóa</span><span>📱 Điện thoại</span><span>📶 SIM</span>
+        <span class="text-pink-600">🎁 Quà 8/3 ❤️</span><span>🌿 Sâm Nấm TPCN</span><span>📚 Sách</span><span>👕 Thời trang</span>
+      </div>
+      <!-- hero -->
+      <div class="px-6 py-6 grid grid-cols-4 gap-4">
+        <div class="col-span-3 grad-2 rounded-xl p-8 text-white">
+          <div class="text-xs uppercase opacity-90">Mùa lễ 8/3</div>
+          <h3 class="text-3xl font-extrabold mt-2">Quà tặng nàng — giảm 30%</h3>
+          <p class="opacity-90 mt-2">Hơn 500+ món quà · Gói quà miễn phí · Giao trong 2h</p>
+          <button class="mt-4 bg-white text-pink-600 px-5 py-2 rounded-full font-semibold">Mua ngay →</button>
+        </div>
+        <div class="space-y-4">
+          <div class="grad-3 rounded-xl p-4 text-white">
+            <div class="text-xs">Sâm Hàn Quốc</div>
+            <div class="font-bold">Giảm 25%</div>
+          </div>
+          <div class="grad-5 rounded-xl p-4 text-white">
+            <div class="text-xs">iPhone 15</div>
+            <div class="font-bold">Trả góp 0%</div>
+          </div>
+        </div>
+      </div>
+      <!-- categories grid -->
+      <div class="px-6 pb-6 grid grid-cols-7 gap-3 text-center text-xs">
+        <div class="p-3 bg-orange-50 rounded-xl"><div class="text-2xl">🛒</div>Tạp hóa</div>
+        <div class="p-3 bg-blue-50 rounded-xl"><div class="text-2xl">📱</div>Điện thoại</div>
+        <div class="p-3 bg-green-50 rounded-xl"><div class="text-2xl">📶</div>SIM số</div>
+        <div class="p-3 bg-pink-50 rounded-xl"><div class="text-2xl">🎁</div>Quà lễ</div>
+        <div class="p-3 bg-emerald-50 rounded-xl"><div class="text-2xl">🌿</div>Sâm Nấm</div>
+        <div class="p-3 bg-amber-50 rounded-xl"><div class="text-2xl">📚</div>Sách</div>
+        <div class="p-3 bg-purple-50 rounded-xl"><div class="text-2xl">👕</div>Thời trang</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 3: BẢNG GIÁ ĐIỆN THOẠI THÁNG (TÍNH NĂNG ĐẶC BIỆT) ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">③ ⭐ Bảng giá Điện thoại tháng — <span class="text-indigo-600">Tính năng đặc biệt cho bạn</span></h2>
+  <p class="text-sm text-slate-500 mb-4">Mỗi tháng admin upload <b>1 ảnh bảng giá</b> + chỉnh giá nhanh. Tên SP cố định, giá tự động cập nhật. Khách xem cả ảnh gốc lẫn bảng giá tương tác.</p>
+  <div class="grid md:grid-cols-2 gap-6">
+    <!-- mobile view -->
+    <div class="flex justify-center">
+      <div class="phone-frame">
+        <div class="bg-white px-4 py-2 flex justify-between text-xs"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="grad-5 p-4 text-white">
+          <div class="text-xs opacity-90">📱 Điện thoại › Bảng giá</div>
+          <div class="font-bold text-lg mt-1">Giá tháng 5/2026</div>
+          <div class="text-xs opacity-90">Cập nhật: 01/05/2026 · Mới nhất ✨</div>
+        </div>
+        <!-- ảnh bảng giá gốc -->
+        <div class="p-3">
+          <div class="text-xs font-semibold mb-1">📸 Ảnh bảng giá gốc (admin upload)</div>
+          <div class="bg-gradient-to-br from-slate-200 to-slate-400 h-44 rounded-lg flex items-center justify-center text-slate-600 text-sm">[ Ảnh bảng giá tháng ]</div>
+          <button class="mt-2 w-full bg-slate-100 text-xs py-2 rounded">🔍 Phóng to / Tải về</button>
+        </div>
+        <!-- danh sách giá -->
+        <div class="px-3 pb-3">
+          <div class="text-xs font-semibold mb-2">💰 Bảng giá tương tác</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between border-b pb-2"><div><div class="font-medium">iPhone 15 Pro Max 256GB</div><div class="text-[10px] text-slate-400">SKU IP15PM-256</div></div><div class="text-right"><div class="text-red-500 font-bold">28.990.000₫</div><div class="text-[10px] text-green-600">▼ -2tr</div></div></div>
+            <div class="flex justify-between border-b pb-2"><div><div class="font-medium">iPhone 15 128GB</div><div class="text-[10px] text-slate-400">SKU IP15-128</div></div><div class="text-right"><div class="font-bold">19.990.000₫</div><div class="text-[10px] text-slate-400">— giữ giá</div></div></div>
+            <div class="flex justify-between border-b pb-2"><div><div class="font-medium">Samsung S24 Ultra</div><div class="text-[10px] text-slate-400">SKU S24U</div></div><div class="text-right"><div class="text-red-500 font-bold">26.500.000₫</div><div class="text-[10px] text-green-600">▼ -1.5tr</div></div></div>
+            <div class="flex justify-between"><div><div class="font-medium">Xiaomi 14</div><div class="text-[10px] text-slate-400">SKU MI14</div></div><div class="text-right"><div class="font-bold">14.990.000₫</div></div></div>
+          </div>
+          <button class="mt-3 w-full grad-1 text-white py-2.5 rounded-lg text-sm font-semibold">📞 Đặt mua / Hỏi giá</button>
+        </div>
+      </div>
+    </div>
+    <!-- admin panel -->
+    <div>
+      <div class="text-sm font-semibold mb-2 text-slate-700">🔧 Trang Admin — Cập nhật giá tháng (siêu nhanh)</div>
+      <div class="border rounded-xl p-4 bg-slate-50">
+        <div class="border-2 border-dashed border-indigo-300 bg-white rounded-lg p-6 text-center mb-4">
+          <div class="text-3xl">📤</div>
+          <div class="font-medium text-sm mt-2">Kéo ảnh bảng giá vào đây</div>
+          <div class="text-xs text-slate-400">Hoặc bấm để chọn — JPG/PNG ≤ 5MB</div>
+        </div>
+        <div class="text-xs font-semibold mb-2">Sửa giá hàng loạt (Excel-like)</div>
+        <table class="w-full text-xs bg-white rounded">
+          <thead class="bg-slate-100"><tr><th class="text-left p-2">Sản phẩm</th><th class="p-2">Giá cũ</th><th class="p-2">Giá mới</th></tr></thead>
+          <tbody>
+            <tr class="border-t"><td class="p-2">iPhone 15 PM 256GB</td><td class="p-2 text-slate-400 line-through">30.990.000</td><td class="p-2"><input value="28990000" class="border rounded px-2 py-1 w-28"></td></tr>
+            <tr class="border-t"><td class="p-2">iPhone 15 128GB</td><td class="p-2 text-slate-400">19.990.000</td><td class="p-2"><input value="19990000" class="border rounded px-2 py-1 w-28"></td></tr>
+            <tr class="border-t"><td class="p-2">Samsung S24 Ultra</td><td class="p-2 text-slate-400 line-through">28.000.000</td><td class="p-2"><input value="26500000" class="border rounded px-2 py-1 w-28"></td></tr>
+            <tr class="border-t"><td class="p-2">Xiaomi 14</td><td class="p-2 text-slate-400">14.990.000</td><td class="p-2"><input value="14990000" class="border rounded px-2 py-1 w-28"></td></tr>
+          </tbody>
+        </table>
+        <div class="flex gap-2 mt-4">
+          <button class="flex-1 bg-indigo-600 text-white py-2 rounded text-xs font-semibold">💾 Lưu & Xuất bản tháng 5</button>
+          <button class="bg-white border py-2 px-3 rounded text-xs">📥 Import Excel</button>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-3">💡 Hệ thống tự lưu lịch sử giá từng tháng → khách xem được biến động</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 4: TRANG SP CHI TIẾT MOBILE ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">④ Chi tiết sản phẩm — Mobile (ngành Sâm Nấm)</h2>
+  <p class="text-sm text-slate-500 mb-4">Ảnh lớn, thông tin nguồn gốc, công dụng, đánh giá, nút mua sticky</p>
+  <div class="flex justify-center">
+    <div class="phone-frame">
+      <div class="bg-white px-4 py-2 flex justify-between text-xs"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="relative">
+        <div class="bg-gradient-to-br from-emerald-200 to-emerald-500 h-72 flex items-center justify-center text-7xl">🌿</div>
+        <div class="absolute top-3 left-3 bg-white/90 w-9 h-9 rounded-full flex items-center justify-center">←</div>
+        <div class="absolute top-3 right-3 flex gap-2"><div class="bg-white/90 w-9 h-9 rounded-full flex items-center justify-center">♡</div><div class="bg-white/90 w-9 h-9 rounded-full flex items-center justify-center">⤴</div></div>
+        <div class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded">1/6</div>
+      </div>
+      <div class="p-4">
+        <div class="flex gap-2 mb-2">
+          <span class="chip bg-red-100 text-red-600">HOT</span>
+          <span class="chip bg-emerald-100 text-emerald-700">Chính hãng KGC</span>
+        </div>
+        <h3 class="font-bold text-lg">Sâm Hàn Quốc 6 năm tuổi — Hộp 600g</h3>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span class="text-2xl font-extrabold text-red-500">1.250.000₫</span>
+          <span class="text-sm line-through text-slate-400">1.800.000₫</span>
+          <span class="chip bg-red-500 text-white">-30%</span>
+        </div>
+        <div class="text-xs text-slate-500 mt-1">⭐ 4.9 (213 đánh giá) · Đã bán 1.2k</div>
+
+        <div class="mt-4 border-t pt-3 text-sm">
+          <div class="font-semibold mb-1">🌱 Nguồn gốc & Công dụng</div>
+          <p class="text-xs text-slate-600">Sâm Geumsan, Hàn Quốc · Tăng sức đề kháng, hỗ trợ tim mạch, bổ khí huyết. Dùng cho người trên 16 tuổi.</p>
+        </div>
+        <div class="mt-3 text-sm">
+          <div class="font-semibold mb-1">🚚 Vận chuyển</div>
+          <div class="text-xs text-slate-600">Giao 2h nội thành · Miễn phí cho đơn ≥ 500k</div>
+        </div>
+      </div>
+      <!-- sticky cta -->
+      <div class="sticky bottom-0 bg-white border-t p-3 flex gap-2">
+        <button class="flex-1 bg-amber-100 text-amber-700 py-2.5 rounded-lg text-sm font-semibold">🛒 Thêm giỏ</button>
+        <button class="flex-1 grad-3 text-white py-2.5 rounded-lg text-sm font-semibold">⚡ Mua ngay</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 5: DANH MỤC SIM ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">⑤ Danh mục SIM số — Mobile + Web</h2>
+  <p class="text-sm text-slate-500 mb-4">Bộ lọc nhà mạng, giá, đầu số, tìm theo dãy số mong muốn (vd: *6868)</p>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="flex justify-center">
+      <div class="phone-frame">
+        <div class="bg-white px-4 py-2 flex justify-between text-xs"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="grad-3 p-4 text-white">
+          <div class="font-bold">📶 SIM số đẹp</div>
+          <div class="bg-white/20 mt-3 rounded-lg px-3 py-2 text-sm">🔍 Nhập dãy số… (vd: *6868)</div>
+          <div class="flex gap-2 mt-2 text-xs"><span class="chip bg-white/30">Viettel</span><span class="chip bg-white/30">Mobi</span><span class="chip bg-white/30">Vina</span><span class="chip bg-white/30">Lộc phát</span></div>
+        </div>
+        <div class="p-3 space-y-2 text-sm">
+          <div class="flex justify-between border rounded-lg p-3"><div><div class="font-bold tracking-wider">0987.66.6868</div><div class="text-[10px] text-slate-400">Viettel · Tứ quý</div></div><div class="text-right"><div class="text-red-500 font-bold">8.500.000₫</div><button class="text-xs bg-emerald-500 text-white px-3 py-1 rounded mt-1">Mua</button></div></div>
+          <div class="flex justify-between border rounded-lg p-3"><div><div class="font-bold tracking-wider">0908.39.3939</div><div class="text-[10px] text-slate-400">Mobi · Lộc phát</div></div><div class="text-right"><div class="text-red-500 font-bold">3.200.000₫</div><button class="text-xs bg-emerald-500 text-white px-3 py-1 rounded mt-1">Mua</button></div></div>
+          <div class="flex justify-between border rounded-lg p-3"><div><div class="font-bold tracking-wider">0911.222.333</div><div class="text-[10px] text-slate-400">Vina · Taxi</div></div><div class="text-right"><div class="text-red-500 font-bold">2.500.000₫</div><button class="text-xs bg-emerald-500 text-white px-3 py-1 rounded mt-1">Mua</button></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="web-frame">
+      <div class="topbar"><span class="bg-red-400"></span><span class="bg-yellow-400"></span><span class="bg-green-400"></span></div>
+      <div class="p-5">
+        <div class="flex gap-4">
+          <aside class="w-52 text-sm">
+            <div class="font-semibold mb-2">Bộ lọc</div>
+            <div class="text-xs space-y-1">
+              <div class="font-medium mt-2">Nhà mạng</div>
+              <label class="block"><input type="checkbox" checked> Viettel</label>
+              <label class="block"><input type="checkbox"> Mobifone</label>
+              <label class="block"><input type="checkbox"> Vinaphone</label>
+              <div class="font-medium mt-3">Loại số</div>
+              <label class="block"><input type="checkbox"> Tứ quý</label>
+              <label class="block"><input type="checkbox"> Lộc phát</label>
+              <label class="block"><input type="checkbox"> Thần tài</label>
+              <div class="font-medium mt-3">Khoảng giá</div>
+              <input type="range" class="w-full">
+            </div>
+          </aside>
+          <div class="flex-1 grid grid-cols-3 gap-3">
+            <div class="border rounded-lg p-4 text-center"><div class="font-bold tracking-wide">0987.666.868</div><div class="text-xs text-slate-500">Viettel</div><div class="text-red-500 font-bold mt-2">8.500.000₫</div><button class="mt-2 bg-emerald-500 text-white text-xs px-3 py-1 rounded">Mua</button></div>
+            <div class="border rounded-lg p-4 text-center"><div class="font-bold tracking-wide">0908.39.3939</div><div class="text-xs text-slate-500">Mobi</div><div class="text-red-500 font-bold mt-2">3.200.000₫</div><button class="mt-2 bg-emerald-500 text-white text-xs px-3 py-1 rounded">Mua</button></div>
+            <div class="border rounded-lg p-4 text-center"><div class="font-bold tracking-wide">0911.222.333</div><div class="text-xs text-slate-500">Vina</div><div class="text-red-500 font-bold mt-2">2.500.000₫</div><button class="mt-2 bg-emerald-500 text-white text-xs px-3 py-1 rounded">Mua</button></div>
+            <div class="border rounded-lg p-4 text-center"><div class="font-bold tracking-wide">0966.79.79.79</div><div class="text-xs text-slate-500">Viettel</div><div class="text-red-500 font-bold mt-2">12.000.000₫</div><button class="mt-2 bg-emerald-500 text-white text-xs px-3 py-1 rounded">Mua</button></div>
+            <div class="border rounded-lg p-4 text-center"><div class="font-bold tracking-wide">0888.68.6886</div><div class="text-xs text-slate-500">Vina</div><div class="text-red-500 font-bold mt-2">5.900.000₫</div><button class="mt-2 bg-emerald-500 text-white text-xs px-3 py-1 rounded">Mua</button></div>
+            <div class="border rounded-lg p-4 text-center"><div class="font-bold tracking-wide">0777.39.39.39</div><div class="text-xs text-slate-500">Mobi</div><div class="text-red-500 font-bold mt-2">4.500.000₫</div><button class="mt-2 bg-emerald-500 text-white text-xs px-3 py-1 rounded">Mua</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 6: QUÀ TẶNG NGÀY LỄ ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">⑥ Quà tặng theo ngày lễ — Web</h2>
+  <p class="text-sm text-slate-500 mb-4">Banner đổi theo mùa (Valentine, 8/3, 20/10, Noel, Tết) · Bộ sưu tập theo người nhận / ngân sách</p>
+  <div class="web-frame">
+    <div class="topbar"><span class="bg-red-400"></span><span class="bg-yellow-400"></span><span class="bg-green-400"></span></div>
+    <div class="grad-2 p-10 text-white text-center">
+      <div class="text-xs uppercase tracking-widest opacity-90">Mùa lễ 8/3 · Mừng phái đẹp</div>
+      <h3 class="text-4xl font-extrabold mt-2">Tặng nàng — Trọn vẹn yêu thương ❤️</h3>
+      <p class="opacity-90 mt-2">Tặng kèm thiệp viết tay · Gói quà sang trọng miễn phí</p>
+    </div>
+    <div class="p-5">
+      <div class="text-sm font-semibold mb-3">🎯 Chọn theo đối tượng</div>
+      <div class="grid grid-cols-5 gap-3 text-center text-xs mb-6">
+        <div class="border rounded-xl p-4">💝<div class="mt-1">Tặng người yêu</div></div>
+        <div class="border rounded-xl p-4">👩<div class="mt-1">Tặng mẹ</div></div>
+        <div class="border rounded-xl p-4">👭<div class="mt-1">Tặng bạn</div></div>
+        <div class="border rounded-xl p-4">🧑‍💼<div class="mt-1">Tặng đồng nghiệp</div></div>
+        <div class="border rounded-xl p-4">👶<div class="mt-1">Tặng bé</div></div>
+      </div>
+      <div class="text-sm font-semibold mb-3">💰 Theo ngân sách</div>
+      <div class="grid grid-cols-4 gap-4">
+        <div class="border rounded-xl overflow-hidden"><div class="grad-2 h-32 flex items-center justify-center text-5xl">🌹</div><div class="p-3"><div class="text-xs text-slate-400">Dưới 200k</div><div class="font-semibold text-sm">Hộp socola + thiệp</div><div class="text-red-500 font-bold mt-1">189.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="grad-4 h-32 flex items-center justify-center text-5xl">🎁</div><div class="p-3"><div class="text-xs text-slate-400">200-500k</div><div class="font-semibold text-sm">Set nến thơm cao cấp</div><div class="text-red-500 font-bold mt-1">389.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="grad-3 h-32 flex items-center justify-center text-5xl">💄</div><div class="p-3"><div class="text-xs text-slate-400">500k-1tr</div><div class="font-semibold text-sm">Set mỹ phẩm cao cấp</div><div class="text-red-500 font-bold mt-1">890.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="grad-1 h-32 flex items-center justify-center text-5xl">💍</div><div class="p-3"><div class="text-xs text-slate-400">Trên 1tr</div><div class="font-semibold text-sm">Trang sức bạc 925</div><div class="text-red-500 font-bold mt-1">1.490.000₫</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 7: GIỎ HÀNG / CHECKOUT ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">⑦ Giỏ hàng & Thanh toán — Mobile</h2>
+  <p class="text-sm text-slate-500 mb-4">Đa ngành hàng trong cùng giỏ, voucher, MoMo/VNPay/COD</p>
+  <div class="flex justify-center gap-6 flex-wrap">
+    <div class="phone-frame">
+      <div class="bg-white px-4 py-2 flex justify-between text-xs"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="bg-white px-4 py-3 border-b font-semibold">🛒 Giỏ hàng (3)</div>
+      <div class="p-3 space-y-3 text-sm">
+        <div class="flex gap-3 border rounded-xl p-3"><div class="bg-emerald-100 w-16 h-16 rounded flex items-center justify-center text-3xl">🌿</div><div class="flex-1"><div class="font-medium">Sâm Hàn 6 năm 600g</div><div class="text-red-500 font-bold">1.250.000₫</div><div class="text-xs mt-1">− 1 +</div></div></div>
+        <div class="flex gap-3 border rounded-xl p-3"><div class="bg-amber-100 w-16 h-16 rounded flex items-center justify-center text-3xl">📚</div><div class="flex-1"><div class="font-medium">Đắc Nhân Tâm</div><div class="text-red-500 font-bold">68.000₫</div><div class="text-xs mt-1">− 2 +</div></div></div>
+        <div class="flex gap-3 border rounded-xl p-3"><div class="bg-pink-100 w-16 h-16 rounded flex items-center justify-center text-3xl">🎁</div><div class="flex-1"><div class="font-medium">Hộp quà 8/3</div><div class="text-red-500 font-bold">389.000₫</div><div class="text-xs mt-1">− 1 +</div></div></div>
+      </div>
+      <div class="px-4 py-3 border-t bg-slate-50 text-sm">
+        <div class="flex justify-between"><span>Voucher</span><span class="text-indigo-600">Chọn ›</span></div>
+        <div class="flex justify-between mt-1"><span>Tạm tính</span><span>1.775.000₫</span></div>
+        <div class="flex justify-between mt-1"><span>Giảm</span><span class="text-emerald-600">−175.000₫</span></div>
+        <div class="flex justify-between font-bold mt-2 text-base"><span>Tổng</span><span class="text-red-500">1.600.000₫</span></div>
+      </div>
+      <div class="p-3"><button class="w-full grad-1 text-white py-3 rounded-xl font-semibold">Thanh toán</button></div>
+    </div>
+    <div class="phone-frame">
+      <div class="bg-white px-4 py-2 flex justify-between text-xs"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="bg-white px-4 py-3 border-b font-semibold">💳 Thanh toán</div>
+      <div class="p-4 text-sm space-y-3">
+        <div class="border rounded-lg p-3"><div class="font-medium">📍 Giao đến</div><div class="text-xs text-slate-500 mt-1">Nguyễn A · 0987xxx · 123 Lê Lợi, Q1, TP.HCM</div></div>
+        <div><div class="font-medium mb-2">Phương thức</div>
+          <label class="flex items-center gap-3 border rounded-lg p-3 mb-2"><input type="radio" checked class="accent-pink-500"> 📱 MoMo</label>
+          <label class="flex items-center gap-3 border rounded-lg p-3 mb-2"><input type="radio"> 🏦 VNPay / Banking</label>
+          <label class="flex items-center gap-3 border rounded-lg p-3 mb-2"><input type="radio"> 💵 COD - Trả khi nhận</label>
+          <label class="flex items-center gap-3 border rounded-lg p-3"><input type="radio"> 📊 Trả góp 0% (đơn ≥ 3tr)</label>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3">
+          <div class="flex justify-between"><span>Tổng</span><span class="text-red-500 font-bold text-lg">1.600.000₫</span></div>
+        </div>
+        <button class="w-full grad-3 text-white py-3 rounded-xl font-semibold">Đặt hàng ngay</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 8: TRANG SÁCH + BLOG ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">⑧ Sách & Quần áo — Web (gallery + filter)</h2>
+  <p class="text-sm text-slate-500 mb-4">Layout grid, filter theo size/màu (quần áo) hoặc thể loại (sách)</p>
+  <div class="web-frame">
+    <div class="topbar"><span class="bg-red-400"></span><span class="bg-yellow-400"></span><span class="bg-green-400"></span></div>
+    <div class="p-5">
+      <div class="flex gap-2 mb-4 text-xs">
+        <span class="chip bg-indigo-600 text-white">Tất cả</span>
+        <span class="chip bg-slate-100">Kỹ năng sống</span>
+        <span class="chip bg-slate-100">Văn học</span>
+        <span class="chip bg-slate-100">Kinh doanh</span>
+        <span class="chip bg-slate-100">Thiếu nhi</span>
+        <span class="chip bg-slate-100">Ngoại ngữ</span>
+      </div>
+      <div class="grid grid-cols-5 gap-4">
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-amber-300 to-orange-500 h-44 flex items-center justify-center text-5xl">📕</div><div class="p-3"><div class="text-sm font-semibold">Đắc Nhân Tâm</div><div class="text-xs text-slate-400">Dale Carnegie</div><div class="text-red-500 font-bold mt-1">68.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-blue-300 to-blue-600 h-44 flex items-center justify-center text-5xl">📘</div><div class="p-3"><div class="text-sm font-semibold">Atomic Habits</div><div class="text-xs text-slate-400">James Clear</div><div class="text-red-500 font-bold mt-1">119.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-emerald-300 to-emerald-600 h-44 flex items-center justify-center text-5xl">📗</div><div class="p-3"><div class="text-sm font-semibold">Nhà Giả Kim</div><div class="text-xs text-slate-400">Paulo Coelho</div><div class="text-red-500 font-bold mt-1">79.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-rose-300 to-pink-600 h-44 flex items-center justify-center text-5xl">📙</div><div class="p-3"><div class="text-sm font-semibold">Tuổi Trẻ Đáng Giá</div><div class="text-xs text-slate-400">Rosie Nguyễn</div><div class="text-red-500 font-bold mt-1">85.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-violet-300 to-purple-600 h-44 flex items-center justify-center text-5xl">📓</div><div class="p-3"><div class="text-sm font-semibold">Tôi tài giỏi</div><div class="text-xs text-slate-400">Adam Khoo</div><div class="text-red-500 font-bold mt-1">92.000₫</div></div></div>
+      </div>
+      <hr class="my-6">
+      <div class="text-sm font-semibold mb-3">👕 Thời trang nổi bật</div>
+      <div class="grid grid-cols-5 gap-4">
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-slate-200 to-slate-400 h-44 flex items-center justify-center text-5xl">👕</div><div class="p-3"><div class="text-sm font-semibold">Áo thun unisex</div><div class="text-xs text-slate-400">S, M, L, XL · 3 màu</div><div class="text-red-500 font-bold mt-1">189.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-blue-200 to-blue-500 h-44 flex items-center justify-center text-5xl">👔</div><div class="p-3"><div class="text-sm font-semibold">Sơ mi nam dài tay</div><div class="text-xs text-slate-400">M-XXL</div><div class="text-red-500 font-bold mt-1">359.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-pink-200 to-rose-500 h-44 flex items-center justify-center text-5xl">👗</div><div class="p-3"><div class="text-sm font-semibold">Đầm hoa nữ</div><div class="text-xs text-slate-400">Free size</div><div class="text-red-500 font-bold mt-1">299.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-stone-300 to-stone-600 h-44 flex items-center justify-center text-5xl">👖</div><div class="p-3"><div class="text-sm font-semibold">Quần jeans nam</div><div class="text-xs text-slate-400">28-34</div><div class="text-red-500 font-bold mt-1">449.000₫</div></div></div>
+        <div class="border rounded-xl overflow-hidden"><div class="bg-gradient-to-br from-amber-200 to-orange-500 h-44 flex items-center justify-center text-5xl">🧥</div><div class="p-3"><div class="text-sm font-semibold">Áo khoác bomber</div><div class="text-xs text-slate-400">M-XL</div><div class="text-red-500 font-bold mt-1">589.000₫</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 9: ADMIN DASHBOARD ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">⑨ Admin Dashboard — Quản lý đa ngành hàng</h2>
+  <p class="text-sm text-slate-500 mb-4">Tổng quan doanh thu, đơn hàng, nhanh chóng truy cập "Bảng giá ĐT tháng"</p>
+  <div class="web-frame">
+    <div class="topbar"><span class="bg-red-400"></span><span class="bg-yellow-400"></span><span class="bg-green-400"></span></div>
+    <div class="flex">
+      <aside class="w-52 bg-slate-900 text-slate-200 p-4 text-sm space-y-1">
+        <div class="text-white font-bold mb-3">⚙️ MultiMart Admin</div>
+        <div class="bg-indigo-600 text-white px-3 py-2 rounded">📊 Dashboard</div>
+        <div class="px-3 py-2">📦 Sản phẩm</div>
+        <div class="px-3 py-2 text-amber-300">📱 Bảng giá ĐT tháng ⭐</div>
+        <div class="px-3 py-2">🛒 Đơn hàng</div>
+        <div class="px-3 py-2">👥 Khách hàng</div>
+        <div class="px-3 py-2">🎁 Khuyến mãi</div>
+        <div class="px-3 py-2">📈 Báo cáo</div>
+        <div class="px-3 py-2">⚙️ Cài đặt</div>
+      </aside>
+      <div class="flex-1 p-5">
+        <div class="grid grid-cols-4 gap-4 mb-5">
+          <div class="grad-1 text-white rounded-xl p-4"><div class="text-xs opacity-90">Doanh thu hôm nay</div><div class="text-2xl font-extrabold mt-1">42.5tr</div><div class="text-xs opacity-90 mt-1">▲ 12% so với hôm qua</div></div>
+          <div class="grad-3 text-white rounded-xl p-4"><div class="text-xs opacity-90">Đơn hàng</div><div class="text-2xl font-extrabold mt-1">186</div><div class="text-xs opacity-90 mt-1">23 chờ xử lý</div></div>
+          <div class="grad-4 text-white rounded-xl p-4"><div class="text-xs opacity-90">Khách mới</div><div class="text-2xl font-extrabold mt-1">42</div><div class="text-xs opacity-90 mt-1">tuần này</div></div>
+          <div class="grad-2 text-white rounded-xl p-4"><div class="text-xs opacity-90">Sản phẩm hot</div><div class="text-2xl font-extrabold mt-1">Sâm 6 năm</div><div class="text-xs opacity-90 mt-1">213 đơn / tháng</div></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="col-span-2 border rounded-xl p-4">
+            <div class="font-semibold text-sm mb-3">📈 Doanh thu 7 ngày qua theo ngành hàng</div>
+            <div class="flex items-end gap-3 h-40">
+              <div class="flex-1 bg-indigo-500 rounded-t" style="height:60%"></div>
+              <div class="flex-1 bg-pink-500 rounded-t" style="height:80%"></div>
+              <div class="flex-1 bg-emerald-500 rounded-t" style="height:45%"></div>
+              <div class="flex-1 bg-amber-500 rounded-t" style="height:70%"></div>
+              <div class="flex-1 bg-blue-500 rounded-t" style="height:90%"></div>
+              <div class="flex-1 bg-rose-500 rounded-t" style="height:55%"></div>
+              <div class="flex-1 bg-purple-500 rounded-t" style="height:75%"></div>
+            </div>
+            <div class="flex gap-3 text-[10px] text-slate-500 mt-2 justify-around">T2 T3 T4 T5 T6 T7 CN</div>
+          </div>
+          <div class="border rounded-xl p-4">
+            <div class="font-semibold text-sm mb-3">🥇 Top ngành hàng</div>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span>📱 Điện thoại</span><span class="font-bold">38%</span></div>
+              <div class="h-1 bg-slate-100 rounded"><div class="h-1 bg-indigo-500 rounded" style="width:38%"></div></div>
+              <div class="flex justify-between"><span>🌿 Sâm Nấm</span><span class="font-bold">22%</span></div>
+              <div class="h-1 bg-slate-100 rounded"><div class="h-1 bg-emerald-500 rounded" style="width:22%"></div></div>
+              <div class="flex justify-between"><span>🎁 Quà lễ</span><span class="font-bold">15%</span></div>
+              <div class="h-1 bg-slate-100 rounded"><div class="h-1 bg-pink-500 rounded" style="width:15%"></div></div>
+              <div class="flex justify-between"><span>🛒 Tạp hóa</span><span class="font-bold">12%</span></div>
+              <div class="h-1 bg-slate-100 rounded"><div class="h-1 bg-orange-500 rounded" style="width:12%"></div></div>
+              <div class="flex justify-between"><span>📚 Sách + 👕 Khác</span><span class="font-bold">13%</span></div>
+              <div class="h-1 bg-slate-100 rounded"><div class="h-1 bg-slate-500 rounded" style="width:13%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO 10: TÀI KHOẢN + ĐƠN HÀNG ============ -->
+<section class="screen-card p-6">
+  <h2 class="text-xl font-bold mb-1">⑩ Tài khoản & Theo dõi đơn hàng — Mobile</h2>
+  <p class="text-sm text-slate-500 mb-4">Tích điểm thành viên, đơn đang giao, lịch sử mua, ưu đãi cá nhân hóa</p>
+  <div class="flex justify-center gap-6 flex-wrap">
+    <div class="phone-frame">
+      <div class="bg-white px-4 py-2 flex justify-between text-xs"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="grad-1 p-5 text-white">
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 bg-white/30 rounded-full flex items-center justify-center text-2xl">👤</div>
+          <div><div class="font-bold">Nguyễn Văn A</div><div class="text-xs opacity-90">⭐ Hạng Vàng · 1.250 điểm</div></div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
+          <div class="bg-white/15 rounded-lg py-2"><div class="font-bold">12</div>Đơn hàng</div>
+          <div class="bg-white/15 rounded-lg py-2"><div class="font-bold">3</div>Voucher</div>
+          <div class="bg-white/15 rounded-lg py-2"><div class="font-bold">5</div>Yêu thích</div>
+        </div>
+      </div>
+      <div class="p-4 text-sm">
+        <div class="font-semibold mb-2">📦 Đơn hàng</div>
+        <div class="grid grid-cols-4 gap-2 text-center text-xs mb-4">
+          <div><div class="text-2xl">💰</div>Chờ TT</div>
+          <div><div class="text-2xl">📦</div>Đóng gói</div>
+          <div><div class="text-2xl">🚚</div>Đang giao</div>
+          <div><div class="text-2xl">✅</div>Hoàn tất</div>
+        </div>
+        <div class="border rounded-xl p-3">
+          <div class="flex justify-between text-xs"><span class="text-slate-500">#MM240501</span><span class="chip bg-blue-100 text-blue-700">Đang giao</span></div>
+          <div class="mt-2 flex gap-2"><div class="bg-emerald-100 w-12 h-12 rounded flex items-center justify-center text-xl">🌿</div><div class="bg-amber-100 w-12 h-12 rounded flex items-center justify-center text-xl">📚</div></div>
+          <div class="text-xs mt-2 text-slate-500">3 sản phẩm · Tổng <b class="text-red-500">1.600.000₫</b></div>
+          <button class="w-full mt-2 border border-indigo-500 text-indigo-600 py-1.5 rounded text-xs">Theo dõi đơn</button>
+        </div>
+      </div>
+      <div class="border-t flex justify-around py-2 text-[11px] text-slate-500">
+        <div class="text-center"><div class="text-xl">🏠</div>Trang chủ</div>
+        <div class="text-center"><div class="text-xl">📦</div>Danh mục</div>
+        <div class="text-center"><div class="text-xl">⚡</div>Sale</div>
+        <div class="text-center"><div class="text-xl">🛒</div>Giỏ</div>
+        <div class="text-center text-indigo-600"><div class="text-xl">👤</div>Tôi</div>
+      </div>
+    </div>
+    <div class="phone-frame">
+      <div class="bg-white px-4 py-2 flex justify-between text-xs"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="bg-white px-4 py-3 border-b font-semibold">🚚 Theo dõi đơn #MM240501</div>
+      <div class="p-4 text-sm">
+        <div class="border-l-2 border-indigo-500 pl-4 space-y-4">
+          <div><div class="font-medium">✅ Đặt hàng thành công</div><div class="text-xs text-slate-400">01/05 · 09:12</div></div>
+          <div><div class="font-medium">✅ Đã xác nhận & đóng gói</div><div class="text-xs text-slate-400">01/05 · 10:30</div></div>
+          <div><div class="font-medium text-indigo-600">🚚 Đang giao tới bạn</div><div class="text-xs text-slate-400">01/05 · 14:00 · Shipper: Anh Nam · 0987xxx</div></div>
+          <div class="opacity-50"><div class="font-medium">⏳ Giao hàng thành công</div><div class="text-xs text-slate-400">Dự kiến: 01/05 · 16:00</div></div>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3 mt-5">
+          <div class="text-xs text-slate-500">Tổng đơn</div>
+          <div class="font-bold text-red-500 text-lg">1.600.000₫</div>
+          <div class="text-xs">3 sản phẩm · COD</div>
+        </div>
+        <button class="w-full mt-3 grad-3 text-white py-2.5 rounded-xl font-semibold">📞 Gọi shipper</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="max-w-7xl mx-auto mt-12 mb-6 text-center text-sm text-slate-500">
+  <p>🎨 10 mockup giao diện — MultiMart · Responsive Mobile + Web</p>
+  <p class="mt-1">Sau khi bạn duyệt, tôi sẽ chuyển sang code thật bằng <b>Next.js + Tailwind</b> (PWA) + backend.</p>
+</footer>
+
+</body>
+</html>

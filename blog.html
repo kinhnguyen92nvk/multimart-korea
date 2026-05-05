@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" data-mm-page="blog">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — MultiMart KOREA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/seo.js"></script>
+</head>
+<body class="pb-16 md:pb-0">
+
+<div data-mm="header"></div>
+
+<div class="max-w-5xl mx-auto px-4 py-5">
+
+  <!-- Hero -->
+  <section class="rounded-2xl p-6 mb-5" style="background:linear-gradient(135deg,#16a34a,#059669);color:#fff">
+    <div class="flex items-center gap-3 mb-2">
+      <i class="fas fa-newspaper text-2xl"></i>
+      <h1 class="text-2xl font-black">Blog MultiMart KOREA</h1>
+    </div>
+    <p class="text-sm opacity-90">Thủ thuật điện thoại · Hướng dẫn SIM · Kinh nghiệm sống tại Hàn cho người Việt</p>
+
+    <div class="mt-4 relative">
+      <input id="blog-search" placeholder="Tìm bài viết..." class="w-full px-4 py-3 pl-11 rounded-xl text-slate-900 text-sm font-medium border-0">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+    </div>
+  </section>
+
+  <!-- Category chips -->
+  <div id="blog-cats" class="flex gap-2 overflow-x-auto hide-scrollbar mb-5"></div>
+
+  <!-- Featured post (newest) -->
+  <section id="blog-featured" class="mb-5"></section>
+
+  <!-- Grid -->
+  <section>
+    <h2 class="text-lg font-black mb-3 text-slate-900">Tất cả bài viết</h2>
+    <div id="blog-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <div id="blog-empty" class="hidden text-center py-16 text-slate-500">
+      <i class="fas fa-search text-4xl mb-2"></i>
+      <div>Không tìm thấy bài viết phù hợp.</div>
+    </div>
+  </section>
+</div>
+
+<div data-mm="footer"></div>
+<div data-mm="bottomnav" data-active="blog"></div>
+
+<script src="assets/data/products.js"></script>
+<script src="assets/data/blog.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/state.js"></script>
+<script src="assets/js/components.js"></script>
+<script src="assets/js/pages/blog.js"></script>
+<script src="assets/js/enhancements.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MultiMart KOREA - Chợ Việt tại Hàn</title>
+  <script>
+    /* ── Theme Switcher: chạy TRƯỚC khi render ── */
+    const THEMES = {
+      orange:   { brand: '#d97706', brandDk: '#b45309', brandLt: '#fef3c7', shadow: '217,119,6',  accent: null },
+      blue:     { brand: '#2563eb', brandDk: '#1e40af', brandLt: '#dbeafe', shadow: '37,99,235',   accent: null },
+      purple:   { brand: '#7c3aed', brandDk: '#5b21b6', brandLt: '#f5f3ff', shadow: '124,58,237', accent: null },
+      pink:     { brand: '#db2777', brandDk: '#9d174d', brandLt: '#fdf2f8', shadow: '219,39,119', accent: null },
+      green:    { brand: '#16a34a', brandDk: '#166534', brandLt: '#f0fdf4', shadow: '22,163,74',  accent: null },
+      luxury:   { brand: '#ca8a04', brandDk: '#7c2d12', brandLt: '#fefce8', shadow: '202,138,4',  accent: null },
+      camgreen: { brand: '#16a34a', brandDk: '#166534', brandLt: '#f0fdf4', shadow: '217,119,6',  accent: '#d97706' },
+    };
+    const t = THEMES[new URLSearchParams(location.search).get('theme')] || THEMES.orange;
+    const r = document.documentElement.style;
+    r.setProperty('--brand',    t.brand);
+    r.setProperty('--brand-dk', t.brandDk);
+    r.setProperty('--brand-lt', t.brandLt);
+    r.setProperty('--fab-shadow', t.shadow);
+    r.setProperty('--accent', t.accent || t.brand);
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    /* Override FAB shadow dùng CSS var */
+    .bottom-nav .fab {
+      background: var(--accent) !important;
+      box-shadow: 0 4px 12px rgba(var(--fab-shadow, 217,119,6), .35);
+    }
+    .badge-accent { color: var(--accent) !important; }
+  </style>
+</head>
+<body class="pb-16 md:pb-0">
+
+<div data-mm="header"></div>
+
+<div class="max-w-7xl mx-auto">
+
+  <!-- 1. Hero -->
+  <section class="block-white">
+    <div class="grid grid-cols-3 gap-1 p-1.5">
+      <a href="../category.html" class="col-span-2 overflow-hidden rounded-md" style="height:152px">
+        <div class="relative h-full">
+          <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=920&h=360&fit=crop"
+               class="w-full h-full object-cover" alt="Khuyến mãi trong tuần" loading="lazy">
+          <div class="absolute inset-0 flex flex-col justify-center p-4"
+               style="background:linear-gradient(100deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.12) 100%)">
+            <span class="inline-block bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-sm w-fit mb-1">KHUYẾN MÃI</span>
+            <p class="text-white font-bold text-sm leading-tight m-0">Tuần này giảm đến 25%<br>Hàng chuẩn, giao nhanh toàn Hàn</p>
+          </div>
+        </div>
+      </a>
+      <div class="flex flex-col gap-1">
+        <a href="../price-board.html" class="flex-1 overflow-hidden rounded-md flex flex-col items-center justify-center gap-1"
+           style="min-height:74px; background:var(--brand)">
+          <i class="fas fa-mobile-alt text-white text-xl"></i>
+          <span class="text-white text-[11px] font-bold text-center leading-tight">Bảng giá điện thoại<br>Cập nhật mỗi tháng</span>
+        </a>
+        <a href="../category.html?cat=sim" class="flex-1 overflow-hidden rounded-md flex flex-col items-center justify-center bg-sky-600 gap-1" style="min-height:74px">
+          <i class="fas fa-signal text-white text-lg"></i>
+          <span class="text-white text-[11px] font-bold text-center leading-tight">SIM 4G/5G<br>Data ổn định tốc độ cao</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block-white">
+    <div id="quick-chips" class="quick-chips hide-scrollbar"></div>
+  </section>
+
+  <!-- 2. Categories -->
+  <section class="block-white">
+    <div class="sec-title"><h2>Danh mục</h2><a href="../category.html">Xem tất cả</a></div>
+    <div id="cat-strip" class="flex gap-2 overflow-x-auto hide-scrollbar px-3 pb-3"></div>
+  </section>
+
+  <!-- 4. Flash Sale -->
+  <section class="block-white">
+    <div class="sec-title">
+      <h2>
+        <span class="text-white text-[10px] font-black px-1.5 py-0.5 rounded-sm ml-1"
+              style="background:var(--accent)">HOT</span>
+        &nbsp;Sản phẩm giảm giá nổi bật
+      </h2>
+      <a href="../category.html" style="color:var(--accent)" class="font-bold">Xem thêm</a>
+    </div>
+    <div id="hot-row" class="flex gap-2 overflow-x-auto hide-scrollbar px-2 pb-3 md:hidden"></div>
+    <div id="hot-grid" class="hidden md:grid grid-cols-5 gap-2 px-2 pb-3"></div>
+  </section>
+
+  <!-- 5. Price Board -->
+  <section class="block-white">
+    <div class="sec-title">
+      <h2>Bảng giá điện thoại tháng <span id="pb-month" style="color:var(--accent)"></span></h2>
+      <a href="../price-board.html" style="color:var(--accent)" class="font-bold">Chi tiết</a>
+    </div>
+    <div id="pb-quick" class="divide-y divide-gray-100 pb-1"></div>
+  </section>
+
+  <!-- 6. All Products -->
+  <section class="block-white">
+    <div class="sec-title"><h2>Toàn bộ sản phẩm</h2><a href="../category.html">Xem thêm</a></div>
+    <div id="all-grid" class="grid grid-cols-2 md:grid-cols-5 gap-1 bg-gray-100 border-t border-gray-100 p-1"></div>
+  </section>
+
+  <div class="h-4"></div>
+</div>
+
+<div data-mm="footer"></div>
+<div data-mm="bottomnav" data-active="home"></div>
+
+<script src="../assets/data/products.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/state.js"></script>
+<script src="../assets/js/components.js"></script>
+<script src="../assets/js/pages/index.js"></script>
+</body>
+</html>

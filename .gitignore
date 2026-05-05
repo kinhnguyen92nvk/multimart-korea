@@ -1,0 +1,20 @@
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Logs / temp
+*.log
+*.tmp
+node_modules/
+
+# Local env (KHÔNG BAO GIỜ commit API key)
+.env
+.env.local
+*.key
+secrets.json

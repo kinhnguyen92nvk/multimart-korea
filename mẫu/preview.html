@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview Giao Diện - MultiMart Korea</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="assets/preview.css">
+</head>
+<body>
+
+  <header class="preview-header">
+    <div class="header-left">
+      <select id="sample-select" class="preview-select">
+        <option value="theme-preview.html?theme=orange">1. Cam (Gốc)</option>
+        <option value="theme-preview.html?theme=camgreen" style="font-weight:bold">✨ 2. Cam + Xanh Lá (Mix)</option>
+        <option value="theme-preview.html?theme=green">3. Xanh Lá (Green)</option>
+        <option value="theme-preview.html?theme=blue">4. Xanh Dương (Blue)</option>
+        <option value="theme-preview.html?theme=purple">5. Tím (Purple)</option>
+        <option value="theme-preview.html?theme=pink">6. Hồng (Pink)</option>
+        <option value="theme-preview.html?theme=luxury">7. Đen Vàng (Luxury)</option>
+      </select>
+    </div>
+
+    <div class="preview-controls">
+      <button class="preview-btn active" data-device="pc">
+        <i class="fas fa-desktop"></i> PC
+      </button>
+      <button class="preview-btn" data-device="ipad">
+        <i class="fas fa-tablet-alt"></i> iPad
+      </button>
+      <button class="preview-btn" data-device="mobi">
+        <i class="fas fa-mobile-alt"></i> Mobile
+      </button>
+    </div>
+
+    <div class="header-right">
+      <a href="../index.html" class="preview-btn" style="color: #666">
+        <i class="fas fa-times"></i> Đóng
+      </a>
+    </div>
+  </header>
+
+  <main class="preview-content">
+    <div id="frame-container" class="frame-container device-pc">
+      <iframe id="preview-frame" src="theme-preview.html?theme=orange"></iframe>
+    </div>
+  </main>
+
+  <script src="assets/preview.js"></script>
+</body>
+</html>

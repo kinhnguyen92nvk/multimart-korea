@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi" data-mm-page="cms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS — MultiMart KOREA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/seo.js"></script>
+  <style>
+    body{font-family:'Lexend',sans-serif;background:#f1f5f9}
+    .cms-tab{cursor:pointer;padding:14px 20px;border-bottom:3px solid transparent;font-weight:700;color:#64748b;display:inline-flex;gap:8px;align-items:center}
+    .cms-tab.active{color:#16a34a;border-color:#16a34a;background:#f0fdf4}
+    .cms-card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:18px}
+    .cms-input{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit}
+    .cms-input:focus{outline:none;border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15)}
+    .cms-btn{padding:11px 22px;border-radius:10px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;border:0;transition:all .2s}
+    .cms-btn-primary{background:linear-gradient(135deg,#16a34a,#059669);color:#fff}
+    .cms-btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(22,163,74,.35)}
+    .cms-btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+    .cms-btn-ghost{background:#f1f5f9;color:#475569}
+    .cms-btn:disabled{opacity:.5;cursor:not-allowed}
+    .drop-zone{border:2.5px dashed #cbd5e1;border-radius:14px;padding:40px;text-align:center;background:#f8fafc;transition:all .2s;cursor:pointer}
+    .drop-zone.drag{border-color:#16a34a;background:#f0fdf4;transform:scale(1.01)}
+    .drop-zone i{font-size:42px;color:#94a3b8;margin-bottom:10px}
+    .drop-zone.drag i{color:#16a34a}
+    .preview-tbl{width:100%;border-collapse:collapse;font-size:13px}
+    .preview-tbl th{background:#f1f5f9;padding:10px;text-align:left;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0}
+    .preview-tbl td{padding:8px 10px;border-bottom:1px solid #f1f5f9}
+    .preview-tbl td input{width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px}
+    .lbl{display:block;font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    .badge{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
+    .badge-ok{background:#d1fae5;color:#065f46}
+    .badge-err{background:#fee2e2;color:#991b1b}
+    .badge-wait{background:#fef3c7;color:#92400e}
+    .step{display:flex;gap:14px;align-items:flex-start;padding:14px;border-radius:12px;background:#f8fafc;margin-bottom:10px}
+    .step-num{width:32px;height:32px;border-radius:50%;background:#16a34a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+    .log{font-family:'Courier New',monospace;font-size:12px;background:#0f172a;color:#a7f3d0;padding:14px;border-radius:10px;max-height:200px;overflow:auto;white-space:pre-wrap}
+    .blog-content{font-size:14px;line-height:1.7;color:#334155}
+    .blog-content h1{font-size:22px;font-weight:800;margin:14px 0 10px;color:#0f172a}
+    .blog-content h2{font-size:18px;font-weight:800;margin:18px 0 8px;color:#16a34a}
+    .blog-content h3{font-size:15px;font-weight:700;margin:12px 0 6px}
+    .blog-content p{margin:8px 0}
+    .blog-content ul,.blog-content ol{margin:8px 0 8px 22px}
+    .blog-content table{border-collapse:collapse;margin:10px 0;width:100%}
+    .blog-content th,.blog-content td{border:1px solid #e2e8f0;padding:8px 10px;text-align:left}
+    .blog-content th{background:#f0fdf4}
+    .topic-chip{padding:8px 14px;border-radius:999px;background:#f0fdf4;color:#15803d;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #bbf7d0}
+    .topic-chip:hover{background:#dcfce7}
+  </style>
+</head>
+<body>
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-black">M</div>
+      <div>
+        <div class="font-black text-base text-slate-900">MultiMart CMS</div>
+        <div class="text-xs text-slate-500">Tự động cập nhật bảng giá &amp; blog bằng AI</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="cfg-status" class="badge badge-wait"><i class="fas fa-circle-notch fa-spin"></i> Đang kiểm tra...</span>
+      <a href="admin.html" class="cms-btn cms-btn-ghost no-underline"><i class="fas fa-arrow-left"></i> Admin</a>
+    </div>
+  </div>
+  <div class="max-w-6xl mx-auto px-5 flex gap-2 overflow-x-auto">
+    <div class="cms-tab active" data-tab="price"><i class="fas fa-mobile-alt"></i> Bảng giá điện thoại</div>
+    <div class="cms-tab" data-tab="sim"><i class="fas fa-sim-card"></i> Gói SIM</div>
+    <div class="cms-tab" data-tab="blog"><i class="fas fa-newspaper"></i> Blog AI</div>
+    <div class="cms-tab" data-tab="settings"><i class="fas fa-cog"></i> Cấu hình</div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-5 py-6">
+
+  <!-- ============ TAB: PRICE ============ -->
+  <section data-pane="price">
+    <div class="cms-card">
+      <h2 class="text-lg font-black text-slate-900 mb-1"><i class="fas fa-magic text-green-600"></i> Cập nhật bảng giá điện thoại từ ảnh</h2>
+      <p class="text-sm text-slate-500 mb-4">Tải ảnh bảng giá → AI tự đọc và trích xuất → kiểm tra → 1 click áp dụng</p>
+
+      <div id="price-drop" class="drop-zone">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <div class="font-bold text-slate-700">Kéo ảnh bảng giá vào đây hoặc bấm để chọn</div>
+        <div class="text-xs text-slate-500 mt-1">JPG / PNG / WEBP — tối đa 10MB</div>
+        <input type="file" id="price-file" accept="image/*" class="hidden">
+      </div>
+      <img id="price-preview-img" class="mt-3 rounded-lg max-h-64 hidden mx-auto">
+
+      <div class="flex gap-3 mt-4">
+        <button id="price-ocr-btn" class="cms-btn cms-btn-primary" disabled><i class="fas fa-robot"></i> Trích xuất bằng AI</button>
+        <button id="price-clear" class="cms-btn cms-btn-ghost"><i class="fas fa-times"></i> Xóa</button>
+      </div>
+    </div>
+
+    <div id="price-result" class="cms-card hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-black text-slate-900">Kết quả AI đọc được — kiểm tra rồi sửa nếu cần</h3>
+        <button id="price-add-row" class="cms-btn cms-btn-ghost text-xs"><i class="fas fa-plus"></i> Thêm dòng</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div><label class="lbl">Tháng</label><input id="price-month" class="cms-input" placeholder="05/2026"></div>
+        <div><label class="lbl">Ghi chú</label><input id="price-note" class="cms-input" placeholder="Cập nhật giá tháng..."></div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="preview-tbl">
+          <thead><tr><th>Model</th><th>Cấu hình</th><th>Giá (₩)</th><th>Trạng thái</th><th>Trend</th><th>Brand</th><th></th></tr></thead>
+          <tbody id="price-tbody"></tbody>
+        </table>
+      </div>
+      <div class="flex gap-3 mt-4">
+        <button id="price-publish" class="cms-btn cms-btn-primary"><i class="fas fa-rocket"></i> Đẩy lên web (GitHub)</button>
+        <button id="price-export" class="cms-btn cms-btn-ghost"><i class="fas fa-download"></i> Tải JSON</button>
+      </div>
+    </div>
+
+    <div class="cms-card">
+      <h3 class="font-bold text-sm text-slate-700 mb-2"><i class="fas fa-history"></i> Nhật ký</h3>
+      <div id="price-log" class="log">Chưa có hoạt động.</div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: SIM ============ -->
+  <section data-pane="sim" class="hidden">
+    <div class="cms-card">
+      <h2 class="text-lg font-black text-slate-900 mb-1"><i class="fas fa-sim-card text-green-600"></i> Thêm gói SIM từ ảnh</h2>
+      <p class="text-sm text-slate-500 mb-4">Ảnh bảng cước SIM Hàn Quốc → AI nhận dạng → thêm vào danh sách</p>
+
+      <div id="sim-drop" class="drop-zone">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <div class="font-bold text-slate-700">Kéo ảnh bảng giá SIM vào đây</div>
+        <input type="file" id="sim-file" accept="image/*" class="hidden">
+      </div>
+      <img id="sim-preview-img" class="mt-3 rounded-lg max-h-64 hidden mx-auto">
+
+      <div class="flex gap-3 mt-4">
+        <button id="sim-ocr-btn" class="cms-btn cms-btn-primary" disabled><i class="fas fa-robot"></i> Trích xuất bằng AI</button>
+        <button id="sim-clear" class="cms-btn cms-btn-ghost"><i class="fas fa-times"></i> Xóa</button>
+      </div>
+    </div>
+
+    <div id="sim-result" class="cms-card hidden">
+      <h3 class="font-black text-slate-900 mb-3">Kết quả — kiểm tra/sửa rồi đẩy lên</h3>
+      <div class="overflow-x-auto">
+        <table class="preview-tbl">
+          <thead><tr><th>Carrier</th><th>Tên gói</th><th>Tên VN</th><th>Phí (₩)</th><th>Gốc (₩)</th><th>Data</th><th>HOT</th><th>Tag</th><th></th></tr></thead>
+          <tbody id="sim-tbody"></tbody>
+        </table>
+      </div>
+      <div class="flex gap-3 mt-4">
+        <button id="sim-publish" class="cms-btn cms-btn-primary"><i class="fas fa-rocket"></i> Đẩy lên web</button>
+      </div>
+    </div>
+
+    <div class="cms-card">
+      <h3 class="font-bold text-sm text-slate-700 mb-2"><i class="fas fa-history"></i> Nhật ký</h3>
+      <div id="sim-log" class="log">Chưa có hoạt động.</div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: BLOG ============ -->
+  <section data-pane="blog" class="hidden">
+    <div class="cms-card">
+      <h2 class="text-lg font-black text-slate-900 mb-1"><i class="fas fa-feather text-green-600"></i> Sinh bài blog SEO bằng AI</h2>
+      <p class="text-sm text-slate-500 mb-4">Nhập chủ đề → AI viết bài 900-1400 từ chuẩn SEO → đăng tự động</p>
+
+      <div class="grid md:grid-cols-2 gap-3 mb-3">
+        <div>
+          <label class="lbl">Chủ đề bài viết *</label>
+          <input id="blog-topic" class="cms-input" placeholder="VD: Cách kích hoạt eSIM KT M Mobile cho người Việt mới sang Hàn">
+        </div>
+        <div>
+          <label class="lbl">Từ khóa SEO (cách nhau bởi dấu phẩy)</label>
+          <input id="blog-keywords" class="cms-input" placeholder="esim han quoc, kt m mobile, sim cho nguoi viet">
+        </div>
+      </div>
+      <div class="flex gap-3 flex-wrap">
+        <button id="blog-gen" class="cms-btn cms-btn-primary"><i class="fas fa-wand-magic-sparkles"></i> Viết bài bằng AI</button>
+        <button id="blog-suggest" class="cms-btn cms-btn-amber"><i class="fas fa-lightbulb"></i> Gợi ý chủ đề</button>
+      </div>
+      <div id="topic-suggestions" class="flex gap-2 flex-wrap mt-3"></div>
+    </div>
+
+    <div id="blog-result" class="cms-card hidden">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div>
+          <h3 id="blog-title" class="font-black text-lg text-slate-900"></h3>
+          <div id="blog-meta" class="text-xs text-slate-500 mt-1"></div>
+        </div>
+        <div class="flex gap-2">
+          <button id="blog-regen" class="cms-btn cms-btn-ghost text-xs"><i class="fas fa-rotate"></i> Viết lại</button>
+          <button id="blog-publish" class="cms-btn cms-btn-primary"><i class="fas fa-rocket"></i> Đăng lên web</button>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-3 text-sm mb-3">
+        <div><span class="lbl">Slug</span><input id="blog-slug" class="cms-input"></div>
+        <div><span class="lbl">Danh mục</span><input id="blog-cat" class="cms-input"></div>
+        <div><span class="lbl">Cover (emoji)</span><input id="blog-cover" class="cms-input"></div>
+      </div>
+      <div><span class="lbl">Mô tả SEO</span><textarea id="blog-desc" class="cms-input" rows="2"></textarea></div>
+      <div class="mt-3"><span class="lbl">Nội dung Markdown</span><textarea id="blog-content" class="cms-input" rows="14" style="font-family:'Courier New',monospace;font-size:13px"></textarea></div>
+      <details class="mt-3">
+        <summary class="cursor-pointer font-bold text-sm text-slate-700">Xem trước bài viết</summary>
+        <div id="blog-preview" class="blog-content border-t mt-3 pt-3"></div>
+      </details>
+    </div>
+
+    <div class="cms-card">
+      <h3 class="font-bold text-sm text-slate-700 mb-2"><i class="fas fa-history"></i> Nhật ký</h3>
+      <div id="blog-log" class="log">Chưa có hoạt động.</div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: SETTINGS ============ -->
+  <section data-pane="settings" class="hidden">
+    <div class="cms-card">
+      <h2 class="text-lg font-black text-slate-900 mb-1"><i class="fas fa-key text-green-600"></i> Cấu hình API</h2>
+      <p class="text-sm text-slate-500 mb-4">Lưu trên trình duyệt của anh — không gửi lên đâu cả</p>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="flex-1">
+          <div class="font-bold text-slate-900 mb-1">Groq API key <span class="text-green-600 font-normal text-sm">(miễn phí 100%, không cần thẻ)</span></div>
+          <div class="text-xs text-slate-500 mb-2">Đăng ký bằng email tại <a href="https://console.groq.com" target="_blank" class="text-green-600 font-bold">console.groq.com</a> → API Keys → Create key · Free 30 req/phút, 1.000 req/ngày</div>
+          <input id="cfg-groq" class="cms-input" placeholder="gsk_...">
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="flex-1">
+          <div class="font-bold text-slate-900 mb-1">GitHub Personal Access Token (để lưu data)</div>
+          <div class="text-xs text-slate-500 mb-2">
+            Tạo tại <a href="https://github.com/settings/tokens?type=beta" target="_blank" class="text-green-600 font-bold">github.com/settings/tokens</a> →
+            <strong>Fine-grained tokens</strong> → chọn repo cụ thể → quyền <strong>Contents: Read &amp; Write</strong>
+          </div>
+          <input id="cfg-token" class="cms-input" type="password" placeholder="github_pat_...">
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="flex-1">
+          <div class="font-bold text-slate-900 mb-1">Thông tin repo</div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <input id="cfg-owner" class="cms-input" placeholder="username GitHub">
+            <input id="cfg-repo" class="cms-input" placeholder="ten-repo">
+            <input id="cfg-branch" class="cms-input" placeholder="main">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-4">
+        <button id="cfg-save" class="cms-btn cms-btn-primary"><i class="fas fa-save"></i> Lưu cấu hình</button>
+        <button id="cfg-test" class="cms-btn cms-btn-ghost"><i class="fas fa-plug"></i> Kiểm tra kết nối</button>
+        <button id="cfg-clear" class="cms-btn cms-btn-ghost text-red-600"><i class="fas fa-trash"></i> Xóa key</button>
+      </div>
+      <div id="cfg-msg" class="text-sm mt-3"></div>
+    </div>
+
+    <div class="cms-card">
+      <h3 class="font-bold text-slate-900 mb-3"><i class="fas fa-shield-alt text-green-600"></i> Bảo mật</h3>
+      <ul class="text-sm text-slate-600 space-y-2 list-disc pl-5">
+        <li>Tất cả key được lưu trong <strong>localStorage</strong> của trình duyệt — chỉ máy này dùng được.</li>
+        <li>Trang này nên được <strong>chặn truy cập public</strong> — đã có sẵn trong <code>robots.txt</code>.</li>
+        <li>Không bao giờ commit key vào source code.</li>
+        <li>Nếu chia sẻ máy, bấm <strong>Xóa key</strong> sau khi dùng xong.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/cms.js"></script>
+<script src="assets/js/cms-app.js"></script>
+<script src="assets/js/enhancements.js"></script>
+</body>
+</html>

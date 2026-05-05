@@ -1,0 +1,30 @@
+# robots.txt — MultiMart KOREA
+# Cho phép tất cả công cụ tìm kiếm index nội dung công khai
+
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin-cms.html
+Disallow: /checkout.html
+Disallow: /cart.html
+Disallow: /orders.html
+Disallow: /profile.html
+Disallow: /login.html
+Disallow: /assets/data/
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+
+# Cho phép Google Image
+User-agent: Googlebot-Image
+Allow: /assets/img/
+Allow: /anhmau/
+
+# Sitemap
+Sitemap: https://multimart-korea.kr/sitemap.xml
+
+# Crawl-delay (tuỳ chọn — giảm tải server cho bot lạ)
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10

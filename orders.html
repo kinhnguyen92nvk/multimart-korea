@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-mm-page="orders">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đơn hàng - MultiMart KOREA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/seo.js"></script>
+</head>
+<body class="pb-24 md:pb-10">
+<div data-mm="header"></div>
+
+<main class="max-w-5xl mx-auto px-4 pt-6">
+  <h1 class="text-3xl font-black mb-6">📦 Đơn hàng của tôi</h1>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-6 border-b border-slate-200">
+    <button data-tab="all"     class="tab-btn shrink-0 px-4 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600">Tất cả</button>
+    <button data-tab="pay"     class="tab-btn shrink-0 px-4 py-3 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-indigo-600">Chờ thanh toán</button>
+    <button data-tab="pack"    class="tab-btn shrink-0 px-4 py-3 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-indigo-600">Chờ lấy hàng</button>
+    <button data-tab="ship"    class="tab-btn shrink-0 px-4 py-3 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-indigo-600">Đang giao</button>
+    <button data-tab="done"    class="tab-btn shrink-0 px-4 py-3 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-indigo-600">Hoàn tất</button>
+    <button data-tab="cancel"  class="tab-btn shrink-0 px-4 py-3 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-indigo-600">Đã hủy</button>
+  </div>
+
+  <div id="orders" class="space-y-4"></div>
+</main>
+
+<div data-mm="footer"></div>
+<div data-mm="bottomnav" data-active="me"></div>
+
+<script src="assets/data/products.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/state.js"></script>
+<script src="assets/js/components.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const { orders } = window.MM_DATA;
+  const { formatKRW, query } = window.MM_UTILS;
+
+  const STATUS_MAP = {
+    pending:  { label: 'Chờ thanh toán', color: 'red',    icon: 'wallet' },
+    pack:     { label: 'Chờ lấy hàng',   color: 'amber',  icon: 'box' },
+    shipping: { label: 'Đang giao',      color: 'indigo', icon: 'truck' },
+    done:     { label: 'Hoàn tất',       color: 'green',  icon: 'check-circle' },
+    cancel:   { label: 'Đã hủy',         color: 'slate',  icon: 'times-circle' },
+  };
+  const tabFilter = { all: () => true, pay: o => o.status==='pending', pack: o => o.status==='pack', ship: o => o.status==='shipping', done: o => o.status==='done', cancel: o => o.status==='cancel' };
+  let activeTab = query('tab') || 'all';
+
+  const render = () => {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      const on = b.dataset.tab === activeTab;
+      b.className = `tab-btn shrink-0 px-4 py-3 font-bold text-sm border-b-2 ${on?'border-indigo-600 text-indigo-600':'border-transparent text-slate-500 hover:text-indigo-600'}`;
+    });
+
+    const list = orders.filter(tabFilter[activeTab]);
+    document.getElementById('orders').innerHTML = list.length ? list.map(o => {
+      const s = STATUS_MAP[o.status];
+      return `
+        <div class="card !p-5">
+          <div class="flex items-start justify-between flex-wrap gap-3 pb-4 border-b border-slate-100">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Mã đơn</div>
+              <div class="font-black">${o.id}</div>
+              <div class="text-xs text-slate-500 mt-1">Ngày đặt: ${o.date}</div>
+            </div>
+            <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-${s.color}-100 text-${s.color}-700"><i class="fas fa-${s.icon} mr-1"></i> ${s.label}</span>
+          </div>
+          <div class="flex items-center justify-between flex-wrap gap-3 pt-4">
+            <div class="text-sm text-slate-500">${o.items} sản phẩm</div>
+            <div class="text-2xl font-black text-red-500 krw">${formatKRW(o.total)}</div>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <button class="btn btn-ghost flex-1 !py-2 text-xs">Chi tiết</button>
+            ${o.status==='shipping' ? '<button class="btn btn-primary flex-1 !py-2 text-xs">Theo dõi</button>' : ''}
+            ${o.status==='done' ? '<button class="btn btn-primary flex-1 !py-2 text-xs">Đánh giá</button>' : ''}
+            ${o.status==='pending' ? '<button class="btn btn-primary flex-1 !py-2 text-xs">Thanh toán ngay</button>' : ''}
+          </div>
+        </div>
+      `;
+    }).join('') : '<div class="text-center py-20 text-slate-400"><div class="text-6xl mb-3">📭</div><p>Chưa có đơn hàng nào ở mục này.</p></div>';
+  };
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => { activeTab = b.dataset.tab; render(); }));
+  render();
+});
+</script>
+<script src="assets/js/enhancements.js"></script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-mm-page="price">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng Giá Điện Thoại - MultiMart KOREA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/seo.js"></script>
+  <style>
+    body { background: #0b0f17; color: #e2e8f0; }
+
+    /* Scrollbar vàng mảnh */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 99px; }
+
+    /* Filter bar dark */
+    .dark-field {
+      background: #1e293b; border: 1px solid #334155; color: #e2e8f0;
+      border-radius: 14px; padding: .65rem 1rem; font-family: inherit;
+      font-size: 13px; outline: none; transition: border-color .2s;
+    }
+    .dark-field:focus { border-color: #d97706; box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+
+    /* Tab buttons */
+    .brand-tab {
+      padding: .5rem 1.2rem; border-radius: 12px; font-size: 12px; font-weight: 800;
+      cursor: pointer; border: 1.5px solid #334155; background: #1e293b; color: #94a3b8;
+      transition: all .2s; white-space: nowrap;
+    }
+    .brand-tab.active {
+      background: linear-gradient(135deg, #b45309, #f59e0b, #fbbf24);
+      color: #0b0f17; border-color: transparent;
+      box-shadow: 0 6px 16px -6px rgba(180,83,9,.5);
+    }
+
+    /* Phone group header */
+    .model-header {
+      background: linear-gradient(90deg, rgba(217,119,6,.12) 0%, transparent 100%);
+      border-left: 3px solid #d97706;
+      padding: .6rem 1rem;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .model-header img { width:40px; height:40px; object-fit:cover; border-radius:10px; opacity:.85; }
+
+    /* Row */
+    .price-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 110px 110px auto;
+      align-items: center;
+      padding: .55rem 1rem;
+      border-bottom: 1px solid rgba(51,65,85,.5);
+      transition: background .15s;
+      gap: 8px;
+    }
+    .price-row:hover { background: rgba(217,119,6,.06); }
+    @media (max-width: 640px) {
+      .price-row { grid-template-columns: 1fr 70px 90px; }
+      .price-row .col-new, .price-row .col-colors { display: none; }
+    }
+
+    /* Price badge */
+    .price-a {
+      font-weight: 900; color: #fbbf24; font-size: 13px;
+    }
+    .price-new {
+      font-weight: 900; color: #fff;
+      background: linear-gradient(135deg, #b45309, #d97706);
+      padding: 2px 8px; border-radius: 8px; font-size: 12px;
+      display: inline-block; white-space: nowrap;
+    }
+    .price-none { color: #475569; font-size: 11px; }
+
+    /* Status dots */
+    .dot-in  { color: #4ade80; }
+    .dot-low { color: #fbbf24; }
+    .dot-out { color: #f87171; }
+
+    /* Section header */
+    .section-title {
+      font-size: 11px; font-weight: 800; letter-spacing: .08em;
+      text-transform: uppercase; color: #d97706;
+      padding: .4rem 1rem; background: rgba(217,119,6,.08);
+    }
+
+    /* Sticky col headers */
+    .col-head {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .06em; color: #64748b;
+    }
+
+    /* Search highlight */
+    mark { background: rgba(251,191,36,.25); color: #fbbf24; border-radius: 3px; }
+  </style>
+</head>
+<body class="pb-28 md:pb-0">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur border-b border-slate-800">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <a href="index.html" class="flex items-center gap-2 no-underline shrink-0">
+      <div class="w-9 h-9 gradient-brand rounded-xl flex items-center justify-center font-black text-slate-900">M</div>
+      <div>
+        <div class="text-white font-extrabold text-sm leading-tight">MultiMart</div>
+        <div class="text-amber-400 text-[10px] font-bold leading-tight">KOREA</div>
+      </div>
+    </a>
+    <div class="text-center flex-1">
+      <div class="text-amber-400 font-black text-base shine-text" id="board-title">📱 BẢNG GIÁ THÁNG —</div>
+    </div>
+    <div class="flex gap-2 shrink-0">
+      <button onclick="window.print()" class="btn-primary btn text-xs !py-2 !px-3"><i class="fas fa-print"></i></button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto p-4 space-y-5">
+
+  <!-- NOTE BANNER -->
+  <div class="rounded-2xl border border-amber-700/30 bg-amber-900/10 p-4 flex items-start gap-3">
+    <i class="fas fa-circle-info text-amber-400 text-xl mt-0.5 shrink-0"></i>
+    <div>
+      <div class="font-bold text-amber-300 mb-1">Thông tin giá</div>
+      <div class="text-slate-400 text-sm" id="note-text"></div>
+      <div class="text-slate-500 text-xs mt-1">Đơn vị: ₩ KRW · Tỉ giá tham chiếu: <span id="rate-info" class="text-amber-400 font-bold"></span></div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="space-y-3">
+    <!-- Brand tabs -->
+    <div class="flex gap-2 flex-wrap">
+      <button class="brand-tab active" data-brand="">🌐 Tất cả</button>
+      <button class="brand-tab" data-brand="iPhone">🍎 iPhone</button>
+      <button class="brand-tab" data-brand="Samsung">📱 Samsung</button>
+      <button class="brand-tab" data-brand="Xiaomi">🔴 Xiaomi</button>
+      <button class="brand-tab" data-brand="Watch">⌚ Watch</button>
+    </div>
+    <!-- Search + filters -->
+    <div class="flex gap-2 flex-wrap">
+      <input id="search" class="dark-field flex-1 min-w-[200px]" placeholder="🔍 Tìm tên máy, cấu hình...">
+      <select id="cond" class="dark-field w-44">
+        <option value="">Loại A &amp; NEW</option>
+        <option value="A">Chỉ Loại A (99%)</option>
+        <option value="NEW">Chỉ đập hộp NEW</option>
+      </select>
+      <select id="sort" class="dark-field w-44">
+        <option value="">Mặc định</option>
+        <option value="low">Giá thấp nhất</option>
+        <option value="high">Giá cao nhất</option>
+        <option value="name">Tên A→Z</option>
+      </select>
+      <select id="status" class="dark-field w-36">
+        <option value="">Tất cả</option>
+        <option value="in">Còn hàng</option>
+        <option value="low">Sắp hết</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- COLUMN HEADERS -->
+  <div class="price-row !border-0 !py-2 !bg-transparent">
+    <div class="col-head">Model / Cấu hình</div>
+    <div class="col-head text-right">Loại A <span class="text-amber-600">99%</span></div>
+    <div class="col-head text-center col-new">Đập hộp NEW</div>
+    <div class="col-head col-colors hidden md:block">Màu / Ghi chú</div>
+    <div class="col-head text-center">Tình trạng</div>
+  </div>
+
+  <!-- PHONE LIST -->
+  <div id="phone-list" class="rounded-2xl overflow-hidden border border-slate-800"></div>
+
+  <!-- EMPTY -->
+  <div id="empty" class="hidden text-center py-16 text-slate-600">
+    <i class="fas fa-search text-5xl mb-3 block opacity-30"></i>
+    <p class="font-bold text-lg">Không tìm thấy máy nào</p>
+    <p class="text-sm">Thử thay đổi bộ lọc</p>
+  </div>
+
+  <!-- NOTES CARD -->
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-2">
+    <div class="font-black text-amber-400 mb-3 flex items-center gap-2"><i class="fas fa-note-sticky"></i> Lưu ý quan trọng</div>
+    <ul class="text-slate-400 text-sm space-y-2">
+      <li class="flex gap-2"><span class="text-amber-500">•</span> <b>Loại A 99%:</b> Máy cũ zin nguyên bản, không sửa chữa, pin ≥ 90%, fullbox.</li>
+      <li class="flex gap-2"><span class="text-amber-500">•</span> <b>Đập hộp NEW:</b> Nguyên seal, chưa kích hoạt, bảo hành chính hãng 12 tháng.</li>
+      <li class="flex gap-2"><span class="text-amber-500">•</span> Tất cả máy kèm: Sạc + Cáp + Ốp lưng + Cường lực màn hình.</li>
+      <li class="flex gap-2"><span class="text-amber-500">•</span> Giá có thể thay đổi, vui lòng xác nhận lại khi đặt hàng.</li>
+      <li class="flex gap-2"><span class="text-amber-500">•</span> Hỗ trợ trả góp 0% qua thẻ tín dụng Hàn Quốc.</li>
+    </ul>
+  </div>
+
+  <!-- CTA -->
+  <div class="text-center pb-4">
+    <a href="post.html" class="btn btn-primary no-underline text-slate-900 font-black shadow-gold">
+      <i class="fas fa-comment-dots"></i> Đặt máy / Hỏi giá ngay
+    </a>
+  </div>
+</main>
+
+<div data-mm="bottomnav" data-active="price"></div>
+
+<script src="assets/data/products.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/state.js"></script>
+<script src="assets/js/components.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const { priceBoard, rate } = window.MM_DATA;
+  const phones = priceBoard.phones;
+
+  /* Init labels */
+  document.getElementById('board-title').textContent = `📱 BẢNG GIÁ THÁNG ${priceBoard.month}`;
+  document.getElementById('note-text').textContent = priceBoard.note;
+  document.getElementById('rate-info').textContent = `1 ₩ = ${rate.krwToVnd} ₫  ·  Cập nhật ${priceBoard.month}`;
+
+  /* State */
+  let q = '', brand = '', cond = '', sort = '', status = '';
+
+  /* Format price */
+  const fmtW = v => v ? (v/1000).toLocaleString('vi')+'k ₩' : null;
+
+  /* Highlight search term */
+  const hi = (text, keyword) => {
+    if (!keyword) return text;
+    const re = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+    return text.replace(re, '<mark>$1</mark>');
+  };
+
+  /* Status label */
+  const stLabel = s => s === 'in'
+    ? '<span class="dot-in text-[11px]">● Còn</span>'
+    : s === 'low'
+    ? '<span class="dot-low text-[11px]">● Sắp hết</span>'
+    : '<span class="dot-out text-[11px]">● Hết</span>';
+
+  const render = () => {
+    let list = phones.slice();
+
+    if (q) list = list.filter(p =>
+      (p.model + ' ' + p.config + ' ' + (p.colors||'')).toLowerCase().includes(q.toLowerCase())
+    );
+    if (brand) list = list.filter(p => p.brand === brand);
+    if (cond === 'A')   list = list.filter(p => p.priceA != null);
+    if (cond === 'NEW') list = list.filter(p => p.priceNew != null);
+    if (status) list = list.filter(p => p.status === status);
+
+    if (sort === 'low')  list.sort((a,b) => (Math.min(a.priceA||9e9, a.priceNew||9e9)) - (Math.min(b.priceA||9e9, b.priceNew||9e9)));
+    if (sort === 'high') list.sort((a,b) => (Math.max(b.priceA||0, b.priceNew||0)) - (Math.max(a.priceA||0, a.priceNew||0)));
+    if (sort === 'name') list.sort((a,b) => a.model.localeCompare(b.model));
+
+    const empty = document.getElementById('empty');
+    const container = document.getElementById('phone-list');
+
+    if (!list.length) { empty.classList.remove('hidden'); container.innerHTML=''; return; }
+    empty.classList.add('hidden');
+
+    /* Group by model for display */
+    const grouped = [];
+    const seen = {};
+    list.forEach(p => {
+      if (!seen[p.model]) {
+        seen[p.model] = [];
+        grouped.push({ model: p.model, brand: p.brand, img: p.img, rows: [] });
+      }
+      grouped.find(g => g.model === p.model).rows.push(p);
+    });
+
+    container.innerHTML = grouped.map(g => `
+      <div class="model-group">
+        <div class="model-header">
+          <img src="${g.img}" alt="${g.model}" loading="lazy">
+          <span class="font-black text-sm text-slate-100">${hi(g.model, q)}</span>
+          <span class="text-[10px] text-slate-500 font-bold">${g.brand}</span>
+          <span class="ml-auto text-[10px] text-slate-600">${g.rows.length} cấu hình</span>
+        </div>
+        ${g.rows.map(p => `
+          <div class="price-row">
+            <div>
+              <span class="text-sm font-bold text-slate-200">${hi(p.config, q)}</span>
+            </div>
+            <div class="text-right">
+              ${p.priceA ? `<span class="price-a">${fmtW(p.priceA)}</span>` : `<span class="price-none">—</span>`}
+            </div>
+            <div class="text-center col-new">
+              ${p.priceNew ? `<span class="price-new">${fmtW(p.priceNew)}</span>` : `<span class="price-none">—</span>`}
+            </div>
+            <div class="col-colors hidden md:block">
+              ${p.colors ? `<span class="text-[11px] text-amber-500/80 font-medium">${p.colors}</span>` : ''}
+            </div>
+            <div class="text-center">${stLabel(p.status)}</div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+  };
+
+  /* Filter events */
+  document.getElementById('search').addEventListener('input', e => { q = e.target.value; render(); });
+  document.getElementById('cond').addEventListener('change', e => { cond = e.target.value; render(); });
+  document.getElementById('sort').addEventListener('change', e => { sort = e.target.value; render(); });
+  document.getElementById('status').addEventListener('change', e => { status = e.target.value; render(); });
+
+  document.querySelectorAll('.brand-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.brand-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      brand = btn.dataset.brand;
+      render();
+    });
+  });
+
+  render();
+});
+</script>
+<script src="assets/js/enhancements.js"></script>
+</body>
+</html>
