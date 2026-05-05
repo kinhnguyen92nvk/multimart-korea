@@ -46,7 +46,7 @@
     author: { '@type': 'Organization', name: post.author || 'MultiMart KOREA' },
     publisher: {
       '@type': 'Organization', name: 'MultiMart KOREA',
-      logo: { '@type': 'ImageObject', url: location.origin + '/assets/img/favicon.svg' }
+      logo: { '@type': 'ImageObject', url: (window.MM_SITE && window.MM_SITE.logo) || (location.origin + '/assets/img/favicon.svg') }
     },
     mainEntityOfPage: location.href,
     keywords: post.keywords,

@@ -20,7 +20,7 @@ Allow: /assets/img/
 Allow: /anhmau/
 
 # Sitemap
-Sitemap: https://multimart-korea.kr/sitemap.xml
+Sitemap: https://kinhnguyen92nvk.github.io/multimart-korea/sitemap.xml
 
 # Crawl-delay (tuỳ chọn — giảm tải server cho bot lạ)
 User-agent: AhrefsBot

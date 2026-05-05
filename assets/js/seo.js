@@ -8,12 +8,24 @@
 (function () {
   'use strict';
 
+  function getPublicBaseUrl() {
+    if (location.protocol === 'file:') return 'https://kinhnguyen92nvk.github.io/multimart-korea';
+    if (location.hostname.endsWith('github.io')) {
+      const parts = location.pathname.split('/').filter(Boolean);
+      const repo = parts[0] || '';
+      return location.origin + (repo ? '/' + repo : '');
+    }
+    return location.origin;
+  }
+
+  const PUBLIC_BASE_URL = getPublicBaseUrl();
+
   // ───── THÔNG TIN DOANH NGHIỆP (NAP - Name/Address/Phone) ─────
   const SITE = {
     name: 'MultiMart KOREA',
     legalName: 'MultiMart Korea – Cộng tác viên SIM & Hàng Việt tại Hàn',
-    domain: 'https://multimart-korea.kr', // đổi lại nếu khác
-    logo: 'https://multimart-korea.kr/assets/img/logo-512.png',
+    domain: PUBLIC_BASE_URL,
+    logo: PUBLIC_BASE_URL + '/assets/img/favicon.svg',
     phone: '+82-10-8888-5808',
     phoneDisplay: '010-8888-5808',
     email: 'kiwoo33@naver.com',
@@ -197,9 +209,9 @@
   setMeta('meta[name="twitter:image"]', 'content', SITE.logo);
 
   // PWA / icons
-  setLink('manifest', '/site.webmanifest');
-  setLink('icon', '/assets/img/favicon.svg', { type: 'image/svg+xml' });
-  setLink('apple-touch-icon', '/assets/img/icon-192.png');
+  setLink('manifest', SITE.domain + '/site.webmanifest');
+  setLink('icon', SITE.domain + '/assets/img/favicon.svg', { type: 'image/svg+xml' });
+  setLink('apple-touch-icon', SITE.domain + '/assets/img/favicon.svg');
 
   // ─── JSON-LD #1: Organization (mọi trang) ───
   addJsonLd({
