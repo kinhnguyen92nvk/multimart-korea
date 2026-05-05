@@ -3,83 +3,122 @@
    Thay thế bằng API call khi tích hợp backend
    ============================================= */
 
-/* ─── Ảnh tham chiếu theo dòng máy (mảng 3-5 ảnh) ─── */
+/* =============================================
+   Ảnh sản phẩm: SVG placeholder tự sinh theo dòng máy
+   → 100% khớp tên sản phẩm, không phụ thuộc CDN ngoài,
+     không bao giờ bị lệch ảnh / sai ảnh.
+   ============================================= */
+function _mkImg(label, sub, icon, c1, c2, accent){
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'>
+    <defs>
+      <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+        <stop offset='0' stop-color='${c1}'/>
+        <stop offset='1' stop-color='${c2}'/>
+      </linearGradient>
+      <radialGradient id='r' cx='0.5' cy='0.4' r='0.6'>
+        <stop offset='0' stop-color='#ffffff' stop-opacity='0.18'/>
+        <stop offset='1' stop-color='#ffffff' stop-opacity='0'/>
+      </radialGradient>
+    </defs>
+    <rect width='600' height='600' fill='url(#g)'/>
+    <rect width='600' height='600' fill='url(#r)'/>
+    <circle cx='300' cy='235' r='110' fill='${accent}' fill-opacity='0.18'/>
+    <text x='300' y='265' font-family='Apple Color Emoji,Segoe UI Emoji,sans-serif' font-size='150' text-anchor='middle'>${icon}</text>
+    <text x='300' y='420' font-family='-apple-system,Segoe UI,Roboto,sans-serif' font-weight='700' font-size='44' fill='#ffffff' text-anchor='middle'>${label}</text>
+    <text x='300' y='470' font-family='-apple-system,Segoe UI,Roboto,sans-serif' font-weight='500' font-size='28' fill='#ffffff' fill-opacity='0.85' text-anchor='middle'>${sub}</text>
+    <rect x='40' y='520' width='520' height='3' fill='#ffffff' fill-opacity='0.35' rx='2'/>
+    <text x='300' y='560' font-family='-apple-system,Segoe UI,Roboto,sans-serif' font-size='22' fill='#ffffff' fill-opacity='0.75' text-anchor='middle'>MultiMart KOREA</text>
+  </svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+function _mkSet(label, icon, palette){
+  // Sinh 4 biến thể màu cho gallery (vẫn cùng model)
+  const variants = ['Titan', 'Bản chính hãng', 'Đập hộp', 'Like new'];
+  return palette.map((p, i) => _mkImg(label, variants[i] || 'Bản chính hãng', icon, p[0], p[1], p[2]));
+}
 const _PI = {
-  ip15pro:[
-    'https://images.unsplash.com/photo-1727079513748-d03e7b8c8947?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1695639526461-7244f263119c?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186473516-c78525d63ceb?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186477159-99418b83a42f?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186361602-c3f23037eb95?w=600&fit=crop',
-  ],
-  ip15:   [
-    'https://images.unsplash.com/photo-1758186338446-27257a6f9831?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186374131-d542d2beae0c?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186378952-68ac2d1c8d39?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1686657724539-0b1cb25677e7?w=600&fit=crop',
-  ],
-  ip14pro:[
-    'https://images.unsplash.com/photo-1758186462421-8bd81ff9122f?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186361602-c3f23037eb95?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186477159-99418b83a42f?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1727079513748-d03e7b8c8947?w=600&fit=crop',
-  ],
-  ip14:   [
-    'https://images.unsplash.com/photo-1686657724539-0b1cb25677e7?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1695639526461-7244f263119c?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186338446-27257a6f9831?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1657731739240-363acf5190ac?w=600&fit=crop',
-  ],
-  ip13pro:[
-    'https://images.unsplash.com/photo-1686657724539-0b1cb25677e7?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186473516-c78525d63ceb?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186374131-d542d2beae0c?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1695639526461-7244f263119c?w=600&fit=crop',
-  ],
-  ip13:   [
-    'https://images.unsplash.com/photo-1657731739240-363acf5190ac?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1686657724539-0b1cb25677e7?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1616410011236-7a42121dd981?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186338446-27257a6f9831?w=600&fit=crop',
-  ],
-  ip12:   [
-    'https://images.unsplash.com/photo-1616410011236-7a42121dd981?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1657731739240-363acf5190ac?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1686657724539-0b1cb25677e7?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1758186361602-c3f23037eb95?w=600&fit=crop',
-  ],
-  ipold:  [
-    'https://images.unsplash.com/photo-1616410011236-7a42121dd981?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1657731739240-363acf5190ac?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1686657724539-0b1cb25677e7?w=600&fit=crop',
-  ],
-  ssS:    [
-    'https://images.unsplash.com/photo-1772182133840-324309067380?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1738830251513-a7bfef4b53c6?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1772182129439-7ab29e9d154c?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1772182098948-68e2818e9293?w=600&fit=crop',
-  ],
-  ssFold: [
-    'https://images.unsplash.com/photo-1769686586889-f247b67ac3f0?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1772182137994-4158ac33bddd?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1772182142149-73fdb29cfe94?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1772618407222-e9f991211749?w=600&fit=crop',
-  ],
-  watch:  [
-    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1434494817513-cc112a976e36?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&fit=crop',
-  ],
-  airpods:[
-    'https://images.unsplash.com/photo-1624258919367-5dc28f5dc293?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1631176093617-46521a43e866?w=600&fit=crop',
-  ],
-  mac:    [
-    'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1611186871525-f4697db81bbd?w=600&fit=crop',
-    'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=600&fit=crop',
-  ],
+  // iPhone Pro line — đen/xám titan sang trọng
+  ip15pro: _mkSet('iPhone 15 Pro Max', '📱', [
+    ['#1d1d1f','#3a3a3c','#a78bfa'],
+    ['#2c2c2e','#5a5a5c','#fbbf24'],
+    ['#0f172a','#334155','#60a5fa'],
+    ['#1f2937','#4b5563','#f472b6'],
+    ['#111827','#374151','#34d399'],
+  ]),
+  ip15:    _mkSet('iPhone 15', '📱', [
+    ['#fb7185','#f43f5e','#fff1f2'],
+    ['#60a5fa','#3b82f6','#dbeafe'],
+    ['#fde047','#facc15','#fef9c3'],
+    ['#34d399','#10b981','#d1fae5'],
+  ]),
+  ip14pro: _mkSet('iPhone 14 Pro Max', '📱', [
+    ['#7c3aed','#5b21b6','#c4b5fd'],
+    ['#1f2937','#111827','#9ca3af'],
+    ['#fbbf24','#d97706','#fef3c7'],
+    ['#e5e7eb','#9ca3af','#ffffff'],
+  ]),
+  ip14:    _mkSet('iPhone 14', '📱', [
+    ['#60a5fa','#2563eb','#dbeafe'],
+    ['#a78bfa','#7c3aed','#ede9fe'],
+    ['#f87171','#dc2626','#fee2e2'],
+    ['#1f2937','#374151','#9ca3af'],
+  ]),
+  ip13pro: _mkSet('iPhone 13 Pro Max', '📱', [
+    ['#0f172a','#1e293b','#94a3b8'],
+    ['#7c3aed','#6d28d9','#c4b5fd'],
+    ['#0891b2','#0e7490','#a5f3fc'],
+    ['#a16207','#854d0e','#fde68a'],
+  ]),
+  ip13:    _mkSet('iPhone 13', '📱', [
+    ['#ec4899','#db2777','#fbcfe8'],
+    ['#3b82f6','#1d4ed8','#bfdbfe'],
+    ['#1f2937','#111827','#6b7280'],
+    ['#10b981','#047857','#a7f3d0'],
+  ]),
+  ip12:    _mkSet('iPhone 12', '📱', [
+    ['#3b82f6','#1e40af','#93c5fd'],
+    ['#a855f7','#7e22ce','#d8b4fe'],
+    ['#ef4444','#b91c1c','#fca5a5'],
+    ['#fbbf24','#d97706','#fde68a'],
+  ]),
+  ipold:   _mkSet('iPhone đời cũ', '📱', [
+    ['#475569','#334155','#cbd5e1'],
+    ['#64748b','#475569','#e2e8f0'],
+    ['#94a3b8','#64748b','#f1f5f9'],
+  ]),
+  ssS:     _mkSet('Samsung Galaxy S Ultra', '📱', [
+    ['#1e3a8a','#1e40af','#60a5fa'],
+    ['#581c87','#6b21a8','#c084fc'],
+    ['#0f766e','#115e59','#5eead4'],
+    ['#374151','#1f2937','#9ca3af'],
+  ]),
+  ssFold:  _mkSet('Samsung Z Fold', '📲', [
+    ['#1e293b','#0f172a','#64748b'],
+    ['#7c2d12','#9a3412','#fdba74'],
+    ['#064e3b','#065f46','#6ee7b7'],
+    ['#312e81','#3730a3','#a5b4fc'],
+  ]),
+  ssFlip:  _mkSet('Samsung Z Flip', '📱', [
+    ['#a855f7','#7e22ce','#e9d5ff'],
+    ['#10b981','#047857','#a7f3d0'],
+    ['#fbbf24','#d97706','#fde68a'],
+    ['#475569','#334155','#cbd5e1'],
+  ]),
+  watch:   _mkSet('Apple Watch SE 2', '⌚', [
+    ['#dc2626','#991b1b','#fecaca'],
+    ['#1f2937','#111827','#9ca3af'],
+    ['#f59e0b','#b45309','#fde68a'],
+  ]),
+  airpods: _mkSet('AirPods Pro 2', '🎧', [
+    ['#f3f4f6','#d1d5db','#6b7280'],
+    ['#e5e7eb','#9ca3af','#4b5563'],
+    ['#f9fafb','#e5e7eb','#9ca3af'],
+  ]),
+  mac:     _mkSet('MacBook Air M2', '💻', [
+    ['#1f2937','#111827','#60a5fa'],
+    ['#475569','#334155','#cbd5e1'],
+    ['#0f172a','#1e293b','#a78bfa'],
+  ]),
 };
 
 window.MM_DATA = {
@@ -181,8 +220,8 @@ window.MM_DATA = {
 
       { id:'ssfold5-256', brand:'Samsung', model:'Samsung Z Fold 5',  config:'256GB', priceA:1230000, priceNew:1440000, status:'in', colors:null, img:_PI.ssFold[0] },
       { id:'ssfold5-512', brand:'Samsung', model:'Samsung Z Fold 5',  config:'512GB', priceA:null,    priceNew:1550000, status:'in', colors:null, img:_PI.ssFold[0] },
-      { id:'ssflip5-256', brand:'Samsung', model:'Samsung Z Flip 5',  config:'256GB', priceA:730000,  priceNew:1050000, status:'in', colors:null, img:_PI.ssFold[0] },
-      { id:'ssflip5-512', brand:'Samsung', model:'Samsung Z Flip 5',  config:'512GB', priceA:null,    priceNew:1150000, status:'in', colors:null, img:_PI.ssFold[0] },
+      { id:'ssflip5-256', brand:'Samsung', model:'Samsung Z Flip 5',  config:'256GB', priceA:730000,  priceNew:1050000, status:'in', colors:null, img:_PI.ssFlip[0] },
+      { id:'ssflip5-512', brand:'Samsung', model:'Samsung Z Flip 5',  config:'512GB', priceA:null,    priceNew:1150000, status:'in', colors:null, img:_PI.ssFlip[0] },
 
       { id:'watch-se2-40', brand:'Apple',  model:'Apple Watch SE 2',  config:'40mm',         priceA:null, priceNew:310000, status:'in', colors:null, img:_PI.watch[0]  },
       { id:'watch-se2-44', brand:'Apple',  model:'Apple Watch SE 2',  config:'44mm',         priceA:null, priceNew:330000, status:'in', colors:null, img:_PI.watch[0]  },
@@ -1486,7 +1525,7 @@ window.MM_DATA = {
     {
       id:'p61', name:'Samsung Z Flip 5 256GB Hàng A', cat:'phone',
       price:730000, oldPrice:null, sold:33, rating:4.8, tag:'Hàng A',
-      img:_PI.ssFold[3], imgs:_PI.ssFold,
+      img:_PI.ssFlip[0], imgs:_PI.ssFlip,
       desc:'Samsung Z Flip 5 256GB · Hàng A · Zin 99%. Vỏ sò gập nhỏ gọn, màn ngoài Flex Window 3.4" lớn, Snapdragon 8 Gen 2.',
       specs:[
         ['Màn trong','6.7" FHD+ AMOLED · 120Hz · 2640×1080 px'],
@@ -1508,7 +1547,7 @@ window.MM_DATA = {
     {
       id:'p62', name:'Samsung Z Flip 5 256GB Hàng New', cat:'phone',
       price:1050000, oldPrice:null, sold:20, rating:5.0, tag:'Hàng New',
-      img:_PI.ssFold[0], imgs:_PI.ssFold,
+      img:_PI.ssFlip[1], imgs:_PI.ssFlip,
       desc:'Samsung Z Flip 5 256GB · Hàng New · Nguyên seal. Bảo hành 12 tháng Samsung Store Hàn.',
       specs:[
         ['Màn trong','6.7" FHD+ AMOLED · 120Hz · 2640×1080 px'],
@@ -1531,7 +1570,7 @@ window.MM_DATA = {
     {
       id:'p63', name:'Samsung Z Flip 5 512GB Hàng New', cat:'phone',
       price:1150000, oldPrice:null, sold:11, rating:5.0, tag:'Hàng New',
-      img:_PI.ssFold[1], imgs:_PI.ssFold,
+      img:_PI.ssFlip[2], imgs:_PI.ssFlip,
       desc:'Samsung Z Flip 5 512GB · Hàng New · Nguyên seal. Bảo hành 12 tháng Samsung Store Hàn.',
       specs:[
         ['Màn trong','6.7" FHD+ AMOLED · 120Hz · 2640×1080 px'],
