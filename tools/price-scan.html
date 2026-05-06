@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quét Bảng Giá → Excel | MultiMart KOREA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+  .editable:focus{outline:2px solid #16a34a;background:#f0fdf4}
+  table{font-variant-numeric:tabular-nums}
+  .drag-active{background:#dcfce7 !important;border-color:#16a34a !important}
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2">
+        📋 Quét Bảng Giá → Excel
+      </h1>
+      <p class="text-sm text-slate-600 mt-1">OCR ảnh bảng giá điện thoại bằng AI Groq · Sửa tay 100% · Xuất file Excel chuẩn</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="../admin-cms.html" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50">⚙️ Cấu hình API</a>
+      <a href="../index.html" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800">🏠 Về trang chủ</a>
+    </div>
+  </div>
+
+  <!-- Status banner -->
+  <div id="status-banner" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+
+  <!-- Step 1: Upload -->
+  <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5">
+    <h2 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+      <span class="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-sm">1</span>
+      Tải lên ảnh bảng giá (có thể kéo thả nhiều ảnh)
+    </h2>
+
+    <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer hover:bg-slate-50 transition">
+      <div class="text-5xl mb-2">📸</div>
+      <div class="font-medium text-slate-700">Kéo thả ảnh vào đây hoặc click để chọn</div>
+      <div class="text-xs text-slate-500 mt-1">Hỗ trợ: JPG, PNG, WEBP · Cũng có thể dán ảnh từ clipboard (Ctrl+V)</div>
+      <input id="file-input" type="file" accept="image/*" multiple class="hidden">
+    </div>
+
+    <div id="thumbs" class="mt-3 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 hidden"></div>
+
+    <div class="mt-4 flex gap-2 flex-wrap">
+      <button id="btn-scan" disabled
+        class="px-5 py-2.5 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-slate-300 disabled:cursor-not-allowed flex items-center gap-2">
+        <span id="scan-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        🔍 <span id="scan-label">Quét bằng AI Groq Vision</span>
+      </button>
+      <button id="btn-clear" class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200">🗑️ Xóa hết</button>
+    </div>
+
+    <details class="mt-3 text-xs text-slate-600">
+      <summary class="cursor-pointer hover:text-slate-900">⚙️ Tùy chọn nâng cao</summary>
+      <div class="mt-2 p-3 bg-slate-50 rounded space-y-2">
+        <label class="flex items-center gap-2">
+          <input type="checkbox" id="opt-merge" class="rounded">
+          Gộp kết quả nhiều ảnh thành 1 bảng (khử trùng theo Model + Config)
+        </label>
+        <label class="block">
+          Hint cho AI (tùy chọn):
+          <input type="text" id="opt-hint" placeholder="VD: Tháng 05/2026, đơn vị KRW, có cột Hàng A và Hàng New"
+            class="w-full mt-1 px-2 py-1 border border-slate-300 rounded text-xs">
+        </label>
+      </div>
+    </details>
+  </section>
+
+  <!-- Step 2: Review & Edit -->
+  <section id="step2" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5 hidden">
+    <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+      <h2 class="font-bold text-slate-900 flex items-center gap-2">
+        <span class="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-sm">2</span>
+        Kiểm tra &amp; chỉnh sửa (<span id="row-count">0</span> dòng)
+      </h2>
+      <div class="flex gap-2 flex-wrap">
+        <button id="btn-add-row" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">➕ Thêm dòng</button>
+        <button id="btn-sort" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">🔤 Sắp xếp Brand → Model</button>
+      </div>
+    </div>
+
+    <div class="text-xs text-slate-500 mb-2">💡 Click vào ô bất kỳ để sửa trực tiếp · Cột giá nhập số nguyên (VD: 1490000)</div>
+
+    <div class="overflow-x-auto border border-slate-200 rounded-lg">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr class="text-left">
+            <th class="p-2 font-semibold text-slate-700 w-10">#</th>
+            <th class="p-2 font-semibold text-slate-700">Brand</th>
+            <th class="p-2 font-semibold text-slate-700 min-w-[160px]">Model</th>
+            <th class="p-2 font-semibold text-slate-700 min-w-[140px]">Config</th>
+            <th class="p-2 font-semibold text-slate-700 text-right">Giá Hàng A (₩)</th>
+            <th class="p-2 font-semibold text-slate-700 text-right">Giá Hàng New (₩)</th>
+            <th class="p-2 font-semibold text-slate-700">Status</th>
+            <th class="p-2 font-semibold text-slate-700">Ghi chú</th>
+            <th class="p-2 font-semibold text-slate-700 w-10"></th>
+          </tr>
+        </thead>
+        <tbody id="data-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="mt-3 text-xs text-slate-600 grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div class="p-2 bg-slate-50 rounded">Tổng dòng: <b id="stat-total">0</b></div>
+      <div class="p-2 bg-slate-50 rounded">iPhone: <b id="stat-iphone">0</b></div>
+      <div class="p-2 bg-slate-50 rounded">Samsung: <b id="stat-samsung">0</b></div>
+      <div class="p-2 bg-slate-50 rounded">Khác: <b id="stat-other">0</b></div>
+    </div>
+  </section>
+
+  <!-- Step 3: Export -->
+  <section id="step3" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hidden">
+    <h2 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+      <span class="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-sm">3</span>
+      Xuất file
+    </h2>
+
+    <div class="grid sm:grid-cols-3 gap-3">
+      <button id="btn-xlsx" class="p-4 border-2 border-green-600 bg-green-50 rounded-lg text-left hover:bg-green-100">
+        <div class="text-2xl mb-1">📊</div>
+        <div class="font-semibold text-green-900">Tải Excel (.xlsx)</div>
+        <div class="text-xs text-green-700 mt-1">Mở bằng Excel/Google Sheets, sửa thoải mái</div>
+      </button>
+      <button id="btn-csv" class="p-4 border border-slate-300 rounded-lg text-left hover:bg-slate-50">
+        <div class="text-2xl mb-1">📄</div>
+        <div class="font-semibold text-slate-900">Tải CSV</div>
+        <div class="text-xs text-slate-600 mt-1">Tương thích mọi phần mềm</div>
+      </button>
+      <button id="btn-json" class="p-4 border border-slate-300 rounded-lg text-left hover:bg-slate-50">
+        <div class="text-2xl mb-1">💾</div>
+        <div class="font-semibold text-slate-900">Tải JSON</div>
+        <div class="text-xs text-slate-600 mt-1">Để import vào products.js</div>
+      </button>
+    </div>
+
+    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-900">
+      💡 <b>Mẹo:</b> File Excel sẽ có 2 sheet: <b>Bảng giá</b> (đầy đủ) và <b>Top 6</b> (đề xuất hot). Có thể chỉnh sửa rồi import lại bằng nút bên dưới.
+    </div>
+
+    <div class="mt-3 flex gap-2 flex-wrap">
+      <label class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 cursor-pointer">
+        📥 Import lại từ Excel/CSV
+        <input type="file" id="import-file" accept=".xlsx,.xls,.csv" class="hidden">
+      </label>
+    </div>
+  </section>
+
+</div>
+
+<script src="../assets/js/cms.js"></script>
+<script>
+/* ==================================================
+   QUÉT BẢNG GIÁ → EXCEL
+   ================================================== */
+(function () {
+  'use strict';
+
+  const $  = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  /* --- State --- */
+  let pickedFiles = [];
+  let rows = []; // [{brand, model, config, priceA, priceNew, status, note}]
+
+  /* --- UI helpers --- */
+  function banner(msg, type = 'info') {
+    const el = $('#status-banner');
+    const colors = {
+      info:  'bg-blue-50  border border-blue-200  text-blue-900',
+      ok:    'bg-green-50 border border-green-200 text-green-900',
+      warn:  'bg-amber-50 border border-amber-200 text-amber-900',
+      error: 'bg-red-50   border border-red-200   text-red-900',
+    };
+    el.className = 'mb-4 p-3 rounded-lg text-sm ' + (colors[type] || colors.info);
+    el.innerHTML = msg;
+    el.classList.remove('hidden');
+  }
+  function hideBanner(){ $('#status-banner').classList.add('hidden'); }
+
+  /* --- File pick / drop / paste --- */
+  const dz = $('#drop-zone');
+  const input = $('#file-input');
+
+  dz.addEventListener('click', () => input.click());
+  input.addEventListener('change', e => addFiles(e.target.files));
+
+  ['dragenter','dragover'].forEach(ev =>
+    dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag-active'); })
+  );
+  ['dragleave','drop'].forEach(ev =>
+    dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag-active'); })
+  );
+  dz.addEventListener('drop', e => {
+    if (e.dataTransfer?.files) addFiles(e.dataTransfer.files);
+  });
+  document.addEventListener('paste', e => {
+    const items = e.clipboardData?.items || [];
+    const files = [];
+    for (const it of items) {
+      if (it.type?.startsWith('image/')) {
+        const f = it.getAsFile();
+        if (f) files.push(f);
+      }
+    }
+    if (files.length) {
+      addFiles(files);
+      banner(`📋 Đã dán ${files.length} ảnh từ clipboard`, 'ok');
+    }
+  });
+
+  function addFiles(fileList) {
+    for (const f of fileList) {
+      if (!f.type.startsWith('image/')) continue;
+      pickedFiles.push(f);
+    }
+    renderThumbs();
+  }
+
+  function renderThumbs() {
+    const wrap = $('#thumbs');
+    wrap.innerHTML = '';
+    if (!pickedFiles.length) { wrap.classList.add('hidden'); $('#btn-scan').disabled = true; return; }
+    wrap.classList.remove('hidden');
+    pickedFiles.forEach((f, i) => {
+      const url = URL.createObjectURL(f);
+      const div = document.createElement('div');
+      div.className = 'relative group';
+      div.innerHTML = `
+        <img src="${url}" class="w-full h-24 object-cover rounded border border-slate-200">
+        <button data-i="${i}" class="thumb-rm absolute top-1 right-1 w-6 h-6 bg-red-600 text-white rounded-full text-xs opacity-0 group-hover:opacity-100">×</button>
+        <div class="text-[10px] text-slate-500 mt-0.5 truncate">${f.name || 'Ảnh ' + (i+1)}</div>
+      `;
+      wrap.appendChild(div);
+    });
+    wrap.querySelectorAll('.thumb-rm').forEach(b =>
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        pickedFiles.splice(+b.dataset.i, 1);
+        renderThumbs();
+      })
+    );
+    $('#btn-scan').disabled = false;
+  }
+
+  $('#btn-clear').addEventListener('click', () => {
+    pickedFiles = [];
+    renderThumbs();
+    hideBanner();
+  });
+
+  /* --- Scan with Groq Vision --- */
+  $('#btn-scan').addEventListener('click', scanAll);
+
+  async function scanAll() {
+    if (!window.MM_CMS) { banner('❌ Chưa load cms.js', 'error'); return; }
+    const groq = MM_CMS.cfg.get('groq');
+    if (!groq) {
+      banner('❌ Chưa cấu hình Groq API key. <a class="underline font-semibold" href="../admin-cms.html">Bấm vào đây để cấu hình</a> (miễn phí, không cần thẻ).', 'error');
+      return;
+    }
+
+    const btn = $('#btn-scan');
+    const sp = $('#scan-spinner');
+    const lab = $('#scan-label');
+    btn.disabled = true;
+    sp.classList.remove('hidden');
+
+    const merge = $('#opt-merge').checked;
+    const hint  = $('#opt-hint').value.trim();
+    let allItems = [];
+    let errors   = 0;
+
+    for (let i = 0; i < pickedFiles.length; i++) {
+      lab.textContent = `Đang quét ảnh ${i+1}/${pickedFiles.length}...`;
+      try {
+        const file = pickedFiles[i];
+        const res  = hint
+          ? await callGroqWithHint(file, hint)
+          : await MM_CMS.Groq.parsePhonePrice(file);
+        const items = (res?.items || []).map(it => ({
+          brand:    it.brand || guessBrand(it.model),
+          model:    it.model || '',
+          config:   it.config || '',
+          priceA:   parseInt((it.priceA   ?? (/Hàng A/i.test(it.config||'')   ? it.price : null)) || 0, 10) || '',
+          priceNew: parseInt((it.priceNew ?? (/Hàng New/i.test(it.config||'') ? it.price : null)) || 0, 10) || '',
+          status:   it.status || 'in',
+          note:     it.note || res?.note || '',
+        }));
+        allItems = allItems.concat(items);
+      } catch (err) {
+        console.error('Scan error', err);
+        errors++;
+      }
+    }
+
+    sp.classList.add('hidden');
+    lab.textContent = '🔍 Quét bằng AI Groq Vision';
+    btn.disabled = pickedFiles.length === 0;
+
+    if (!allItems.length) {
+      banner(`❌ Không trích xuất được dữ liệu nào.${errors ? ' (' + errors + ' ảnh lỗi)' : ''} Thử ảnh khác hoặc kiểm tra Groq key.`, 'error');
+      return;
+    }
+
+    if (merge) allItems = dedupe(allItems);
+
+    rows = allItems;
+    banner(`✅ Quét xong! Trích xuất được <b>${rows.length}</b> dòng từ ${pickedFiles.length} ảnh.${errors ? ' ('+errors+' lỗi đã bỏ qua)' : ''} Hãy kiểm tra & sửa nếu cần.`, 'ok');
+    renderTable();
+  }
+
+  /* Custom call with user hint (fallback to default if no hint) */
+  async function callGroqWithHint(file, hint) {
+    const base64 = await MM_CMS.util.fileToBase64(file);
+    const mime = file.type || 'image/jpeg';
+    const prompt = `Bạn là chuyên gia OCR. Phân tích ảnh BẢNG GIÁ ĐIỆN THOẠI tiếng Việt/Hàn.
+Gợi ý từ chủ shop: "${hint}"
+
+Mỗi máy 1 object:
+{ "model": "iPhone 15 Pro Max", "config": "256GB", "brand": "iPhone", "priceA": 1490000, "priceNew": 1620000, "status": "in", "note": "" }
+Quy tắc:
+- priceA = giá Hàng A (máy cũ 99%), priceNew = giá Hàng New (đập hộp). KRW số nguyên. Không có thì để 0.
+- "1.490.000" hoặc "1,490,000" hoặc "1.49tr" → 1490000.
+- Nếu cùng 1 model có cả 2 cột giá → 1 dòng duy nhất với cả priceA và priceNew.
+- Nếu chỉ có 1 cột giá → ghi vào priceA hoặc priceNew tùy ngữ cảnh.
+- status: "in" | "out" | "low". Mặc định "in".
+- Bỏ qua tiêu đề, ghi chú, footer.
+
+Trả JSON: { "items": [...], "month": "MM/YYYY", "note": "..." }`;
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + MM_CMS.cfg.get('groq'),
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: `data:${mime};base64,${base64}` } },
+          ]
+        }],
+        temperature: 0.1,
+        max_tokens: 8192,
+        response_format: { type: 'json_object' },
+      }),
+    });
+    if (!res.ok) throw new Error('Groq HTTP ' + res.status);
+    const data = await res.json();
+    return JSON.parse(data.choices[0].message.content);
+  }
+
+  function guessBrand(model='') {
+    const m = model.toLowerCase();
+    if (m.includes('iphone') || m.includes('ipad') || m.includes('macbook') || m.includes('airpods') || m.includes('watch')) {
+      if (m.includes('iphone') || m.includes('ipad')) return 'iPhone';
+      return 'Apple';
+    }
+    if (m.includes('samsung') || m.includes('galaxy') || m.includes(' s2') || m.includes('z fold') || m.includes('z flip')) return 'Samsung';
+    if (m.includes('xiaomi') || m.includes('redmi')) return 'Xiaomi';
+    if (m.includes('oppo')) return 'Oppo';
+    if (m.includes('vivo')) return 'Vivo';
+    return 'Khác';
+  }
+
+  function dedupe(items) {
+    const seen = new Map();
+    for (const it of items) {
+      const key = ((it.model || '') + '|' + (it.config || '')).toLowerCase().trim();
+      if (!seen.has(key)) { seen.set(key, it); continue; }
+      const old = seen.get(key);
+      // Merge: ưu tiên giá có sẵn, lấy max nếu cả 2 đều có
+      if (!old.priceA   && it.priceA)   old.priceA   = it.priceA;
+      if (!old.priceNew && it.priceNew) old.priceNew = it.priceNew;
+      if (!old.note && it.note) old.note = it.note;
+    }
+    return Array.from(seen.values());
+  }
+
+  /* --- Render editable table --- */
+  function renderTable() {
+    const tb = $('#data-tbody');
+    tb.innerHTML = '';
+    rows.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-slate-100 hover:bg-slate-50';
+      tr.innerHTML = `
+        <td class="p-2 text-slate-400 text-xs">${i+1}</td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="brand"    value="${esc(r.brand)}"></td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="model"    value="${esc(r.model)}"></td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="config"   value="${esc(r.config)}"></td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded text-right tabular-nums" data-k="priceA"   type="number" value="${r.priceA || ''}"></td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded text-right tabular-nums" data-k="priceNew" type="number" value="${r.priceNew || ''}"></td>
+        <td class="p-2">
+          <select class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="status">
+            <option value="in"  ${r.status==='in'?'selected':''}>Còn</option>
+            <option value="low" ${r.status==='low'?'selected':''}>Sắp hết</option>
+            <option value="out" ${r.status==='out'?'selected':''}>Hết</option>
+          </select>
+        </td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="note" value="${esc(r.note)}"></td>
+        <td class="p-2 text-center"><button class="row-del text-red-500 hover:text-red-700" title="Xóa">🗑️</button></td>
+      `;
+      tr.querySelectorAll('[data-k]').forEach(inp =>
+        inp.addEventListener('input', e => {
+          const k = e.target.dataset.k;
+          let v = e.target.value;
+          if (k === 'priceA' || k === 'priceNew') v = parseInt(v, 10) || '';
+          rows[i][k] = v;
+          updateStats();
+        })
+      );
+      tr.querySelector('.row-del').addEventListener('click', () => {
+        rows.splice(i, 1);
+        renderTable();
+      });
+      tb.appendChild(tr);
+    });
+    $('#row-count').textContent = rows.length;
+    $('#step2').classList.toggle('hidden', rows.length === 0);
+    $('#step3').classList.toggle('hidden', rows.length === 0);
+    updateStats();
+  }
+
+  function esc(s) { return String(s ?? '').replace(/"/g, '&quot;'); }
+
+  function updateStats() {
+    $('#stat-total').textContent = rows.length;
+    $('#stat-iphone').textContent  = rows.filter(r => /iphone|apple/i.test(r.brand)).length;
+    $('#stat-samsung').textContent = rows.filter(r => /samsung/i.test(r.brand)).length;
+    $('#stat-other').textContent   = rows.filter(r => !/iphone|apple|samsung/i.test(r.brand)).length;
+  }
+
+  $('#btn-add-row').addEventListener('click', () => {
+    rows.push({ brand:'iPhone', model:'', config:'', priceA:'', priceNew:'', status:'in', note:'' });
+    renderTable();
+  });
+
+  $('#btn-sort').addEventListener('click', () => {
+    rows.sort((a,b) => (a.brand||'').localeCompare(b.brand||'') || (a.model||'').localeCompare(b.model||''));
+    renderTable();
+  });
+
+  /* --- Export --- */
+  function buildSheets() {
+    const header = ['Brand', 'Model', 'Config', 'Giá Hàng A (₩)', 'Giá Hàng New (₩)', 'Status', 'Ghi chú'];
+    const data = rows.map(r => [
+      r.brand, r.model, r.config,
+      r.priceA || '', r.priceNew || '',
+      r.status, r.note || '',
+    ]);
+    const ws1 = XLSX.utils.aoa_to_sheet([header, ...data]);
+    ws1['!cols'] = [{wch:10},{wch:24},{wch:22},{wch:14},{wch:14},{wch:10},{wch:30}];
+
+    // Top 6 nổi bật: 6 dòng có giá thấp nhất ở mỗi flagship
+    const top = pickTop6(rows);
+    const ws2 = XLSX.utils.aoa_to_sheet([
+      ['Model', 'Config', 'Price (₩)', 'Brand'],
+      ...top.map(t => [t.model, t.config, t.price, t.brand]),
+    ]);
+    ws2['!cols'] = [{wch:24},{wch:22},{wch:14},{wch:10}];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws1, 'Bảng giá');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Top 6');
+    return wb;
+  }
+
+  function pickTop6(rows) {
+    const flagships = ['iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 14 Pro Max', 'Samsung S24 Ultra', 'Samsung Z Fold', 'iPhone 13'];
+    const out = [];
+    for (const fl of flagships) {
+      const found = rows.find(r => (r.model||'').toLowerCase().includes(fl.toLowerCase()));
+      if (found) {
+        const price = found.priceA || found.priceNew || 0;
+        out.push({ model: found.model, config: found.config, price, brand: found.brand });
+      }
+    }
+    return out;
+  }
+
+  $('#btn-xlsx').addEventListener('click', () => {
+    const wb = buildSheets();
+    const stamp = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `bang-gia-multimart-${stamp}.xlsx`);
+    banner(`✅ Đã tải file Excel với ${rows.length} dòng.`, 'ok');
+  });
+
+  $('#btn-csv').addEventListener('click', () => {
+    const wb = buildSheets();
+    const csv = XLSX.utils.sheet_to_csv(wb.Sheets['Bảng giá']);
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bang-gia-multimart-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  $('#btn-json').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify({ rows, exportedAt: new Date().toISOString() }, null, 2)], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `bang-gia-multimart-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+  });
+
+  /* --- Import back from file --- */
+  $('#import-file').addEventListener('change', async e => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    try {
+      const data = await f.arrayBuffer();
+      const wb = XLSX.read(data, { type:'array' });
+      const ws = wb.Sheets[wb.SheetNames.find(n => /bảng giá|bang gia|sheet1/i.test(n)) || wb.SheetNames[0]];
+      const arr = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+      if (arr.length < 2) throw new Error('File trống');
+      const head = arr[0].map(h => String(h).toLowerCase());
+      const idx = name => head.findIndex(h => h.includes(name));
+      rows = arr.slice(1).filter(r => r.some(c => c !== '')).map(r => ({
+        brand:    String(r[idx('brand')] || ''),
+        model:    String(r[idx('model')] || ''),
+        config:   String(r[idx('config')] || ''),
+        priceA:   parseInt(r[idx('hàng a')] >= 0 ? r[idx('hàng a')] : r[3], 10) || '',
+        priceNew: parseInt(r[idx('hàng new')] >= 0 ? r[idx('hàng new')] : r[4], 10) || '',
+        status:   String(r[idx('status')] || 'in'),
+        note:     String(r[idx('ghi chú')] || r[idx('note')] || ''),
+      }));
+      renderTable();
+      banner(`📥 Đã import ${rows.length} dòng từ file ${f.name}`, 'ok');
+    } catch (err) {
+      banner('❌ Không đọc được file: ' + err.message, 'error');
+    }
+    e.target.value = '';
+  });
+
+  /* --- Init: warn if no API key --- */
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.MM_CMS && !MM_CMS.cfg.get('groq')) {
+      banner('⚠️ Chưa có Groq API key. <a class="underline font-semibold" href="../admin-cms.html">Vào Cấu hình</a> để dán key (miễn phí — đăng ký tại console.groq.com).', 'warn');
+    }
+  });
+})();
+</script>
+</body>
+</html>
