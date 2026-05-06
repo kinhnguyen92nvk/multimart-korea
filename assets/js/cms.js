@@ -177,7 +177,7 @@ Trả JSON: { "topics": [{"topic":"...","keywords":"..."}] }`;
     /* Kiểm tra key còn hoạt động không */
     async testKey() {
       const txt = await this._call(
-        [{ role: 'user', content: 'Trả lời: {"ok":true}' }],
+        [{ role: 'user', content: 'Reply with valid json: {"ok":true}' }],
         { json: true, temperature: 0 }
       );
       return JSON.parse(txt);
