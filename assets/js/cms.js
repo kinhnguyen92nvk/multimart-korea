@@ -73,7 +73,8 @@
         temperature,
         max_tokens: 8192,
       };
-      if (json) body.response_format = { type: 'json_object' };
+      // vision models trên Groq không hỗ trợ response_format — chỉ dùng cho text model
+      if (json && !vision) body.response_format = { type: 'json_object' };
       const res = await fetch(this.ENDPOINT, {
         method: 'POST',
         headers: {
@@ -114,7 +115,9 @@ Trả về JSON: { "items": [...], "month": "MM/YYYY nếu thấy", "note": "ghi
           { type: 'image_url', image_url: { url: `data:${mime};base64,${base64}` } },
         ],
       }], { json: true, temperature: 0.1, vision: true });
-      return JSON.parse(txt);
+      const m1 = txt.match(/\{[\s\S]*\}/);
+      if (!m1) throw new Error('Groq không trả JSON hợp lệ');
+      return JSON.parse(m1[0]);
     },
 
     /* OCR + parse bảng giá SIM */
@@ -136,7 +139,9 @@ Trả về JSON: { "plans": [...], "updated": "DD/MM/YYYY" }`;
           { type: 'image_url', image_url: { url: `data:${mime};base64,${base64}` } },
         ],
       }], { json: true, temperature: 0.1, vision: true });
-      return JSON.parse(txt);
+      const m2 = txt.match(/\{[\s\S]*\}/);
+      if (!m2) throw new Error('Groq không trả JSON hợp lệ');
+      return JSON.parse(m2[0]);
     },
 
     /* Sinh bài blog SEO */

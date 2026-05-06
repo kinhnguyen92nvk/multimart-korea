@@ -175,7 +175,7 @@
 
 </div>
 
-<script src="../assets/js/cms.js?v=2"></script>
+<script src="../assets/js/cms.js?v=3"></script>
 <script>
 /* ==================================================
    QUÉT BẢNG GIÁ → EXCEL
@@ -431,12 +431,18 @@ Trả về JSON duy nhất: { "items":[...], "shop":"tên cửa hàng nếu th�
         }],
         temperature: 0.05,
         max_tokens: 16384,
-        response_format: { type: 'json_object' },
       }),
     });
-    if (!res.ok) throw new Error('Groq HTTP ' + res.status);
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      throw new Error('Groq ' + res.status + ': ' + errBody.slice(0, 200));
+    }
     const data = await res.json();
-    return JSON.parse(data.choices[0].message.content);
+    const raw = data.choices[0].message.content || '';
+    // extract JSON từ response (model vision không dùng response_format)
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('Groq không trả về JSON hợp lệ. Response: ' + raw.slice(0, 100));
+    return JSON.parse(m[0]);
   }
 
   /* Parse 1 giá thô từ AI thành số nguyên KRW + note (nếu có range) */
