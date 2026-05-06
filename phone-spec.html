@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi" data-mm-page="phone-spec">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cấu hình chi tiết - MultiMart Korea</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <style>
+    body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0}
+    .spec-row{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:10px 12px;border-bottom:1px solid #1e293b}
+    .spec-row:nth-child(odd){background:#0b1220}
+    .spec-key{color:#64748b;font-size:12px;font-weight:600;text-transform:uppercase}
+    .spec-val{color:#e2e8f0;font-size:14px;font-weight:500}
+    .price-card{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:12px;padding:14px}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700}
+    .badge-a{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid #1d4ed8}
+    .badge-new{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid #15803d}
+    .badge-out{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid #b45309}
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="sticky top-0 bg-slate-900/95 backdrop-blur border-b border-slate-800 z-10">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+      <a href="price-board.html" class="text-slate-400 hover:text-slate-100"><i class="fas fa-arrow-left text-lg"></i></a>
+      <h1 id="page-title" class="font-bold text-slate-100 truncate">Cấu hình chi tiết</h1>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto p-4">
+    <div id="loading" class="text-center py-16 text-slate-500">
+      <i class="fas fa-spinner fa-spin text-3xl"></i>
+      <div class="mt-3">Đang tải thông tin...</div>
+    </div>
+    <div id="error" class="hidden p-6 bg-red-950 border border-red-800 rounded-xl text-red-200"></div>
+    <div id="content" class="hidden space-y-4"></div>
+  </main>
+
+  <script src="assets/data/products.js"></script>
+  <script src="assets/data/phones-catalog.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script>
+  (async function(){
+    const params = new URLSearchParams(location.search);
+    const slug = params.get('model');
+    const $ = id => document.getElementById(id);
+
+    if (!slug) {
+      $('loading').classList.add('hidden');
+      $('error').classList.remove('hidden');
+      $('error').innerHTML = '❌ Thiếu tham số <code>?model=...</code>. <a class="underline" href="price-board.html">← Quay lại bảng giá</a>';
+      return;
+    }
+
+    const cat = window.MM_CATALOG?.[slug] || (window.MM_CATALOG_FIND ? window.MM_CATALOG[window.MM_CATALOG_FIND(slug)] : null);
+    const allPhones = window.MM_DATA?.priceBoard?.phones || [];
+    const variants = allPhones.filter(p => (p.catalog || '').toLowerCase() === slug.toLowerCase());
+
+    if (!cat && !variants.length) {
+      $('loading').classList.add('hidden');
+      $('error').classList.remove('hidden');
+      $('error').innerHTML = `❌ Không tìm thấy model "${slug}". <a class="underline" href="price-board.html">← Quay lại</a>`;
+      return;
+    }
+
+    const name = cat?.name || variants[0]?.model || slug;
+    const brand = cat?.brand || variants[0]?.brand || '';
+    document.title = name + ' - Cấu hình & Giá MultiMart Korea';
+    $('page-title').textContent = name;
+
+    /* Build content */
+    const fmtW = v => v ? (v/1000).toLocaleString('vi') + 'k ₩' : '<i class="text-amber-400">Đang cập nhật</i>';
+
+    let html = '';
+
+    /* HERO: Image + Name */
+    html += `<div class="price-card flex gap-4 items-center">
+      <div class="w-32 h-32 rounded-xl bg-slate-800 flex items-center justify-center overflow-hidden flex-shrink-0">
+        <img id="hero-img" src="${variants[0]?.img || ''}" alt="${name}" class="w-full h-full object-contain p-2">
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-xs text-slate-400 uppercase font-semibold">${brand}</div>
+        <h2 class="text-xl font-black text-slate-100 leading-tight">${name}</h2>
+        ${cat?.year ? `<div class="text-xs text-slate-500 mt-1">📅 Ra mắt ${cat.year}</div>` : ''}
+        ${cat?.os ? `<div class="text-xs text-slate-500 mt-0.5">📱 ${cat.os}</div>` : ''}
+        ${cat?.desc ? `<p class="text-xs text-slate-400 mt-2 leading-relaxed line-clamp-3">${cat.desc}</p>` : ''}
+      </div>
+    </div>`;
+
+    /* PRICE TABLE per variant */
+    if (variants.length) {
+      html += `<div class="price-card">
+        <h3 class="font-bold text-slate-200 mb-3 flex items-center gap-2"><i class="fas fa-tag text-green-400"></i>Bảng giá hiện tại (${variants.length} phiên bản)</h3>
+        <div class="space-y-2">
+          ${variants.map(v => `
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="font-bold text-slate-100">${v.config || '—'}</span>
+                <span class="${v.status === 'in' ? 'badge badge-new' : 'badge badge-out'}">${v.status === 'in' ? '● Còn hàng' : '◐ Liên hệ'}</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <div class="bg-slate-900/50 p-2 rounded">
+                  <div class="text-[10px] text-blue-400 uppercase font-bold mb-0.5">Hàng A — Like new</div>
+                  <div class="font-bold text-slate-100 tabular-nums">${fmtW(v.priceA)}</div>
+                </div>
+                <div class="bg-slate-900/50 p-2 rounded">
+                  <div class="text-[10px] text-green-400 uppercase font-bold mb-0.5">Hàng NEW — Đập hộp</div>
+                  <div class="font-bold text-slate-100 tabular-nums">${fmtW(v.priceNew)}</div>
+                </div>
+              </div>
+              ${v.colors ? `<div class="text-xs text-slate-400 mt-2 italic">📝 ${v.colors}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    }
+
+    /* SPECS TABLE */
+    if (cat) {
+      const rows = [
+        ['CPU/Chip', cat.chip],
+        ['RAM', cat.ram],
+        ['Màn hình', `${cat.displayInch}" — ${cat.displayRes}`],
+        ['Camera chính', cat.mainCam],
+        ['Pin', cat.battery],
+        ['Trọng lượng', cat.weight],
+        ['Hệ điều hành', cat.os],
+        ['Năm ra mắt', cat.year],
+        ['Màu sắc', (cat.colors || []).join(', ')],
+      ].filter(r => r[1] && r[1] !== 'N/A' && r[1] !== '0\" — N/A');
+
+      html += `<div class="price-card !p-0 overflow-hidden">
+        <div class="p-3 bg-slate-800 border-b border-slate-700">
+          <h3 class="font-bold text-slate-200 flex items-center gap-2"><i class="fas fa-microchip text-purple-400"></i>Thông số kỹ thuật</h3>
+        </div>
+        <div>
+          ${rows.map(r => `<div class="spec-row"><div class="spec-key">${r[0]}</div><div class="spec-val">${r[1]}</div></div>`).join('')}
+        </div>
+      </div>`;
+
+      if (cat.desc) {
+        html += `<div class="price-card">
+          <h3 class="font-bold text-slate-200 mb-2 flex items-center gap-2"><i class="fas fa-info-circle text-cyan-400"></i>Mô tả</h3>
+          <p class="text-sm text-slate-300 leading-relaxed">${cat.desc}</p>
+        </div>`;
+      }
+    } else {
+      html += `<div class="price-card text-center text-slate-400 py-6">
+        <i class="fas fa-info-circle text-2xl mb-2 text-amber-400"></i>
+        <div class="text-sm">Chưa có cấu hình chi tiết cho model này.</div>
+        <div class="text-xs mt-1">Liên hệ shop để biết thêm thông tin.</div>
+      </div>`;
+    }
+
+    /* CTA */
+    html += `<div class="price-card text-center bg-gradient-to-r from-green-900/40 to-emerald-900/40 border-green-700">
+      <div class="font-bold text-green-300 mb-2">Quan tâm? Nhắn shop ngay!</div>
+      <div class="flex gap-2 justify-center flex-wrap">
+        <a href="https://zalo.me/" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white text-sm">📞 Zalo</a>
+        <a href="https://t.me/" target="_blank" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 rounded-lg font-bold text-white text-sm">✈️ Telegram</a>
+        <a href="price-board.html" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold text-slate-100 text-sm">← Bảng giá</a>
+      </div>
+    </div>`;
+
+    $('loading').classList.add('hidden');
+    $('content').classList.remove('hidden');
+    $('content').innerHTML = html;
+
+    /* Lazy load real image from Wikipedia */
+    if (cat?.searchTerm) {
+      window.MM_UTILS.attachLazyPhoneImage($('hero-img'), cat.searchTerm);
+    }
+  })();
+  </script>
+</body>
+</html>
