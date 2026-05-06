@@ -136,10 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const src = (p.imgs && p.imgs.length) ? p.imgs[0] : p.img;
     const pct = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
     const isFav = window.MM_STATE.isFav(p.id);
-    // Installment: 12 months interest-free estimate (price / 12, rounded to nearest 1000)
-    const installment = p.cat === 'phone' && p.price >= 500000
-      ? Math.round(p.price / 12 / 1000) * 1000
-      : null;
     return `<a href="product.html?id=${p.id}" class="pcard${wide ? ' w-36' : ''}">
       <div class="pcard__img">
         <img src="${src}" loading="lazy" alt="${p.name}" onerror="this.style.opacity='.3'">
@@ -160,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="krw">${formatKRW(p.price)}</span>
           ${p.oldPrice ? `<span class="pcard__old krw">${formatKRW(p.oldPrice)}</span>` : ''}
         </div>
-        ${installment ? `<div class="pcard__installment">Trả góp từ ${formatKRW(installment)}₩/tháng</div>` : ''}
         <div class="pcard__meta">
           <span><i class="fas fa-star text-amber-400"></i> ${p.rating}</span>
           <span>Đã bán ${p.sold.toLocaleString('vi')}</span>

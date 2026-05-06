@@ -46,7 +46,7 @@
       'https://zalo.me/0108888 5808',
       'https://www.tiktok.com/@multimartkorea',
     ],
-    keywords: 'sim hàn quốc, sim cho người việt tại hàn, mở sim hàn, đăng ký sim hàn quốc, mua điện thoại trả góp hàn, hàng việt tại hàn, multimart korea, ansan, KT M Mobile, SK Telecom việt, LG U+ việt',
+    keywords: 'sim hàn quốc, sim cho người việt tại hàn, mở sim hàn, đăng ký sim hàn quốc, mua điện thoại tại hàn, hàng việt tại hàn, multimart korea, ansan, KT M Mobile, SK Telecom việt, LG U+ việt',
   };
   window.MM_SITE = SITE;
 
@@ -54,7 +54,7 @@
   const PAGES = {
     'home': {
       title: 'MultiMart KOREA — SIM Hàn Quốc & Điện Thoại cho người Việt tại Hàn',
-      desc: 'Bán SIM Hàn Quốc giá tốt cho người Việt tại Hàn — 38 gói cước từ 9 nhà mạng (SKT, KT, LG U+, KT M, Skylife). Điện thoại trả góp, hỗ trợ tiếng Việt 100%, giao toàn Hàn.',
+      desc: 'Bán SIM Hàn Quốc giá tốt cho người Việt tại Hàn — 38 gói cước từ 9 nhà mạng (SKT, KT, LG U+, KT M, Skylife). Điện thoại chính hãng, hỗ trợ tiếng Việt 100%, giao toàn Hàn.',
       path: '/',
       type: 'website',
     },
@@ -66,7 +66,7 @@
     },
     'category': {
       title: 'Danh mục sản phẩm – Điện thoại, SIM, Phụ kiện | MultiMart KOREA',
-      desc: 'Khám phá toàn bộ sản phẩm tại MultiMart KOREA: điện thoại Samsung/iPhone trả góp, SIM Hàn Quốc, phụ kiện, đồ gia dụng. Giao hàng toàn quốc Hàn Quốc.',
+      desc: 'Khám phá toàn bộ sản phẩm tại MultiMart KOREA: điện thoại Samsung/iPhone chính hãng, SIM Hàn Quốc, phụ kiện, đồ gia dụng. Giao hàng toàn quốc Hàn Quốc.',
       path: '/category.html',
       type: 'website',
     },
@@ -77,8 +77,8 @@
       type: 'product',
     },
     'price': {
-      title: 'Bảng giá điện thoại Samsung & iPhone trả góp 04/2026 | MultiMart KOREA',
-      desc: 'Bảng giá điện thoại trả góp tại Hàn Quốc cho người Việt — Samsung Galaxy S25/S26, iPhone 16/17 Pro Max, Z Fold/Flip. Trả góp 0% qua nhà mạng. Cập nhật mỗi tháng.',
+      title: 'Bảng giá điện thoại Samsung & iPhone tại Hàn 04/2026 | MultiMart KOREA',
+      desc: 'Bảng giá điện thoại tại Hàn Quốc cho người Việt — Samsung Galaxy S25/S26, iPhone 16/17 Pro Max, Z Fold/Flip. Hàng A/NEW, bảo hành Hàn. Cập nhật mỗi tháng.',
       path: '/price-board.html',
       type: 'product',
     },

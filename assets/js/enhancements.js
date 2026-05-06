@@ -116,7 +116,7 @@
     const PLACES = ['Ansan', 'Seoul', 'Incheon', 'Suwon', 'Bucheon', 'Daegu', 'Busan', 'Gwangju', 'Pyeongtaek', 'Hwaseong', 'Yongin', 'Cheonan'];
     const ITEMS  = [
       'mở SIM KT M Premium 200GB', 'mở SIM SKT 0청년 69',
-      'đăng ký Galaxy S26 Ultra trả góp', 'mua iPhone 17 Pro Max',
+      'đăng ký Galaxy S26 Ultra tại Hàn', 'mua iPhone 17 Pro Max',
       'đăng ký SIM LG U+ Youth 5G', 'đặt Samsung Z Fold 7',
       'mở SIM trả trước 3 tháng', 'mở SIM Skylife 5G 200GB',
       'mua phụ kiện iPhone', 'đăng ký SIM Hello Mobile 11GB',

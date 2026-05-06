@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" data-mm-page="price">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bảng Giá Điện Thoại - MultiMart KOREA</title>
+  <title>B?ng Gi� �i?n Tho?i - MultiMart KOREA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@
     .stat-num { font-size:24px; font-weight:900; line-height:1; margin-bottom:4px; }
     .stat-lbl { font-size:11px; color:#64748b; text-transform:uppercase; font-weight:700; letter-spacing:.05em; }
 
-    /* Model card — completely redesigned */
+    /* Model card � completely redesigned */
     .model-card {
       background:linear-gradient(135deg,rgba(30,41,59,.7) 0%,rgba(15,23,42,.5) 100%);
       border:1px solid #334155; border-radius:16px; overflow:hidden;
@@ -157,7 +157,7 @@
       </div>
     </a>
     <div class="text-center flex-1">
-      <div class="text-amber-400 font-black text-base shine-text" id="board-title">📱 BẢNG GIÁ THÁNG —</div>
+      <div class="text-amber-400 font-black text-base shine-text" id="board-title">?? B?NG GI� TH�NG �</div>
     </div>
     <div class="flex gap-2 shrink-0">
       <button onclick="window.print()" class="btn-primary btn text-xs !py-2 !px-3"><i class="fas fa-print"></i></button>
@@ -171,9 +171,9 @@
   <div class="rounded-2xl border border-amber-700/30 bg-amber-900/10 p-4 flex items-start gap-3">
     <i class="fas fa-circle-info text-amber-400 text-xl mt-0.5 shrink-0"></i>
     <div>
-      <div class="font-bold text-amber-300 mb-1">Thông tin giá</div>
+      <div class="font-bold text-amber-300 mb-1">Th�ng tin gi�</div>
       <div class="text-slate-400 text-sm" id="note-text"></div>
-      <div class="text-slate-500 text-xs mt-1">Đơn vị: ₩ KRW · Tỉ giá tham chiếu: <span id="rate-info" class="text-amber-400 font-bold"></span></div>
+      <div class="text-slate-500 text-xs mt-1">�on v?: ? KRW � T? gi� tham chi?u: <span id="rate-info" class="text-amber-400 font-bold"></span></div>
     </div>
   </div>
 
@@ -184,30 +184,30 @@
   <div class="space-y-3">
     <!-- Brand tabs -->
     <div class="flex gap-2 flex-wrap">
-      <button class="brand-tab active" data-brand="">🌐 Tất cả</button>
-      <button class="brand-tab" data-brand="iPhone">🍎 iPhone</button>
-      <button class="brand-tab" data-brand="Samsung">📱 Samsung</button>
-      <button class="brand-tab" data-brand="Xiaomi">🔴 Xiaomi</button>
-      <button class="brand-tab" data-brand="Apple">🍏 Apple (Mac/iPad/AirPods)</button>
+      <button class="brand-tab active" data-brand="">?? T?t c?</button>
+      <button class="brand-tab" data-brand="iPhone">?? iPhone</button>
+      <button class="brand-tab" data-brand="Samsung">?? Samsung</button>
+      <button class="brand-tab" data-brand="Xiaomi">?? Xiaomi</button>
+      <button class="brand-tab" data-brand="Apple">?? Apple (Mac/iPad/AirPods)</button>
     </div>
     <!-- Search + filters -->
     <div class="flex gap-2 flex-wrap">
-      <input id="search" class="dark-field flex-1 min-w-[200px]" placeholder="🔍 Tìm tên máy, cấu hình...">
+      <input id="search" class="dark-field flex-1 min-w-[200px]" placeholder="?? T�m t�n m�y, c?u h�nh...">
       <select id="cond" class="dark-field w-44">
-        <option value="">Loại A &amp; NEW</option>
-        <option value="A">Chỉ Loại A (99%)</option>
-        <option value="NEW">Chỉ đập hộp NEW</option>
+        <option value="">Lo?i A &amp; NEW</option>
+        <option value="A">Ch? Lo?i A (99%)</option>
+        <option value="NEW">Ch? d?p h?p NEW</option>
       </select>
       <select id="sort" class="dark-field w-44">
-        <option value="">Mặc định</option>
-        <option value="low">Giá thấp nhất</option>
-        <option value="high">Giá cao nhất</option>
-        <option value="name">Tên A→Z</option>
+        <option value="">M?c d?nh</option>
+        <option value="low">Gi� th?p nh?t</option>
+        <option value="high">Gi� cao nh?t</option>
+        <option value="name">T�n A?Z</option>
       </select>
       <select id="status" class="dark-field w-36">
-        <option value="">Tất cả</option>
-        <option value="in">Còn hàng</option>
-        <option value="low">Sắp hết</option>
+        <option value="">T?t c?</option>
+        <option value="in">C�n h�ng</option>
+        <option value="low">S?p h?t</option>
       </select>
     </div>
   </div>
@@ -215,11 +215,11 @@
   <!-- COLUMN HEADERS -->
   <div class="rounded-2xl overflow-hidden border border-slate-800">
     <div class="col-head-bar">
-      <div>Model · Cấu hình</div>
-      <div>Loại A <span class="text-blue-400">(99%)</span></div>
-      <div>Đập hộp <span class="text-amber-400">(NEW)</span></div>
-      <div class="col-colors">Màu / Ghi chú</div>
-      <div class="col-status">Trạng thái</div>
+      <div>Model � C?u h�nh</div>
+      <div>Lo?i A <span class="text-blue-400">(99%)</span></div>
+      <div>�?p h?p <span class="text-amber-400">(NEW)</span></div>
+      <div class="col-colors">M�u / Ghi ch�</div>
+      <div class="col-status">Tr?ng th�i</div>
     </div>
   </div>
 
@@ -229,33 +229,33 @@
   <!-- EMPTY -->
   <div id="empty" class="hidden text-center py-16 text-slate-600">
     <i class="fas fa-search text-5xl mb-3 block opacity-30"></i>
-    <p class="font-bold text-lg">Không tìm thấy máy nào</p>
-    <p class="text-sm">Thử thay đổi bộ lọc</p>
+    <p class="font-bold text-lg">Kh�ng t�m th?y m�y n�o</p>
+    <p class="text-sm">Th? thay d?i b? l?c</p>
   </div>
 
   <!-- NOTES CARD -->
   <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-2">
-    <div class="font-black text-amber-400 mb-3 flex items-center gap-2"><i class="fas fa-note-sticky"></i> Lưu ý quan trọng</div>
+    <div class="font-black text-amber-400 mb-3 flex items-center gap-2"><i class="fas fa-note-sticky"></i> Luu � quan tr?ng</div>
     <ul class="text-slate-400 text-sm space-y-2">
-      <li class="flex gap-2"><span class="text-amber-500">•</span> <b>Loại A 99%:</b> Máy cũ zin nguyên bản, không sửa chữa, pin ≥ 90%, fullbox.</li>
-      <li class="flex gap-2"><span class="text-amber-500">•</span> <b>Đập hộp NEW:</b> Nguyên seal, chưa kích hoạt, bảo hành chính hãng 12 tháng.</li>
-      <li class="flex gap-2"><span class="text-amber-500">•</span> Tất cả máy kèm: Sạc + Cáp + Ốp lưng + Cường lực màn hình.</li>
-      <li class="flex gap-2"><span class="text-amber-500">•</span> Giá có thể thay đổi, vui lòng xác nhận lại khi đặt hàng.</li>
-      <li class="flex gap-2"><span class="text-amber-500">•</span> Hỗ trợ trả góp 0% qua thẻ tín dụng Hàn Quốc.</li>
+      <li class="flex gap-2"><span class="text-amber-500">�</span> <b>Lo?i A 99%:</b> M�y cu zin nguy�n b?n, kh�ng s?a ch?a, pin = 90%, fullbox.</li>
+      <li class="flex gap-2"><span class="text-amber-500">�</span> <b>�?p h?p NEW:</b> Nguy�n seal, chua k�ch ho?t, b?o h�nh ch�nh h�ng 12 th�ng.</li>
+      <li class="flex gap-2"><span class="text-amber-500">�</span> T?t c? m�y k�m: S?c + C�p + ?p lung + Cu?ng l?c m�n h�nh.</li>
+      <li class="flex gap-2"><span class="text-amber-500">�</span> Gi� c� th? thay d?i, vui l�ng x�c nh?n l?i khi d?t h�ng.</li>
+      <li class="flex gap-2"><span class="text-amber-500">�</span> H? tr? tr? g�p 0% qua th? t�n d?ng H�n Qu?c.</li>
     </ul>
   </div>
 
   <!-- CTA -->
   <div class="text-center pb-4">
     <a href="post.html" class="btn btn-primary no-underline text-slate-900 font-black shadow-gold">
-      <i class="fas fa-comment-dots"></i> Đặt máy / Hỏi giá ngay
+      <i class="fas fa-comment-dots"></i> �?t m�y / H?i gi� ngay
     </a>
   </div>
 </main>
 
 <div data-mm="bottomnav" data-active="price"></div>
 
-<script src="assets/data/products.js"></script>
+<script src="assets/data/phones-images.js"></script><script src="assets/data/products.js"></script>
 <script src="assets/data/phones-catalog.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/state.js"></script>
@@ -266,9 +266,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const phones = priceBoard.phones;
 
   /* Init labels */
-  document.getElementById('board-title').textContent = `📱 BẢNG GIÁ THÁNG ${priceBoard.month}`;
+  document.getElementById('board-title').textContent = `?? B?NG GI� TH�NG ${priceBoard.month}`;
   document.getElementById('note-text').textContent = priceBoard.note;
-  document.getElementById('rate-info').textContent = `1 ₩ = ${rate.krwToVnd} ₫  ·  Cập nhật ${priceBoard.month}`;
+  document.getElementById('rate-info').textContent = `1 ? = ${rate.krwToVnd} ?  �  C?p nh?t ${priceBoard.month}`;
 
   /* STATS SUMMARY */
   const uniqueModels = new Set(phones.map(p => p.model)).size;
@@ -278,26 +278,26 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('stats-row').innerHTML = `
     <div class="stat-card">
       <div class="stat-num text-amber-400">${phones.length}</div>
-      <div class="stat-lbl">📋 Tổng phiên bản</div>
+      <div class="stat-lbl">?? T?ng phi�n b?n</div>
     </div>
     <div class="stat-card">
       <div class="stat-num text-blue-400">${uniqueModels}</div>
-      <div class="stat-lbl">📱 Dòng máy</div>
+      <div class="stat-lbl">?? D�ng m�y</div>
     </div>
     <div class="stat-card">
       <div class="stat-num text-green-400">${inStock}</div>
-      <div class="stat-lbl">✅ Còn hàng ngay</div>
+      <div class="stat-lbl">? C�n h�ng ngay</div>
     </div>
     <div class="stat-card">
       <div class="stat-num text-purple-400">${(minP/1000).toLocaleString('vi')}k - ${(maxP/1000).toLocaleString('vi')}k</div>
-      <div class="stat-lbl">💰 Khoảng giá ₩</div>
+      <div class="stat-lbl">?? Kho?ng gi� ?</div>
     </div>`;
 
   /* State */
   let q = '', brand = '', cond = '', sort = '', status = '';
 
   /* Format price */
-  const fmtW = v => v ? (v/1000).toLocaleString('vi')+'k ₩' : null;
+  const fmtW = v => v ? (v/1000).toLocaleString('vi')+'k ?' : null;
 
   /* Highlight search term */
   const hi = (text, keyword) => {
@@ -308,10 +308,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Status label */
   const stLabel = s => s === 'in'
-    ? '<span class="dot-in text-[11px]">● Còn</span>'
+    ? '<span class="dot-in text-[11px]">? C�n</span>'
     : s === 'low'
-    ? '<span class="dot-low text-[11px]">● Sắp hết</span>'
-    : '<span class="dot-out text-[11px]">● Hết</span>';
+    ? '<span class="dot-low text-[11px]">? S?p h?t</span>'
+    : '<span class="dot-out text-[11px]">? H?t</span>';
 
   const render = () => {
     let list = phones.slice();
@@ -350,19 +350,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const allInStock = g.rows.every(r => r.status === 'in');
       return `
       <div class="model-card">
-        <a class="model-head" ${g.catalog ? `href="phone-spec.html?model=${g.catalog}"` : ''} title="Xem cấu hình chi tiết & ảnh">
+        <a class="model-head" ${g.catalog ? `href="phone-spec.html?model=${g.catalog}"` : ''} title="Xem c?u h�nh chi ti?t & ?nh">
           <img src="${g.img}" alt="${g.model}" loading="lazy" data-search="${g.catalog || g.model}">
           <div class="flex-1 min-w-0">
             <div class="name">${hi(g.model, q)}</div>
             <div class="meta">
               <span class="text-amber-400 font-bold">${g.brand}</span>
-              ${cat?.year ? ` · ${cat.year}` : ''}
-              ${cat?.chip ? ` · ${cat.chip.split('·')[0].trim()}` : ''}
-              · ${g.rows.length} phiên bản
+              ${cat?.year ? ` � ${cat.year}` : ''}
+              ${cat?.chip ? ` � ${cat.chip.split('�')[0].trim()}` : ''}
+              � ${g.rows.length} phi�n b?n
             </div>
           </div>
           <span class="status-pill ${allInStock ? 'status-in' : 'status-out'}">
-            ${allInStock ? '● Còn hàng' : '◐ Liên hệ'}
+            ${allInStock ? '? C�n h�ng' : '? Li�n h?'}
           </span>
           <i class="fas fa-chevron-right arrow"></i>
         </a>
@@ -370,14 +370,14 @@ document.addEventListener('DOMContentLoaded', () => {
           ${g.rows.map(p => `
             <div class="v-row">
               <div>
-                <div class="v-config">${hi(p.config || '—', q)}</div>
+                <div class="v-config">${hi(p.config || '�', q)}</div>
                 ${p.colors ? `<div class="v-note md:hidden">${p.colors}</div>` : ''}
               </div>
-              <div>${p.priceA ? `<span class="price-pill a">${fmtW(p.priceA)}</span>` : `<span class="price-pill empty">—</span>`}</div>
-              <div>${p.priceNew ? `<span class="price-pill new">${fmtW(p.priceNew)}</span>` : `<span class="price-pill empty">—</span>`}</div>
+              <div>${p.priceA ? `<span class="price-pill a">${fmtW(p.priceA)}</span>` : `<span class="price-pill empty">�</span>`}</div>
+              <div>${p.priceNew ? `<span class="price-pill new">${fmtW(p.priceNew)}</span>` : `<span class="price-pill empty">�</span>`}</div>
               <div class="col-colors">${p.colors ? `<span class="colors-text">${p.colors}</span>` : ''}</div>
               <div class="col-status">
-                <span class="status-pill ${p.status === 'in' ? 'status-in' : 'status-out'}">${p.status === 'in' ? '● Còn' : '◐ LH'}</span>
+                <span class="status-pill ${p.status === 'in' ? 'status-in' : 'status-out'}">${p.status === 'in' ? '? C�n' : '? LH'}</span>
               </div>
             </div>
           `).join('')}
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
     }).join('');
 
-    /* Lazy-load ảnh thật từ Wikipedia cho mỗi model header (chỉ khi đã scroll tới) */
+    /* Lazy-load ?nh th?t t? Wikipedia cho m?i model header (ch? khi d� scroll t?i) */
     if (window.MM_UTILS?.attachLazyPhoneImage && window.MM_CATALOG) {
       container.querySelectorAll('img[data-search]').forEach(img => {
         const slug = img.dataset.search;

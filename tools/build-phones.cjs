@@ -7,6 +7,7 @@ const fs = require('fs');
 const wb = X.readFile('scan-result.xlsx');
 const arr = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
 const rows = arr.slice(1).filter(r => r[1]); // skip header & empty model
+const IMAGE_MAP = JSON.parse(fs.readFileSync('tools/image-map.json','utf8'));
 
 // Build slug from model name
 const slug = (s) => String(s).toLowerCase()
@@ -64,7 +65,7 @@ rows.forEach((r, i) => {
   out.push(
     `      { id:${j(id)}, brand:${j(brand)}, model:${j(model)}, config:${j(memory)}, ` +
     `priceA:${priceA == null ? 'null' : priceA}, priceNew:${priceNew == null ? 'null' : priceNew}, ` +
-    `status:${j(status)}, colors:${note ? j(note) : 'null'}, catalog:${j(cat)}, img:_phoneImg(${j(model)},${j(brand)}) },`
+    `status:${j(status)}, colors:${note ? j(note) : 'null'}, catalog:${j(cat)}, img:MM_GET_IMAGE(${j(cat)},${j(model)},${j(brand)}) },`
   );
 });
 

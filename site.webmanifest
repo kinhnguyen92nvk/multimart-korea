@@ -1,7 +1,7 @@
 {
   "name": "MultiMart KOREA – SIM & Hàng Việt tại Hàn",
   "short_name": "MultiMart KR",
-  "description": "Mua SIM Hàn Quốc & Điện thoại trả góp cho người Việt tại Hàn — hỗ trợ tiếng Việt 100%, giao toàn quốc.",
+  "description": "Mua SIM Hàn Quốc & Điện thoại chính hãng cho người Việt tại Hàn — hỗ trợ tiếng Việt 100%, giao toàn quốc.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",

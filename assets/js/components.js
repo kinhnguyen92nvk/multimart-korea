@@ -90,7 +90,7 @@
             <li><a href="post.html" class="text-slate-400 no-underline hover:text-white">📱 SIM Hàn Quốc (38 gói)</a></li>
             <li><a href="price-board.html" class="text-slate-400 no-underline hover:text-white">📊 Bảng giá điện thoại</a></li>
             <li><a href="category.html?cat=phones" class="text-slate-400 no-underline hover:text-white">📞 Samsung Galaxy</a></li>
-            <li><a href="category.html?cat=phones" class="text-slate-400 no-underline hover:text-white">🍎 iPhone trả góp</a></li>
+            <li><a href="category.html?cat=phones" class="text-slate-400 no-underline hover:text-white">🍎 iPhone tại Hàn</a></li>
             <li><a href="category.html?cat=accessories" class="text-slate-400 no-underline hover:text-white">🎧 Phụ kiện</a></li>
             <li><a href="blog.html" class="text-slate-400 no-underline hover:text-white">📰 Blog & Thủ thuật</a></li>
             <li><a href="category.html" class="text-slate-400 no-underline hover:text-white">🛒 Toàn bộ danh mục</a></li>
@@ -100,7 +100,7 @@
           <h4 class="font-bold mb-4">Hỗ trợ khách</h4>
           <ul class="text-slate-400 text-sm space-y-2">
             <li>📦 Giao toàn Hàn 24h miễn phí</li>
-            <li>💳 Trả góp 0% qua nhà mạng</li>
+            <li>💳 Đặt KakaoTalk / Zalo nhanh chóng</li>
             <li>🔄 Chuyển mạng giữ số (MNP) miễn phí</li>
             <li>🛡️ Đại lý chính hãng SKT/KT/LG U+</li>
             <li>🇻🇳 Tư vấn tiếng Việt 100%</li>
