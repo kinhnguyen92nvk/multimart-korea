@@ -148,5 +148,31 @@
   "redmi-note-13-pro": [
     "assets/images/phones/redmi-note-13-pro-1.jpg",
     "assets/images/phones/redmi-note-13-pro-3.jpg"
+  ],
+  "iphone-15-plus": [
+    "assets/images/phones/iphone-15-plus-1.jpg",
+    "assets/images/phones/iphone-15-plus-2.jpg",
+    "assets/images/phones/iphone-15-plus-3.jpg",
+    "assets/images/phones/iphone-15-plus-4.jpg"
+  ],
+  "iphone-14-pro-max": [
+    "assets/images/phones/iphone-14-pro-max-1.jpg",
+    "assets/images/phones/iphone-14-pro-max-5.jpg",
+    "assets/images/phones/iphone-14-pro-max-6.jpg"
+  ],
+  "iphone-8-plus": [
+    "assets/images/phones/iphone-8-plus-1.jpg",
+    "assets/images/phones/iphone-8-plus-2.jpg",
+    "assets/images/phones/iphone-8-plus-3.jpg"
+  ],
+  "iphone-6": [
+    "assets/images/phones/iphone-6-1.jpg",
+    "assets/images/phones/iphone-6-2.jpg",
+    "assets/images/phones/iphone-6-3.jpg"
+  ],
+  "redmi-note-13-pro-5g": [
+    "assets/images/phones/redmi-note-13-pro-5g-1.jpg",
+    "assets/images/phones/redmi-note-13-pro-5g-2.jpg",
+    "assets/images/phones/redmi-note-13-pro-5g-3.jpg"
   ]
 }

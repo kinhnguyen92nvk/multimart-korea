@@ -1,4 +1,4 @@
-/* Auto-generated. MM_IMAGES = ảnh hero. MM_GALLERY = ảnh nhiều góc/màu. */
+/* Auto-generated. */
 window.MM_IMAGES = {
   "iphone-17-pro-max": "assets/images/phones/iphone-17-pro-max.jpg",
   "iphone-17-pro": "assets/images/phones/iphone-17-pro.jpg",
@@ -53,9 +53,89 @@ window.MM_IMAGES = {
   "redmi-note-13": "assets/images/phones/redmi-note-13.jpg",
   "redmi-note-13-pro": "assets/images/phones/redmi-note-13-pro.jpg",
   "samsung-watch-7": "assets/images/phones/samsung-watch-7.jpg",
-  "samsung-watch-6": "assets/images/phones/samsung-watch-6.jpg"
+  "samsung-watch-6": "assets/images/phones/samsung-watch-6.jpg",
+  "iphone-17-air": "assets/images/phones/iphone-17-air.jpg",
+  "iphone-15-plus": "assets/images/phones/iphone-15-plus.jpg",
+  "iphone-14-pro-max": "assets/images/phones/iphone-14-pro-max.jpg",
+  "iphone-11-pro-max": "assets/images/phones/iphone-11-pro-max.jpg",
+  "iphone-8-plus": "assets/images/phones/iphone-8-plus.jpg",
+  "iphone-8": "assets/images/phones/iphone-8.jpg",
+  "iphone-6": "assets/images/phones/iphone-6.jpg",
+  "galaxy-s25-ultra": "assets/images/phones/galaxy-s25-ultra.jpg",
+  "galaxy-s25-plus": "assets/images/phones/galaxy-s25-plus.jpg",
+  "galaxy-s25-edge": "assets/images/phones/galaxy-s25-edge.jpg",
+  "galaxy-s24-ultra": "assets/images/phones/galaxy-s24-ultra.jpg",
+  "galaxy-s24-plus": "assets/images/phones/galaxy-s24-plus.jpg",
+  "galaxy-s23-ultra": "assets/images/phones/galaxy-s23-ultra.jpg",
+  "galaxy-s23-plus": "assets/images/phones/galaxy-s23-plus.jpg",
+  "galaxy-s23": "assets/images/phones/galaxy-s23.jpg",
+  "galaxy-s22-ultra": "assets/images/phones/galaxy-s22-ultra.jpg",
+  "galaxy-s22-plus": "assets/images/phones/galaxy-s22-plus.jpg",
+  "galaxy-s22": "assets/images/phones/galaxy-s22.jpg",
+  "galaxy-s21-ultra": "assets/images/phones/galaxy-s21-ultra.jpg",
+  "galaxy-s21-plus": "assets/images/phones/galaxy-s21-plus.jpg",
+  "galaxy-s21": "assets/images/phones/galaxy-s21.jpg",
+  "galaxy-s20-ultra": "assets/images/phones/galaxy-s20-ultra.jpg",
+  "galaxy-s20-plus": "assets/images/phones/galaxy-s20-plus.jpg",
+  "galaxy-s20": "assets/images/phones/galaxy-s20.jpg",
+  "galaxy-s20-fe": "assets/images/phones/galaxy-s20-fe.jpg",
+  "galaxy-s10-plus": "assets/images/phones/galaxy-s10-plus.jpg",
+  "galaxy-s10": "assets/images/phones/galaxy-s10.jpg",
+  "galaxy-s10-5g": "assets/images/phones/galaxy-s10-5g.jpg",
+  "galaxy-note-20": "assets/images/phones/galaxy-note-20.jpg",
+  "galaxy-note-10-plus": "assets/images/phones/galaxy-note-10-plus.jpg",
+  "galaxy-note-10": "assets/images/phones/galaxy-note-10.jpg",
+  "galaxy-note-9": "assets/images/phones/galaxy-note-9.jpg",
+  "galaxy-fold-7": "assets/images/phones/galaxy-fold-7.jpg",
+  "galaxy-fold-6": "assets/images/phones/galaxy-fold-6.jpg",
+  "galaxy-fold-5": "assets/images/phones/galaxy-fold-5.jpg",
+  "galaxy-fold-4": "assets/images/phones/galaxy-fold-4.jpg",
+  "galaxy-z-flip-6": "assets/images/phones/galaxy-z-flip-6.jpg",
+  "galaxy-z-flip-4": "assets/images/phones/galaxy-z-flip-4.jpg",
+  "galaxy-z-flip-3": "assets/images/phones/galaxy-z-flip-3.jpg",
+  "galaxy-a53": "assets/images/phones/galaxy-a53.jpg",
+  "galaxy-a36": "assets/images/phones/galaxy-a36.jpg",
+  "galaxy-a33": "assets/images/phones/galaxy-a33.jpg",
+  "galaxy-a32": "assets/images/phones/galaxy-a32.jpg",
+  "galaxy-a25": "assets/images/phones/galaxy-a25.jpg",
+  "galaxy-a24": "assets/images/phones/galaxy-a24.jpg",
+  "galaxy-a23": "assets/images/phones/galaxy-a23.jpg",
+  "galaxy-a16": "assets/images/phones/galaxy-a16.jpg",
+  "galaxy-a15": "assets/images/phones/galaxy-a15.jpg",
+  "galaxy-a13": "assets/images/phones/galaxy-a13.jpg",
+  "samsung-watch-ultra": "assets/images/phones/samsung-watch-ultra.jpg",
+  "redmi-note-13-pro-5g": "assets/images/phones/redmi-note-13-pro-5g.jpg",
+  "galaxy-fold-3": "assets/images/phones/galaxy-fold-3.jpg",
+  "galaxy-z-flip-5": "assets/images/phones/galaxy-z-flip-5.jpg",
+  "galaxy-buddy-4": "assets/images/phones/galaxy-a25.jpg",
+  "galaxy-buddy-3": "assets/images/phones/galaxy-a24.jpg",
+  "galaxy-buddy-2": "assets/images/phones/galaxy-a23.jpg",
+  "galaxy-quantum-3": "assets/images/phones/galaxy-a23.jpg",
+  "galaxy-wide-quantum6": "assets/images/phones/galaxy-a16.jpg",
+  "galaxy-wide-6": "assets/images/phones/galaxy-a16.jpg",
+  "galaxy-s24": "assets/images/phones/galaxy-s24.jpg",
+  "galaxy-a12": "assets/images/phones/galaxy-a12.jpg",
+  "redmi-note-12": "assets/images/phones/redmi-note-12.jpg",
+  "galaxy-s25": "assets/images/phones/galaxy-s25-plus.jpg",
+  "galaxy-note-20-ultra": "assets/images/phones/galaxy-s22-ultra.jpg",
+  "apple-watch-ultra-2": "assets/images/phones/samsung-watch-ultra.jpg",
+  "apple-watch-series-10": "assets/images/phones/samsung-watch-7.jpg",
+  "apple-watch-series-7": "assets/images/phones/samsung-watch-7.jpg",
+  "galaxy-jum-3": "assets/images/phones/samsung-galaxy-a55.jpg",
+  "galaxy-jum-2": "assets/images/phones/samsung-galaxy-a35.jpg",
+  "apple-watch-se-3": "assets/images/phones/samsung-watch-7.jpg",
+  "apple-watch-se-2": "assets/images/phones/samsung-watch-7.jpg",
+  "airpods-pro-2": "assets/images/phones/airpods-pro-2.jpg",
+  "airpods-max": "assets/images/phones/airpods-max.jpg",
+  "ipad": "assets/images/phones/ipad.jpg",
+  "ipad-pro-m4": "assets/images/phones/ipad.jpg",
+  "ipad-pro-m2": "assets/images/phones/ipad.jpg",
+  "ipad-pro-m1": "assets/images/phones/ipad.jpg",
+  "macbook-air-m4": "assets/images/phones/ipad.jpg",
+  "macbook-air-m2": "assets/images/phones/ipad.jpg",
+  "airpods-max-1-2": "assets/images/phones/airpods-max.jpg",
+  "airpods-pro-1-2": "assets/images/phones/airpods-pro-2.jpg"
 };
-
 window.MM_GALLERY = {
   "iphone-17-pro-max": [
     "assets/images/phones/iphone-17-pro-max-1.jpg",
@@ -206,5 +286,31 @@ window.MM_GALLERY = {
   "redmi-note-13-pro": [
     "assets/images/phones/redmi-note-13-pro-1.jpg",
     "assets/images/phones/redmi-note-13-pro-3.jpg"
+  ],
+  "iphone-15-plus": [
+    "assets/images/phones/iphone-15-plus-1.jpg",
+    "assets/images/phones/iphone-15-plus-2.jpg",
+    "assets/images/phones/iphone-15-plus-3.jpg",
+    "assets/images/phones/iphone-15-plus-4.jpg"
+  ],
+  "iphone-14-pro-max": [
+    "assets/images/phones/iphone-14-pro-max-1.jpg",
+    "assets/images/phones/iphone-14-pro-max-5.jpg",
+    "assets/images/phones/iphone-14-pro-max-6.jpg"
+  ],
+  "iphone-8-plus": [
+    "assets/images/phones/iphone-8-plus-1.jpg",
+    "assets/images/phones/iphone-8-plus-2.jpg",
+    "assets/images/phones/iphone-8-plus-3.jpg"
+  ],
+  "iphone-6": [
+    "assets/images/phones/iphone-6-1.jpg",
+    "assets/images/phones/iphone-6-2.jpg",
+    "assets/images/phones/iphone-6-3.jpg"
+  ],
+  "redmi-note-13-pro-5g": [
+    "assets/images/phones/redmi-note-13-pro-5g-1.jpg",
+    "assets/images/phones/redmi-note-13-pro-5g-2.jpg",
+    "assets/images/phones/redmi-note-13-pro-5g-3.jpg"
   ]
 };

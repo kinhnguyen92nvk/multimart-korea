@@ -36,89 +36,46 @@ function _mkSet(label, icon, palette){
   const variants = ['Titan', 'Bản chính hãng', 'Đập hộp', 'Like new'];
   return palette.map((p, i) => _mkImg(label, variants[i] || 'Bản chính hãng', icon, p[0], p[1], p[2]));
 }
+
+/* === Helper lấy gallery ảnh thật theo slug, fallback SVG nếu thiếu === */
+function _realSet(slug, model, brand, fallbackSet){
+  // Browser side: window.MM_GALLERY và MM_IMAGES đã được nạp
+  // Trả về mảng dài >= 6 để mọi index variant đều có ảnh
+  function pad(arr){
+    const out = arr.slice();
+    while (out.length < 6) out.push(arr[out.length % arr.length]);
+    return out;
+  }
+  if (typeof window !== 'undefined') {
+    const gallery = window.MM_GALLERY && window.MM_GALLERY[slug];
+    if (gallery && gallery.length) return pad(gallery);
+    const hero = window.MM_IMAGES && window.MM_IMAGES[slug];
+    if (hero) return pad([hero]);
+  }
+  return fallbackSet; // SVG cũ
+}
 const _PI = {
   // iPhone Pro line — đen/xám titan sang trọng
-  ip15pro: _mkSet('iPhone 15 Pro Max', '📱', [
-    ['#1d1d1f','#3a3a3c','#a78bfa'],
-    ['#2c2c2e','#5a5a5c','#fbbf24'],
-    ['#0f172a','#334155','#60a5fa'],
-    ['#1f2937','#4b5563','#f472b6'],
-    ['#111827','#374151','#34d399'],
-  ]),
-  ip15:    _mkSet('iPhone 15', '📱', [
-    ['#fb7185','#f43f5e','#fff1f2'],
-    ['#60a5fa','#3b82f6','#dbeafe'],
-    ['#fde047','#facc15','#fef9c3'],
-    ['#34d399','#10b981','#d1fae5'],
-  ]),
-  ip14pro: _mkSet('iPhone 14 Pro Max', '📱', [
-    ['#7c3aed','#5b21b6','#c4b5fd'],
-    ['#1f2937','#111827','#9ca3af'],
-    ['#fbbf24','#d97706','#fef3c7'],
-    ['#e5e7eb','#9ca3af','#ffffff'],
-  ]),
-  ip14:    _mkSet('iPhone 14', '📱', [
-    ['#60a5fa','#2563eb','#dbeafe'],
-    ['#a78bfa','#7c3aed','#ede9fe'],
-    ['#f87171','#dc2626','#fee2e2'],
-    ['#1f2937','#374151','#9ca3af'],
-  ]),
-  ip13pro: _mkSet('iPhone 13 Pro Max', '📱', [
-    ['#0f172a','#1e293b','#94a3b8'],
-    ['#7c3aed','#6d28d9','#c4b5fd'],
-    ['#0891b2','#0e7490','#a5f3fc'],
-    ['#a16207','#854d0e','#fde68a'],
-  ]),
-  ip13:    _mkSet('iPhone 13', '📱', [
-    ['#ec4899','#db2777','#fbcfe8'],
-    ['#3b82f6','#1d4ed8','#bfdbfe'],
-    ['#1f2937','#111827','#6b7280'],
-    ['#10b981','#047857','#a7f3d0'],
-  ]),
-  ip12:    _mkSet('iPhone 12', '📱', [
-    ['#3b82f6','#1e40af','#93c5fd'],
-    ['#a855f7','#7e22ce','#d8b4fe'],
-    ['#ef4444','#b91c1c','#fca5a5'],
-    ['#fbbf24','#d97706','#fde68a'],
-  ]),
-  ipold:   _mkSet('iPhone đời cũ', '📱', [
-    ['#475569','#334155','#cbd5e1'],
-    ['#64748b','#475569','#e2e8f0'],
-    ['#94a3b8','#64748b','#f1f5f9'],
-  ]),
-  ssS:     _mkSet('Samsung Galaxy S Ultra', '📱', [
-    ['#1e3a8a','#1e40af','#60a5fa'],
-    ['#581c87','#6b21a8','#c084fc'],
-    ['#0f766e','#115e59','#5eead4'],
-    ['#374151','#1f2937','#9ca3af'],
-  ]),
-  ssFold:  _mkSet('Samsung Z Fold', '📲', [
-    ['#1e293b','#0f172a','#64748b'],
-    ['#7c2d12','#9a3412','#fdba74'],
-    ['#064e3b','#065f46','#6ee7b7'],
-    ['#312e81','#3730a3','#a5b4fc'],
-  ]),
-  ssFlip:  _mkSet('Samsung Z Flip', '📱', [
-    ['#a855f7','#7e22ce','#e9d5ff'],
-    ['#10b981','#047857','#a7f3d0'],
-    ['#fbbf24','#d97706','#fde68a'],
-    ['#475569','#334155','#cbd5e1'],
-  ]),
-  watch:   _mkSet('Apple Watch SE 2', '⌚', [
-    ['#dc2626','#991b1b','#fecaca'],
-    ['#1f2937','#111827','#9ca3af'],
-    ['#f59e0b','#b45309','#fde68a'],
-  ]),
-  airpods: _mkSet('AirPods Pro 2', '🎧', [
-    ['#f3f4f6','#d1d5db','#6b7280'],
-    ['#e5e7eb','#9ca3af','#4b5563'],
-    ['#f9fafb','#e5e7eb','#9ca3af'],
-  ]),
-  mac:     _mkSet('MacBook Air M2', '💻', [
-    ['#1f2937','#111827','#60a5fa'],
-    ['#475569','#334155','#cbd5e1'],
-    ['#0f172a','#1e293b','#a78bfa'],
-  ]),
+  ip17promax: _realSet('iphone-17-pro-max','iPhone 17 Pro Max','iPhone',_mkSet('iPhone 17 Pro Max','📱',[['#1d1d1f','#3a3a3c','#a78bfa']])),
+  ip17pro:    _realSet('iphone-17-pro','iPhone 17 Pro','iPhone',_mkSet('iPhone 17 Pro','📱',[['#1d1d1f','#3a3a3c','#a78bfa']])),
+  ip17:       _realSet('iphone-17','iPhone 17','iPhone',_mkSet('iPhone 17','📱',[['#fb7185','#f43f5e','#fff1f2']])),
+  ip16promax: _realSet('iphone-16-pro-max','iPhone 16 Pro Max','iPhone',_mkSet('iPhone 16 Pro Max','📱',[['#1d1d1f','#3a3a3c','#a78bfa']])),
+  ip16pro:    _realSet('iphone-16-pro','iPhone 16 Pro','iPhone',_mkSet('iPhone 16 Pro','📱',[['#1d1d1f','#3a3a3c','#a78bfa']])),
+  ip16:       _realSet('iphone-16','iPhone 16','iPhone',_mkSet('iPhone 16','📱',[['#fb7185','#f43f5e','#fff1f2']])),
+  ip15pro:    _realSet('iphone-15-pro-max','iPhone 15 Pro Max','iPhone',_mkSet('iPhone 15 Pro Max','📱',[['#1d1d1f','#3a3a3c','#a78bfa']])),
+  ip15:       _realSet('iphone-15','iPhone 15','iPhone',_mkSet('iPhone 15','📱',[['#fb7185','#f43f5e','#fff1f2']])),
+  ip14pro:    _realSet('iphone-14-pro-max','iPhone 14 Pro Max','iPhone',_mkSet('iPhone 14 Pro Max','📱',[['#7c3aed','#5b21b6','#c4b5fd']])),
+  ip14:       _realSet('iphone-14','iPhone 14','iPhone',_mkSet('iPhone 14','📱',[['#60a5fa','#2563eb','#dbeafe']])),
+  ip13pro:    _realSet('iphone-13-pro-max','iPhone 13 Pro Max','iPhone',_mkSet('iPhone 13 Pro Max','📱',[['#0f172a','#1e293b','#94a3b8']])),
+  ip13:       _realSet('iphone-13','iPhone 13','iPhone',_mkSet('iPhone 13','📱',[['#ec4899','#db2777','#fbcfe8']])),
+  ip12:       _realSet('iphone-12-pro-max','iPhone 12 Pro Max','iPhone',_mkSet('iPhone 12','📱',[['#3b82f6','#1e40af','#93c5fd']])),
+  ipold:      _realSet('iphone-11','iPhone 11','iPhone',_mkSet('iPhone đời cũ','📱',[['#475569','#334155','#cbd5e1']])),
+  ssS:        _realSet('samsung-galaxy-s26-ultra','Galaxy S26 Ultra','Samsung',_mkSet('Galaxy S Ultra','📱',[['#1e3a8a','#1e40af','#60a5fa']])),
+  ssFold:     _realSet('samsung-galaxy-z-fold-7','Galaxy Z Fold7','Samsung',_mkSet('Z Fold','📲',[['#1e293b','#0f172a','#64748b']])),
+  ssFlip:     _realSet('samsung-galaxy-z-flip-7','Galaxy Z Flip7','Samsung',_mkSet('Z Flip','📱',[['#a855f7','#7e22ce','#e9d5ff']])),
+  watch:      _realSet('samsung-watch-7','Galaxy Watch 7','Samsung',_mkSet('Watch','⌚',[['#dc2626','#991b1b','#fecaca']])),
+  airpods:    _mkSet('AirPods Pro 2','🎧',[['#f3f4f6','#d1d5db','#6b7280']]),
+  mac:        _mkSet('MacBook Air','💻',[['#1f2937','#111827','#60a5fa']]),
 };
 
 /* =============================================
