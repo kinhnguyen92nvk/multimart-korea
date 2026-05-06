@@ -229,17 +229,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <div class="card !p-6 prose-sm text-slate-600 space-y-4 max-w-none">
           <p class="text-base leading-relaxed">${p.desc}</p>
-          <p>Sản phẩm được phân phối tại <b>MultiMart KOREA</b> – shop uy tín số 1 cho người Việt tại Hàn Quốc. Hỗ trợ tiếng Việt 100%, tư vấn trực tiếp qua KakaoTalk.</p>
+          <p>Sản phẩm được phân phối tại <b>MultiMart KOREA</b> – shop uy tín số 1 cho người Việt tại Hàn Quốc. Hỗ trợ tiếng Việt 100%, tư vấn trực tiếp <b>24/7</b>.</p>
           <ul class="list-none space-y-2 pl-0">
             ${[
-              '✅ Hỗ trợ trả góp 0% qua thẻ tín dụng Hàn Quốc',
-              '✅ Đặt hàng qua KakaoTalk – xác nhận trong 5 phút',
-              '✅ Cài đặt miễn phí: ngân hàng VN, Zalo, TikTok',
-              '✅ Bảo hành tại Hàn, không cần gửi về Việt Nam',
-              '✅ Đóng gói chắc chắn, giao hàng tận nơi toàn Hàn',
-              '✅ Đổi trả trong 7 ngày nếu lỗi từ shop',
+              '✅ Đặt hàng nhanh – xác nhận trong 5 phút',
+              '✅ Cài đặt miễn phí: ngân hàng VN, Zalo, TikTok nếu bạn cần',
+              '✅ Đóng gói chắc chắn, ship CPE trong ngày',
+              '✅ Đầy đủ phụ kiện tặng kèm',
+              '✅ Có ship thẳng Việt Nam – Thần tốc như tên lửa 🚀',
             ].map(t => `<li class="flex items-start gap-2 text-sm">${t}</li>`).join('')}
           </ul>
+
+          <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 mt-4 space-y-2">
+            <p class="text-sm leading-relaxed mb-0">📍 <b>Nhận lắp WiFi 6 tháng cho anh em BHP – HP</b> – để tối nào cũng "xem phim chill, thả thính tẹt ga", không lo "lag như rùa bò" nha! 🐢✨</p>
+            <p class="text-sm leading-relaxed mb-0">💟 <b>Sim thần thánh đa-zi-năng:</b> BHP – HP – Du Lịch – Thăm Thân – Thương Mại – Thời Vụ – E9 – D4 – D2 – F1 – E8 – E7… – sóng căng đét như 6 múi idol Hàn – rẻ như trái ổi cuối mùa! 🍐</p>
+            <p class="text-sm italic text-amber-700 mb-0">"Chỉ có sóng WiFi và sim mạnh mới cứu được trái tim FA ^^"</p>
+            <p class="text-sm leading-relaxed mb-0">💟 <b>Hạ gói cước cao xuống rẻ</b> còn 11k – 13k – 17k – 20k – 25k – 33k… còn chần chừ gì nữa anh em ơi!</p>
+            <p class="text-sm font-bold text-red-600 mb-0">📍 Chốt lẹ – Đỡ mất công suy nghĩ!</p>
+            <p class="text-sm font-bold text-pink-600 mb-0">💌 Inbox nhanh nhanh đi nào, kẻo trễ chuyến tàu deal thần tốc nè 😍</p>
+          </div>
         </div>
       `;
     }

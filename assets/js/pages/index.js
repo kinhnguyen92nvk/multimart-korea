@@ -195,10 +195,65 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ─── 6. All products grid ─── */
-  document.getElementById('all-grid').innerHTML = renderList(products, p =>
-    `<div style="background:#fff">${pcard(p)}</div>`
-  );
+  /* ─── 6. All phones grid (1 card / model — đại diện theo dòng) ─── */
+  const phonesGrid = document.getElementById('all-grid');
+  if (phonesGrid && priceBoard.phones?.length) {
+    /* Group 167 dòng → ~106 model duy nhất */
+    const groups = {};
+    priceBoard.phones.forEach(p => {
+      const slug = p.catalog || p.model.toLowerCase().replace(/\s+/g, '-');
+      if (!groups[slug]) groups[slug] = { slug, model: p.model, brand: p.brand, img: p.img, variants: [] };
+      groups[slug].variants.push(p);
+    });
+    const phoneList = Object.values(groups);
+
+    /* Tag màu theo brand */
+    const brandColor = b => ({ iPhone:'#3b82f6', Samsung:'#1e40af', Xiaomi:'#f97316', Apple:'#64748b' }[b] || '#16a34a');
+
+    phonesGrid.innerHTML = phoneList.map(g => {
+      const cat = window.MM_CATALOG?.[g.slug];
+      const prices = g.variants.flatMap(v => [v.priceA, v.priceNew].filter(Boolean));
+      const minPrice = prices.length ? Math.min(...prices) : 0;
+      const maxPrice = prices.length ? Math.max(...prices) : 0;
+      const status = g.variants.some(v => v.status === 'in') ? 'in' : 'out';
+      const searchTerm = cat?.searchTerm || g.model;
+      return `
+        <a href="phone-spec.html?model=${encodeURIComponent(g.slug)}" class="pcard" style="background:#fff">
+          <div class="pcard__img" style="background:#0f172a">
+            <img src="${g.img}" loading="lazy" alt="${g.model}" data-phone-search="${searchTerm}" onerror="this.style.opacity='.3'">
+            <span class="pcard__badge" style="background:${brandColor(g.brand)}">${g.brand}</span>
+            ${status === 'in'
+              ? `<span class="pcard__badge sale" style="left:auto;right:0;border-radius:0 0 0 4px;background:#16a34a">● Còn</span>`
+              : `<span class="pcard__badge sale" style="left:auto;right:0;border-radius:0 0 0 4px;background:#94a3b8">◐ LH</span>`}
+          </div>
+          <div class="pcard__info">
+            <p class="pcard__name" style="font-weight:700">${g.model}</p>
+            <div class="pcard__price">
+              <span class="krw">${formatKRW(minPrice)}</span>
+              ${maxPrice > minPrice ? `<span class="text-[10px] text-slate-500"> – ${formatKRW(maxPrice)}</span>` : ''}
+            </div>
+            <div class="pcard__meta">
+              <span><i class="fas fa-layer-group text-amber-500"></i> ${g.variants.length} cấu hình</span>
+              <span class="text-blue-600 font-bold">Chi tiết →</span>
+            </div>
+          </div>
+        </a>`;
+    }).join('');
+
+    /* Lazy-load ảnh thật từ Wikipedia */
+    if (window.MM_UTILS?.attachLazyPhoneImage) {
+      phonesGrid.querySelectorAll('img[data-phone-search]').forEach(img => {
+        window.MM_UTILS.attachLazyPhoneImage(img, img.dataset.phoneSearch);
+      });
+    }
+  }
+
+  /* ─── 6b. Sản phẩm khác (curated products) ─── */
+  const curatedGrid = document.getElementById('curated-grid');
+  if (curatedGrid) {
+    const nonPhones = products.filter(p => p.cat !== 'phone').slice(0, 10);
+    curatedGrid.innerHTML = renderList(nonPhones, p => `<div style="background:#fff">${pcard(p)}</div>`);
+  }
 
   /* ─── SIM strip (highlight plans) ─── */
   const simStrip = document.getElementById('sim-strip');

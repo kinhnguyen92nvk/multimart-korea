@@ -99,10 +99,20 @@
     <div id="recently-row" class="flex gap-2 overflow-x-auto hide-scrollbar px-2 pb-3"></div>
   </section>
 
-  <!-- 6. All Products -->
+  <!-- 6. All Phones (1 thẻ / dòng máy — link sang trang chi tiết) -->
   <section class="block-white">
-    <div class="sec-title"><h2>Toàn bộ sản phẩm</h2><a href="category.html">Xem thêm</a></div>
+    <div class="sec-title">
+      <h2><i class="fas fa-mobile-alt text-green-600 mr-1"></i> Toàn bộ điện thoại
+        <span class="text-xs font-normal text-slate-500 ml-1">· bấm để xem cấu hình & giá A/NEW</span></h2>
+      <a href="price-board.html">Bảng giá →</a>
+    </div>
     <div id="all-grid" class="grid grid-cols-2 md:grid-cols-5 gap-1 bg-gray-100 border-t border-gray-100 p-1"></div>
+  </section>
+
+  <!-- 6b. Curated non-phone products -->
+  <section class="block-white">
+    <div class="sec-title"><h2>Sản phẩm khác</h2><a href="category.html">Xem thêm</a></div>
+    <div id="curated-grid" class="grid grid-cols-2 md:grid-cols-5 gap-1 bg-gray-100 border-t border-gray-100 p-1"></div>
   </section>
 
   <!-- ═══ TRUST STATS ═══ -->
@@ -274,6 +284,7 @@
 <div data-mm="bottomnav" data-active="home"></div>
 
 <script src="assets/data/products.js"></script>
+<script src="assets/data/phones-catalog.js"></script>
 <script src="assets/data/sim-plans.js"></script>
 <script src="assets/data/blog.js"></script>
 <script src="assets/js/utils.js"></script>
