@@ -175,7 +175,7 @@
 
 </div>
 
-<script src="../assets/js/cms.js"></script>
+<script src="../assets/js/cms.js?v=2"></script>
 <script>
 /* ==================================================
    QUÉT BẢNG GIÁ → EXCEL
@@ -297,6 +297,7 @@
     const hint  = $('#opt-hint').value.trim();
     let allItems = [];
     let errors   = 0;
+    let lastErr  = '';
 
     for (let i = 0; i < pickedFiles.length; i++) {
       lab.textContent = `Đang quét ảnh ${i+1}/${pickedFiles.length}...`;
@@ -308,6 +309,7 @@
       } catch (err) {
         console.error('Scan error', err);
         errors++;
+        lastErr = err.message || String(err);
       }
     }
 
@@ -316,7 +318,8 @@
     btn.disabled = pickedFiles.length === 0;
 
     if (!allItems.length) {
-      banner(`❌ Không trích xuất được dữ liệu nào.${errors ? ' (' + errors + ' ảnh lỗi)' : ''} Thử ảnh khác hoặc kiểm tra Groq key.`, 'error');
+      const errDetail = lastErr ? `<br><code class="text-xs bg-red-100 px-1 rounded">${lastErr}</code>` : '';
+      banner(`❌ Không trích xuất được dữ liệu nào.${errors ? ' (' + errors + ' ảnh lỗi)' : ''} Thử ảnh khác hoặc kiểm tra Groq key.${errDetail}`, 'error');
       return;
     }
 
