@@ -1,62 +1,4 @@
-/* Auto-generated. MM_IMAGES = ảnh hero. MM_GALLERY = ảnh nhiều góc/màu. */
-window.MM_IMAGES = {
-  "iphone-17-pro-max": "assets/images/phones/iphone-17-pro-max.jpg",
-  "iphone-17-pro": "assets/images/phones/iphone-17-pro.jpg",
-  "iphone-17": "assets/images/phones/iphone-17.jpg",
-  "iphone-16-pro-max": "assets/images/phones/iphone-16-pro-max.jpg",
-  "iphone-16-pro": "assets/images/phones/iphone-16-pro.jpg",
-  "iphone-16-plus": "assets/images/phones/iphone-16-plus.jpg",
-  "iphone-16": "assets/images/phones/iphone-16.jpg",
-  "iphone-16e": "assets/images/phones/iphone-16e.jpg",
-  "iphone-15-pro-max": "assets/images/phones/iphone-15-pro-max.jpg",
-  "iphone-15-pro": "assets/images/phones/iphone-15-pro.jpg",
-  "iphone-15": "assets/images/phones/iphone-15.jpg",
-  "iphone-14-pro": "assets/images/phones/iphone-14-pro.jpg",
-  "iphone-14-plus": "assets/images/phones/iphone-14-plus.jpg",
-  "iphone-14": "assets/images/phones/iphone-14.jpg",
-  "iphone-13-pro-max": "assets/images/phones/iphone-13-pro-max.jpg",
-  "iphone-13-pro": "assets/images/phones/iphone-13-pro.jpg",
-  "iphone-13-mini": "assets/images/phones/iphone-13-mini.jpg",
-  "iphone-13": "assets/images/phones/iphone-13.jpg",
-  "iphone-12-pro-max": "assets/images/phones/iphone-12-pro-max.jpg",
-  "iphone-12-pro": "assets/images/phones/iphone-12-pro.jpg",
-  "iphone-12-mini": "assets/images/phones/iphone-12-mini.jpg",
-  "iphone-12": "assets/images/phones/iphone-12.jpg",
-  "iphone-11-pro": "assets/images/phones/iphone-11-pro.jpg",
-  "iphone-11": "assets/images/phones/iphone-11.jpg",
-  "iphone-xs-max": "assets/images/phones/iphone-xs-max.jpg",
-  "iphone-xs": "assets/images/phones/iphone-xs.jpg",
-  "iphone-x": "assets/images/phones/iphone-x.jpg",
-  "samsung-galaxy-s26-ultra": "assets/images/phones/samsung-galaxy-s26-ultra.jpg",
-  "samsung-galaxy-s26-plus": "assets/images/phones/samsung-galaxy-s26-plus.jpg",
-  "samsung-galaxy-s26": "assets/images/phones/samsung-galaxy-s26.jpg",
-  "samsung-galaxy-s25-edge": "assets/images/phones/samsung-galaxy-s25-edge.jpg",
-  "samsung-galaxy-s23-fe": "assets/images/phones/samsung-galaxy-s23-fe.jpg",
-  "samsung-galaxy-s22-ultra": "assets/images/phones/samsung-galaxy-s22-ultra.jpg",
-  "samsung-galaxy-s22-plus": "assets/images/phones/samsung-galaxy-s22-plus.jpg",
-  "samsung-galaxy-s22": "assets/images/phones/samsung-galaxy-s22.jpg",
-  "samsung-galaxy-z-fold-7": "assets/images/phones/samsung-galaxy-z-fold-7.jpg",
-  "samsung-galaxy-z-fold-6": "assets/images/phones/samsung-galaxy-z-fold-6.jpg",
-  "samsung-galaxy-z-fold-5": "assets/images/phones/samsung-galaxy-z-fold-5.jpg",
-  "samsung-galaxy-z-fold-4": "assets/images/phones/samsung-galaxy-z-fold-4.jpg",
-  "samsung-galaxy-z-fold-3": "assets/images/phones/samsung-galaxy-z-fold-3.jpg",
-  "samsung-galaxy-z-flip-7": "assets/images/phones/samsung-galaxy-z-flip-7.jpg",
-  "samsung-galaxy-z-flip-6": "assets/images/phones/samsung-galaxy-z-flip-6.jpg",
-  "samsung-galaxy-z-flip-5": "assets/images/phones/samsung-galaxy-z-flip-5.jpg",
-  "samsung-galaxy-z-flip-3": "assets/images/phones/samsung-galaxy-z-flip-3.jpg",
-  "samsung-galaxy-a55": "assets/images/phones/samsung-galaxy-a55.jpg",
-  "samsung-galaxy-a54": "assets/images/phones/samsung-galaxy-a54.jpg",
-  "samsung-galaxy-a35": "assets/images/phones/samsung-galaxy-a35.jpg",
-  "samsung-galaxy-a34": "assets/images/phones/samsung-galaxy-a34.jpg",
-  "samsung-galaxy-a25": "assets/images/phones/samsung-galaxy-a25.jpg",
-  "xiaomi-14": "assets/images/phones/xiaomi-14.jpg",
-  "redmi-note-13": "assets/images/phones/redmi-note-13.jpg",
-  "redmi-note-13-pro": "assets/images/phones/redmi-note-13-pro.jpg",
-  "samsung-watch-7": "assets/images/phones/samsung-watch-7.jpg",
-  "samsung-watch-6": "assets/images/phones/samsung-watch-6.jpg"
-};
-
-window.MM_GALLERY = {
+{
   "iphone-17-pro-max": [
     "assets/images/phones/iphone-17-pro-max-1.jpg",
     "assets/images/phones/iphone-17-pro-max-2.jpg",
@@ -207,4 +149,4 @@ window.MM_GALLERY = {
     "assets/images/phones/redmi-note-13-pro-1.jpg",
     "assets/images/phones/redmi-note-13-pro-3.jpg"
   ]
-};
+}

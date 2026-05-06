@@ -21,8 +21,13 @@
     .hero { display:grid; grid-template-columns: 1fr; gap:18px; }
     @media (min-width: 768px) { .hero { grid-template-columns: 460px 1fr; } }
     .hero-img-wrap { background: linear-gradient(135deg,#fff,#f1f5f9); border:1px solid #e2e8f0; border-radius:16px; aspect-ratio: 1; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
-    .hero-img-wrap img { max-width:88%; max-height:88%; object-fit:contain; }
+    .hero-img-wrap img { max-width:88%; max-height:88%; object-fit:contain; transition:opacity .25s; }
     .hero-img-wrap .brand-tag { position:absolute; top:14px; left:14px; background:#0f172a; color:#fff; padding:4px 10px; border-radius:8px; font-size:11px; font-weight:800; letter-spacing:.04em; }
+    .thumb-strip { display:flex; gap:8px; margin-top:10px; overflow-x:auto; padding-bottom:4px; }
+    .thumb { width:64px; height:64px; flex-shrink:0; border:2px solid #e2e8f0; border-radius:10px; overflow:hidden; cursor:pointer; background:#fff; transition:all .15s; }
+    .thumb img { width:100%; height:100%; object-fit:contain; padding:4px; }
+    .thumb:hover { border-color:#94a3b8; }
+    .thumb.active { border-color:#16a34a; box-shadow:0 4px 10px -4px rgba(22,163,74,.5); }
     .pill-grid { display:flex; flex-wrap:wrap; gap:8px; }
     .pill { border:2px solid #e2e8f0; background:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700; font-size:13px; color:#334155; transition:all .15s; text-align:left; min-width:90px; }
     .pill .config-name { display:block; font-weight:800; }
@@ -151,6 +156,9 @@
   const name = cat?.name || variants[0]?.model || slug;
   const brand = cat?.brand || variants[0]?.brand || '';
   const heroImg = window.MM_GET_IMAGE ? window.MM_GET_IMAGE(catKey, name, brand) : (variants[0]?.img || '');
+  const galleryImgs = (window.MM_GALLERY && window.MM_GALLERY[catKey]) ? window.MM_GALLERY[catKey] : [];
+  /* Tổng hợp ảnh: hero + gallery (loại trùng) */
+  const heroSet = [heroImg, ...galleryImgs].filter((u,i,a)=>u && a.indexOf(u)===i);
 
   document.title = `${name} - Giá tại Hàn Quốc | MultiMart Korea`;
   $('meta-desc').content = `${name}: cấu hình & bảng giá hàng A/NEW tại Hàn Quốc. ${cat?.desc?.slice(0,100) || ''}`;
@@ -208,11 +216,18 @@
   function render(){
     const v = variants[activeIdx];
     const swatches = parseColors(v?.colors || (cat?.colors||[]).join(', '));
+    /* Ảnh đang xem (mặc định = hero) */
+    let curImgIdx = 0;
+    const curImg = () => heroSet[curImgIdx] || heroImg;
     let html = `
     <div class="hero">
-      <div class="hero-img-wrap">
-        <span class="brand-tag">${brand}</span>
-        <img src="${heroImg}" alt="${name}" id="hero-img" onerror="this.style.opacity='.5'">
+      <div>
+        <div class="hero-img-wrap">
+          <span class="brand-tag">${brand}</span>
+          <img src="${curImg()}" alt="${name}" id="hero-img" onerror="this.style.opacity='.5'">
+        </div>
+        ${heroSet.length>1?`<div class="thumb-strip">${heroSet.map((u,i)=>`
+          <div class="thumb ${i===0?'active':''}" onclick="__setImg(${i})"><img src="${u}" alt="" loading="lazy"></div>`).join('')}</div>`:''}
       </div>
       <div class="card card-pad space-y-3">
         <h1 class="text-2xl font-black text-slate-900 leading-tight">${name}</h1>
@@ -241,7 +256,7 @@
         ${swatches.length?`<div>
           <div class="text-xs font-bold text-slate-600 uppercase mb-2">Màu sắc (${swatches.length})</div>
           <div class="swatch-grid">${swatches.map((s,i)=>`
-            <div class="swatch ${i===0?'active':''}" onclick="this.parentNode.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));this.classList.add('active')">
+            <div class="swatch ${i===0?'active':''}" data-color-idx="${i}" onclick="__setColor(${i})">
               <span class="swatch-dot" style="background:${s.color}"></span>
               <span>${s.name.charAt(0).toUpperCase()+s.name.slice(1)}</span>
             </div>`).join('')}</div>
@@ -425,6 +440,19 @@
 
   window.__setVariant = i => { activeIdx = i; render(); };
   window.__setTab = t => { activeTab = t; render(); };
+  window.__setImg = i => {
+    const img = document.getElementById('hero-img'); if (!img) return;
+    img.style.opacity='0';
+    setTimeout(()=>{ img.src = heroSet[i] || heroImg; img.style.opacity='1'; },120);
+    document.querySelectorAll('.thumb').forEach((el,j)=>el.classList.toggle('active', j===i));
+  };
+  window.__setColor = i => {
+    document.querySelectorAll('.swatch').forEach(el=>el.classList.remove('active'));
+    const el = document.querySelector(`.swatch[data-color-idx="${i}"]`);
+    if (el) el.classList.add('active');
+    /* Map màu → ảnh: cycle qua heroSet để đổi visual */
+    if (heroSet.length > 1) window.__setImg(i % heroSet.length);
+  };
 
   render();
 })();
