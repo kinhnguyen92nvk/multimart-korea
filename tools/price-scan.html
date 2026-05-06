@@ -97,10 +97,9 @@
             <th class="p-2 font-semibold text-slate-700 w-10">#</th>
             <th class="p-2 font-semibold text-slate-700">Brand</th>
             <th class="p-2 font-semibold text-slate-700 min-w-[160px]">Model</th>
-            <th class="p-2 font-semibold text-slate-700 min-w-[140px]">Config</th>
-            <th class="p-2 font-semibold text-slate-700 text-right">Giá Hàng A (₩)</th>
-            <th class="p-2 font-semibold text-slate-700 text-right">Giá Hàng New (₩)</th>
-            <th class="p-2 font-semibold text-slate-700">Status</th>
+            <th class="p-2 font-semibold text-slate-700 min-w-[120px]">Memory</th>
+            <th class="p-2 font-semibold text-slate-700 text-right min-w-[140px]" title="Hàng A — máy like-new / cũ 99%">Giá A — Like new (₩)</th>
+            <th class="p-2 font-semibold text-slate-700 text-right min-w-[140px]" title="Máy mới đập hộp, nguyên seal">Giá NEW — Đập hộp (₩)</th>
             <th class="p-2 font-semibold text-slate-700">Ghi chú</th>
             <th class="p-2 font-semibold text-slate-700 w-10"></th>
           </tr>
@@ -283,18 +282,8 @@
       lab.textContent = `Đang quét ảnh ${i+1}/${pickedFiles.length}...`;
       try {
         const file = pickedFiles[i];
-        const res  = hint
-          ? await callGroqWithHint(file, hint)
-          : await MM_CMS.Groq.parsePhonePrice(file);
-        const items = (res?.items || []).map(it => ({
-          brand:    it.brand || guessBrand(it.model),
-          model:    it.model || '',
-          config:   it.config || '',
-          priceA:   parseInt((it.priceA   ?? (/Hàng A/i.test(it.config||'')   ? it.price : null)) || 0, 10) || '',
-          priceNew: parseInt((it.priceNew ?? (/Hàng New/i.test(it.config||'') ? it.price : null)) || 0, 10) || '',
-          status:   it.status || 'in',
-          note:     it.note || res?.note || '',
-        }));
+        const res  = await callGroqWithHint(file, hint);
+        const items = (res?.items || []).map(it => normalizeItem(it, res?.note));
         allItems = allItems.concat(items);
       } catch (err) {
         console.error('Scan error', err);
@@ -322,20 +311,61 @@
   async function callGroqWithHint(file, hint) {
     const base64 = await MM_CMS.util.fileToBase64(file);
     const mime = file.type || 'image/jpeg';
-    const prompt = `Bạn là chuyên gia OCR. Phân tích ảnh BẢNG GIÁ ĐIỆN THOẠI tiếng Việt/Hàn.
-Gợi ý từ chủ shop: "${hint}"
+    const prompt = `Bạn là chuyên gia OCR bảng giá điện thoại tiếng Việt. Đọc TOÀN BỘ ảnh và trích xuất CHÍNH XÁC từng dòng.
 
-Mỗi máy 1 object:
-{ "model": "iPhone 15 Pro Max", "config": "256GB", "brand": "iPhone", "priceA": 1490000, "priceNew": 1620000, "status": "in", "note": "" }
-Quy tắc:
-- priceA = giá Hàng A (máy cũ 99%), priceNew = giá Hàng New (đập hộp). KRW số nguyên. Không có thì để 0.
-- "1.490.000" hoặc "1,490,000" hoặc "1.49tr" → 1490000.
-- Nếu cùng 1 model có cả 2 cột giá → 1 dòng duy nhất với cả priceA và priceNew.
-- Nếu chỉ có 1 cột giá → ghi vào priceA hoặc priceNew tùy ngữ cảnh.
-- status: "in" | "out" | "low". Mặc định "in".
-- Bỏ qua tiêu đề, ghi chú, footer.
+═══ CẤU TRÚC BẢNG GIÁ ═══
+Ảnh có thể chứa 1 hoặc 2 bảng (bảng iPhone bên trái, bảng Samsung bên phải, hoặc các hãng khác).
+Mỗi bảng có 4 CỘT cố định theo thứ tự:
+  Cột 1: MODEL/MEMORY  → tên dòng máy (VD "IPHONE 17 PRO MAX", "S25 Ultra", "Fold 5", "zflip 4")
+  Cột 2: MEMORY/dung lượng (VD "256 GB", "512 GB", "1TB", "256/512", "256gb / 512gb")
+  Cột 3: A → giá máy LIKE-NEW / Hàng A (cũ 99%)
+  Cột 4: NEW → giá máy MỚI / đập hộp / nguyên seal
 
-Trả JSON: { "items": [...], "month": "MM/YYYY", "note": "..." }`;
+⚠️ CỘT MODEL THƯỜNG BỊ MERGE CELL: 1 ô tên model trải qua nhiều dòng dung lượng.
+Phải lặp lại tên model cho TỪNG dòng dung lượng. VD ô "IPHONE 17 PRO MAX" merge 3 dòng "1TB/2TB", "512 GB", "256 GB" → tạo 3 record với cùng model.
+
+═══ QUY TẮC GIÁ ═══
+- Đơn vị: KRW (₩). Số trong ảnh là NGÀN ₩.
+  + "1140"   → 1140000
+  + "2330k"  → 2330000
+  + "1.49tr" → 1490000
+  + "1,490,000" hoặc "1.490.000" → 1490000
+- Nhiều giá / dấu phân cách "/" hoặc "~" hoặc "-": LẤY GIÁ THẤP NHẤT, ghi nguyên chuỗi gốc vào "note".
+  + "1420 /1580" → priceNew=1420000, note="1420/1580k"
+  + "699/720"    → 699000, note="699/720k"
+  + "1180~1260"  → 1180000, note="1180~1260k"
+- Ghi chú phức tạp như "cam,trắng 2040k, xanh 2030k" → priceNew=2030000, note="cam/trắng 2040k, xanh 2030k"
+- Ô TRỐNG (không có số) → giá = null. KHÔNG bịa số.
+
+═══ QUY TẮC STATUS ═══
+- statusA   = "in" nếu cột A có giá, "updating" nếu cột A trống.
+- statusNew = "in" nếu cột NEW có giá, "updating" nếu cột NEW trống.
+
+═══ BRAND ═══
+Suy ra từ model:
+  iPhone/iPad → "iPhone"
+  AirPods/Watch/MacBook → "Apple"
+  Galaxy S/Note/Z Fold/Z Flip/A series → "Samsung"
+  Xiaomi/Redmi → "Xiaomi" · Oppo → "Oppo" · Vivo → "Vivo"
+  Khác → "Khác"
+
+═══ ĐỊNH DẠNG OUTPUT ═══
+TUYỆT ĐỐI KHÔNG bỏ sót dòng nào. Nếu có 30 dòng dung lượng trong ảnh → trả 30 items.
+
+Mỗi item:
+{
+  "model":     "iPhone 17 Pro Max",
+  "config":    "256GB",
+  "brand":     "iPhone",
+  "priceA":    null,
+  "priceNew":  2030000,
+  "statusA":   "updating",
+  "statusNew": "in",
+  "note":      "cam/trắng 2040k, xanh 2030k"
+}
+
+${hint ? '═══ GỢI Ý TỪ CHỦ SHOP ═══\n' + hint + '\n' : ''}
+Trả về JSON duy nhất: { "items":[...], "shop":"tên cửa hàng nếu thấy", "date":"DD-MM-YYYY", "note":"" }`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -351,14 +381,59 @@ Trả JSON: { "items": [...], "month": "MM/YYYY", "note": "..." }`;
             { type: 'image_url', image_url: { url: `data:${mime};base64,${base64}` } },
           ]
         }],
-        temperature: 0.1,
-        max_tokens: 8192,
+        temperature: 0.05,
+        max_tokens: 16384,
         response_format: { type: 'json_object' },
       }),
     });
     if (!res.ok) throw new Error('Groq HTTP ' + res.status);
     const data = await res.json();
     return JSON.parse(data.choices[0].message.content);
+  }
+
+  /* Parse 1 giá thô từ AI thành số nguyên KRW + note (nếu có range) */
+  function parsePrice(raw) {
+    if (raw === null || raw === undefined || raw === '' || raw === 0) return { price: null, note: '' };
+    if (typeof raw === 'number') {
+      // AI đôi khi trả số nhỏ (chưa nhân 1000) — VD 1140 thay vì 1140000
+      if (raw > 0 && raw < 10000) return { price: raw * 1000, note: '' };
+      return { price: Math.round(raw), note: '' };
+    }
+    let s = String(raw).trim();
+    if (!s || /^(null|none|n\/a|-|—)$/i.test(s)) return { price: null, note: '' };
+    // Lưu nguyên gốc nếu phức tạp (có / ~ - chữ)
+    const isComplex = /[\/~]|cam|trắng|xanh|đen|hồng|vàng|tím|màu/i.test(s);
+    const noteOriginal = isComplex ? s : '';
+    // Tìm tất cả số trong chuỗi
+    const nums = s.match(/[\d.,]+/g) || [];
+    if (!nums.length) return { price: null, note: '' };
+    // Lấy số đầu tiên (giá thấp nhất / chính)
+    let n = parseFloat(nums[0].replace(/[.,](?=\d{3}\b)/g, '').replace(',', '.'));
+    if (isNaN(n)) return { price: null, note: noteOriginal };
+    // Heuristic đơn vị
+    if (/tr/i.test(s)) n *= 1000000;
+    else if (/k/i.test(s) || (n > 0 && n < 10000)) n *= 1000;
+    return { price: Math.round(n), note: noteOriginal };
+  }
+
+  function normalizeItem(it, globalNote) {
+    const A   = parsePrice(it.priceA   ?? it.price_a   ?? it.A);
+    const N   = parsePrice(it.priceNew ?? it.price_new ?? it.NEW ?? it.New ?? it.new);
+    const noteParts = [];
+    if (it.note)        noteParts.push(it.note);
+    if (A.note)         noteParts.push('A: ' + A.note);
+    if (N.note)         noteParts.push('NEW: ' + N.note);
+    if (globalNote && noteParts.length === 0) noteParts.push(globalNote);
+    return {
+      brand:     it.brand || guessBrand(it.model || ''),
+      model:     String(it.model || '').trim(),
+      config:    String(it.config || it.memory || '').trim(),
+      priceA:    A.price ?? '',
+      priceNew:  N.price ?? '',
+      statusA:   A.price ? 'in' : 'updating',
+      statusNew: N.price ? 'in' : 'updating',
+      note:      noteParts.join(' · '),
+    };
   }
 
   function guessBrand(model='') {
@@ -377,12 +452,12 @@ Trả JSON: { "items": [...], "month": "MM/YYYY", "note": "..." }`;
   function dedupe(items) {
     const seen = new Map();
     for (const it of items) {
-      const key = ((it.model || '') + '|' + (it.config || '')).toLowerCase().trim();
+      const key = ((it.model || '') + '|' + (it.config || '')).toLowerCase().replace(/\s+/g,'').trim();
+      if (!key) continue;
       if (!seen.has(key)) { seen.set(key, it); continue; }
       const old = seen.get(key);
-      // Merge: ưu tiên giá có sẵn, lấy max nếu cả 2 đều có
-      if (!old.priceA   && it.priceA)   old.priceA   = it.priceA;
-      if (!old.priceNew && it.priceNew) old.priceNew = it.priceNew;
+      if (!old.priceA   && it.priceA)   { old.priceA   = it.priceA;   old.statusA   = 'in'; }
+      if (!old.priceNew && it.priceNew) { old.priceNew = it.priceNew; old.statusNew = 'in'; }
       if (!old.note && it.note) old.note = it.note;
     }
     return Array.from(seen.values());
@@ -395,29 +470,31 @@ Trả JSON: { "items": [...], "month": "MM/YYYY", "note": "..." }`;
     rows.forEach((r, i) => {
       const tr = document.createElement('tr');
       tr.className = 'border-b border-slate-100 hover:bg-slate-50';
+      const priceCell = (val, key) => val
+        ? `<input class="editable w-full px-1 py-0.5 border border-transparent rounded text-right tabular-nums" data-k="${key}" type="number" value="${val}">`
+        : `<input class="editable w-full px-1 py-0.5 border border-amber-300 bg-amber-50 rounded text-right tabular-nums text-amber-700 italic" data-k="${key}" type="number" placeholder="Đang cập nhật" value="">`;
       tr.innerHTML = `
         <td class="p-2 text-slate-400 text-xs">${i+1}</td>
-        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="brand"    value="${esc(r.brand)}"></td>
-        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="model"    value="${esc(r.model)}"></td>
-        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="config"   value="${esc(r.config)}"></td>
-        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded text-right tabular-nums" data-k="priceA"   type="number" value="${r.priceA || ''}"></td>
-        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded text-right tabular-nums" data-k="priceNew" type="number" value="${r.priceNew || ''}"></td>
-        <td class="p-2">
-          <select class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="status">
-            <option value="in"  ${r.status==='in'?'selected':''}>Còn</option>
-            <option value="low" ${r.status==='low'?'selected':''}>Sắp hết</option>
-            <option value="out" ${r.status==='out'?'selected':''}>Hết</option>
-          </select>
-        </td>
-        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="note" value="${esc(r.note)}"></td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="brand"  value="${esc(r.brand)}"></td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded font-medium" data-k="model"  value="${esc(r.model)}"></td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded" data-k="config" value="${esc(r.config)}"></td>
+        <td class="p-2">${priceCell(r.priceA,   'priceA')}</td>
+        <td class="p-2">${priceCell(r.priceNew, 'priceNew')}</td>
+        <td class="p-2"><input class="editable w-full px-1 py-0.5 border border-transparent rounded text-xs" data-k="note" value="${esc(r.note)}"></td>
         <td class="p-2 text-center"><button class="row-del text-red-500 hover:text-red-700" title="Xóa">🗑️</button></td>
       `;
       tr.querySelectorAll('[data-k]').forEach(inp =>
         inp.addEventListener('input', e => {
           const k = e.target.dataset.k;
           let v = e.target.value;
-          if (k === 'priceA' || k === 'priceNew') v = parseInt(v, 10) || '';
-          rows[i][k] = v;
+          if (k === 'priceA' || k === 'priceNew') {
+            v = parseInt(v, 10) || '';
+            // Cập nhật status tự động theo giá
+            rows[i][k] = v;
+            rows[i][k === 'priceA' ? 'statusA' : 'statusNew'] = v ? 'in' : 'updating';
+          } else {
+            rows[i][k] = v;
+          }
           updateStats();
         })
       );
@@ -443,7 +520,7 @@ Trả JSON: { "items": [...], "month": "MM/YYYY", "note": "..." }`;
   }
 
   $('#btn-add-row').addEventListener('click', () => {
-    rows.push({ brand:'iPhone', model:'', config:'', priceA:'', priceNew:'', status:'in', note:'' });
+    rows.push({ brand:'iPhone', model:'', config:'', priceA:'', priceNew:'', statusA:'updating', statusNew:'updating', note:'' });
     renderTable();
   });
 
@@ -454,22 +531,30 @@ Trả JSON: { "items": [...], "month": "MM/YYYY", "note": "..." }`;
 
   /* --- Export --- */
   function buildSheets() {
-    const header = ['Brand', 'Model', 'Config', 'Giá Hàng A (₩)', 'Giá Hàng New (₩)', 'Status', 'Ghi chú'];
+    const header = ['Brand', 'Model', 'Memory', 'Giá A — Like new (₩)', 'Trạng thái A', 'Giá NEW — Đập hộp (₩)', 'Trạng thái NEW', 'Ghi chú'];
     const data = rows.map(r => [
       r.brand, r.model, r.config,
-      r.priceA || '', r.priceNew || '',
-      r.status, r.note || '',
+      r.priceA   || 'Đang cập nhật',
+      r.priceA   ? 'Còn hàng' : 'Đang cập nhật',
+      r.priceNew || 'Đang cập nhật',
+      r.priceNew ? 'Còn hàng' : 'Đang cập nhật',
+      r.note || '',
     ]);
     const ws1 = XLSX.utils.aoa_to_sheet([header, ...data]);
-    ws1['!cols'] = [{wch:10},{wch:24},{wch:22},{wch:14},{wch:14},{wch:10},{wch:30}];
+    ws1['!cols'] = [{wch:10},{wch:26},{wch:18},{wch:18},{wch:14},{wch:18},{wch:14},{wch:36}];
+    // In đậm header
+    for (let c = 0; c < header.length; c++) {
+      const cell = ws1[XLSX.utils.encode_cell({r:0,c})];
+      if (cell) cell.s = { font: { bold: true } };
+    }
 
-    // Top 6 nổi bật: 6 dòng có giá thấp nhất ở mỗi flagship
+    // Top 6 nổi bật
     const top = pickTop6(rows);
     const ws2 = XLSX.utils.aoa_to_sheet([
-      ['Model', 'Config', 'Price (₩)', 'Brand'],
+      ['Model', 'Memory', 'Giá thấp nhất (₩)', 'Brand'],
       ...top.map(t => [t.model, t.config, t.price, t.brand]),
     ]);
-    ws2['!cols'] = [{wch:24},{wch:22},{wch:14},{wch:10}];
+    ws2['!cols'] = [{wch:26},{wch:18},{wch:18},{wch:10}];
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws1, 'Bảng giá');
@@ -528,16 +613,45 @@ Trả JSON: { "items": [...], "month": "MM/YYYY", "note": "..." }`;
       const arr = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
       if (arr.length < 2) throw new Error('File trống');
       const head = arr[0].map(h => String(h).toLowerCase());
-      const idx = name => head.findIndex(h => h.includes(name));
-      rows = arr.slice(1).filter(r => r.some(c => c !== '')).map(r => ({
-        brand:    String(r[idx('brand')] || ''),
-        model:    String(r[idx('model')] || ''),
-        config:   String(r[idx('config')] || ''),
-        priceA:   parseInt(r[idx('hàng a')] >= 0 ? r[idx('hàng a')] : r[3], 10) || '',
-        priceNew: parseInt(r[idx('hàng new')] >= 0 ? r[idx('hàng new')] : r[4], 10) || '',
-        status:   String(r[idx('status')] || 'in'),
-        note:     String(r[idx('ghi chú')] || r[idx('note')] || ''),
-      }));
+      const findCol = (...names) => {
+        for (const n of names) {
+          const i = head.findIndex(h => h.includes(n));
+          if (i >= 0) return i;
+        }
+        return -1;
+      };
+      const ci = {
+        brand:  findCol('brand', 'hãng'),
+        model:  findCol('model'),
+        memory: findCol('memory', 'config', 'dung lượng'),
+        priceA: findCol('like new', 'hàng a', 'giá a'),
+        priceN: findCol('đập hộp', 'hàng new', 'giá new', 'new'),
+        note:   findCol('ghi chú', 'note'),
+      };
+      const toNum = v => {
+        if (typeof v === 'number') return v;
+        const s = String(v).trim();
+        if (!s || /cập nhật|updating/i.test(s)) return '';
+        const n = parseInt(s.replace(/[^\d]/g,''), 10);
+        return isNaN(n) ? '' : n;
+      };
+      rows = arr.slice(1)
+        .filter(r => r.some(c => String(c).trim() !== ''))
+        .map(r => {
+          const pA = toNum(r[ci.priceA]);
+          const pN = toNum(r[ci.priceN]);
+          return {
+            brand:     String(r[ci.brand]  || '').trim() || guessBrand(r[ci.model]),
+            model:     String(r[ci.model]  || '').trim(),
+            config:    String(r[ci.memory] || '').trim(),
+            priceA:    pA || '',
+            priceNew:  pN || '',
+            statusA:   pA ? 'in' : 'updating',
+            statusNew: pN ? 'in' : 'updating',
+            note:      String(r[ci.note] || '').trim(),
+          };
+        })
+        .filter(r => r.model);
       renderTable();
       banner(`📥 Đã import ${rows.length} dòng từ file ${f.name}`, 'ok');
     } catch (err) {
