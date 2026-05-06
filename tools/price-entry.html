@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhập Bảng Giá Thủ Công → Excel | MultiMart KOREA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-variant-numeric:tabular-nums}
+  .row{display:grid;grid-template-columns:180px 130px 130px 130px 1fr 32px;gap:6px;align-items:center;padding:4px 8px;border-bottom:1px solid #f1f5f9}
+  .row:hover{background:#f8fafc}
+  .row.brand-header{grid-template-columns:1fr;background:linear-gradient(90deg,#16a34a,#15803d);color:#fff;font-weight:700;padding:10px 12px;border-radius:6px;margin:14px 0 6px}
+  .row.section-header{grid-template-columns:1fr;background:#f0fdf4;color:#15803d;font-weight:700;padding:6px 12px;border-left:4px solid #16a34a;margin:6px 0 2px;font-size:13px}
+  .row input[type="text"],.row input[type="number"]{width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;background:#fff}
+  .row input:focus{outline:2px solid #16a34a;border-color:#16a34a}
+  .row input[type="number"]{text-align:right}
+  .price-empty{background:#fef9c3 !important;color:#854d0e;font-style:italic}
+  .col-head{display:grid;grid-template-columns:180px 130px 130px 130px 1fr 32px;gap:6px;padding:8px;background:#1e293b;color:#fff;border-radius:6px;font-weight:600;font-size:13px;position:sticky;top:0;z-index:10}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+  .badge-A{background:#dbeafe;color:#1e40af}
+  .badge-N{background:#dcfce7;color:#166534}
+  .compact .row{padding:2px 8px}
+  .compact .row input{padding:3px 6px;font-size:13px}
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<div class="max-w-6xl mx-auto p-4 sm:p-6">
+
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">📝 Nhập Bảng Giá Thủ Công</h1>
+      <p class="text-sm text-slate-600 mt-1">Chuẩn xác 100% · Không cần AI · Chạy offline trên máy bạn</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="price-scan.html" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm hover:bg-slate-50">🔍 Quét bằng AI</a>
+      <a href="../admin-cms.html" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm hover:bg-slate-50">← CMS</a>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4 flex flex-wrap items-center gap-2 sticky top-0 z-20 shadow-sm">
+    <button id="btn-template" class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">📥 Tải template Excel trống</button>
+    <label class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 cursor-pointer">
+      📤 Mở Excel đã điền
+      <input type="file" id="import-file" accept=".xlsx,.xls,.csv" class="hidden">
+    </label>
+    <button id="btn-export" class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700">📊 Xuất Excel hoàn chỉnh</button>
+    <button id="btn-csv"    class="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50">📄 CSV</button>
+    <button id="btn-save"   class="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50">💾 Lưu nháp</button>
+    <button id="btn-load"   class="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50">↩️ Khôi phục</button>
+    <button id="btn-clear"  class="px-3 py-2 bg-white border border-slate-300 text-red-600 rounded-lg text-sm hover:bg-red-50">🗑️ Xóa hết giá</button>
+    <span class="ml-auto text-xs text-slate-600">
+      <span id="stat-filled" class="font-semibold text-green-700">0</span>/<span id="stat-total">0</span> ô đã điền
+    </span>
+  </div>
+
+  <!-- Meta -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4 grid sm:grid-cols-3 gap-3">
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1">Tên cửa hàng</label>
+      <input id="meta-shop" type="text" value="MultiMart KOREA" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1">Tháng / ngày bảng giá</label>
+      <input id="meta-date" type="text" placeholder="VD: 28/01/2025" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1">Ghi chú chung</label>
+      <input id="meta-note" type="text" placeholder="VD: Đơn vị KRW, giao toàn Hàn" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+    </div>
+  </div>
+
+  <!-- Hint -->
+  <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-3 text-xs text-blue-900">
+    💡 <b>Cách dùng:</b> Chỉ cần điền số vào cột <b>Hàng A</b> (like-new) và <b>Hàng NEW</b> (đập hộp). Đơn vị: <b>ngàn ₩</b> (gõ <code>1490</code> = 1.490.000 ₩) — hoặc bạn có thể bật/tắt nhân ngàn ở dưới. Ô bỏ trống = <b>"Đang cập nhật"</b> (chưa có máy). Có thể nhấn <kbd>Tab</kbd> để di chuyển nhanh giữa các ô.
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-3 flex flex-wrap items-center gap-3 text-sm">
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="opt-thousand" checked class="rounded">
+      Nhân ngàn tự động (gõ <code>1490</code> → 1.490.000 ₩)
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="opt-compact" class="rounded">
+      Hiển thị gọn (xem nhiều dòng cùng lúc)
+    </label>
+    <span class="ml-auto text-xs text-slate-500">Tự động lưu nháp khi gõ</span>
+  </div>
+
+  <!-- Header row -->
+  <div class="col-head">
+    <div>Model</div>
+    <div>Memory</div>
+    <div class="text-right">Giá A — Like new <span class="badge badge-A">A</span></div>
+    <div class="text-right">Giá NEW — Đập hộp <span class="badge badge-N">NEW</span></div>
+    <div>Ghi chú (màu, ưu đãi...)</div>
+    <div></div>
+  </div>
+
+  <!-- Body -->
+  <div id="grid" class="bg-white border border-slate-200 rounded-xl p-3 mt-2"></div>
+
+  <div class="mt-4 flex gap-2">
+    <button id="btn-add-custom" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200">➕ Thêm dòng tùy chỉnh</button>
+    <button id="btn-add-section" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200">📂 Thêm section / nhóm</button>
+  </div>
+
+  <p class="text-xs text-slate-500 mt-6 text-center">
+    Tool chạy 100% trong trình duyệt · Dữ liệu tự lưu vào localStorage máy bạn · Không gửi lên server.
+  </p>
+</div>
+
+<script>
+/* ============================================================
+   PRESET DATA — Danh sách máy chuẩn theo bảng Kim Korea Mobile
+   Bạn có thể thêm/bớt model bất cứ lúc nào
+   ============================================================ */
+const PRESET = [
+  { sec: '── iPhone 17 Series ──' },
+  { brand:'iPhone', model:'iPhone 17 Pro Max', memory:'1TB' },
+  { brand:'iPhone', model:'iPhone 17 Pro Max', memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 17 Pro Max', memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 17 Pro',     memory:'1TB' },
+  { brand:'iPhone', model:'iPhone 17 Pro',     memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 17 Pro',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 17 Air',     memory:'1TB' },
+  { brand:'iPhone', model:'iPhone 17 Air',     memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 17 Air',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 17',         memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 17',         memory:'256GB' },
+
+  { sec: '── iPhone 16 Series ──' },
+  { brand:'iPhone', model:'iPhone 16 Pro Max', memory:'1TB' },
+  { brand:'iPhone', model:'iPhone 16 Pro Max', memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 16 Pro Max', memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 16 Pro',     memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 16 Pro',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 16 Pro',     memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 16 Plus',    memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 16 Plus',    memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 16 Plus',    memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 16',         memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 16',         memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 16',         memory:'128GB' },
+
+  { sec: '── iPhone 15 Series ──' },
+  { brand:'iPhone', model:'iPhone 15 Pro Max', memory:'1TB' },
+  { brand:'iPhone', model:'iPhone 15 Pro Max', memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 15 Pro Max', memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 15 Pro',     memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 15 Pro',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 15 Pro',     memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 15 Plus',    memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 15 Plus',    memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 15',         memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 15',         memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 15',         memory:'128GB' },
+
+  { sec: '── iPhone 14 Series ──' },
+  { brand:'iPhone', model:'iPhone 14 Pro Max', memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 14 Pro Max', memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 14 Pro Max', memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 14 Pro',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 14 Pro',     memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 14 Plus',    memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 14 Plus',    memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 14',         memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 14',         memory:'128GB' },
+
+  { sec: '── iPhone 13 Series ──' },
+  { brand:'iPhone', model:'iPhone 13 Pro Max', memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 13 Pro Max', memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 13 Pro Max', memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 13 Pro',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 13 Pro',     memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 13',         memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 13',         memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 13 Mini',    memory:'128GB' },
+
+  { sec: '── iPhone 12 & cũ hơn ──' },
+  { brand:'iPhone', model:'iPhone 12 Pro Max', memory:'512GB' },
+  { brand:'iPhone', model:'iPhone 12 Pro Max', memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 12 Pro Max', memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 12 Pro',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 12',         memory:'128GB' },
+  { brand:'iPhone', model:'iPhone 12',         memory:'64GB' },
+  { brand:'iPhone', model:'iPhone 11 Pro Max', memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 11 Pro',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone XS Max',     memory:'256GB' },
+  { brand:'iPhone', model:'iPhone 8 Plus',     memory:'64GB' },
+
+  { sec: '── Samsung Galaxy S Series ──' },
+  { brand:'Samsung', model:'Samsung S25 Ultra', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung S25 Plus',  memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung S25',       memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung S25 Edge',  memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung S24 Ultra', memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S24 Ultra', memory:'512GB' },
+  { brand:'Samsung', model:'Samsung S24 Plus',  memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S24',       memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S23 Ultra', memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S23 Ultra', memory:'512GB' },
+  { brand:'Samsung', model:'Samsung S23 Plus',  memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S23',       memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S22 Ultra', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung S22 Plus',  memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S22',       memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S21 Ultra', memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S21 Plus',  memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S21',       memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S20 Ultra', memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S20 Plus',  memory:'256GB' },
+  { brand:'Samsung', model:'Samsung S20 / S20 FE', memory:'128GB' },
+
+  { sec: '── Samsung Note Series ──' },
+  { brand:'Samsung', model:'Samsung Note 20 Ultra', memory:'256GB' },
+  { brand:'Samsung', model:'Samsung Note 20',       memory:'256GB' },
+  { brand:'Samsung', model:'Samsung Note 10 Plus',  memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Note 10',       memory:'256GB' },
+  { brand:'Samsung', model:'Samsung Note 9',        memory:'128GB' },
+
+  { sec: '── Samsung Z Fold / Flip ──' },
+  { brand:'Samsung', model:'Samsung Z Fold 7', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Z Fold 6', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Z Fold 5', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Z Fold 4', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Z Fold 3', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Z Flip 6', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Z Flip 5', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Z Flip 4', memory:'256/512GB' },
+  { brand:'Samsung', model:'Samsung Z Flip 3', memory:'256GB' },
+];
+
+/* ============================================================ */
+
+const $ = s => document.querySelector(s);
+const LS_KEY = 'mm_price_entry_v1';
+let rows = []; // {brand, model, memory, priceA, priceNew, note, _isCustom}
+let sections = []; // {idx, label}
+
+/* --- Init --- */
+function init() {
+  rows = [];
+  sections = [];
+  for (const p of PRESET) {
+    if (p.sec) {
+      sections.push({ idx: rows.length, label: p.sec });
+    } else {
+      rows.push({ brand: p.brand, model: p.model, memory: p.memory, priceA: '', priceNew: '', note: '' });
+    }
+  }
+  loadDraft(true); // try restore
+  render();
+}
+
+/* --- Render --- */
+function render() {
+  const grid = $('#grid');
+  grid.innerHTML = '';
+  let curBrand = '';
+  let secMap = new Map(sections.map(s => [s.idx, s.label]));
+
+  rows.forEach((r, i) => {
+    // Insert section header before this row if matched
+    if (secMap.has(i)) {
+      const sh = document.createElement('div');
+      sh.className = 'row section-header';
+      sh.innerHTML = `<div>${secMap.get(i)}</div>`;
+      grid.appendChild(sh);
+    }
+    // Brand banner if changed
+    if (r.brand && r.brand !== curBrand) {
+      curBrand = r.brand;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    const fmtPrice = v => v ? Number(v).toLocaleString('en-US') : '';
+    row.innerHTML = `
+      <input data-i="${i}" data-k="model"    type="text" value="${esc(r.model)}" placeholder="Model">
+      <input data-i="${i}" data-k="memory"   type="text" value="${esc(r.memory)}" placeholder="Memory">
+      <input data-i="${i}" data-k="priceA"   type="number" value="${r.priceA   || ''}" placeholder="Đang cập nhật" class="${r.priceA   ? '' : 'price-empty'}" title="${fmtPrice(r.priceA)} ₩">
+      <input data-i="${i}" data-k="priceNew" type="number" value="${r.priceNew || ''}" placeholder="Đang cập nhật" class="${r.priceNew ? '' : 'price-empty'}" title="${fmtPrice(r.priceNew)} ₩">
+      <input data-i="${i}" data-k="note"     type="text"   value="${esc(r.note)}" placeholder="Ghi chú">
+      <button class="row-del text-red-500 hover:text-red-700 text-lg" data-i="${i}" title="Xóa dòng">×</button>
+    `;
+    grid.appendChild(row);
+  });
+
+  grid.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const i = +e.target.dataset.i;
+      const k = e.target.dataset.k;
+      let v = e.target.value;
+      rows[i][k] = v;
+      if (k === 'priceA' || k === 'priceNew') {
+        e.target.classList.toggle('price-empty', !v);
+      }
+      saveDraft();
+      updateStats();
+    });
+    // Auto multiply by 1000 on blur if option enabled
+    inp.addEventListener('blur', e => {
+      if (!$('#opt-thousand').checked) return;
+      const k = e.target.dataset.k;
+      if (k !== 'priceA' && k !== 'priceNew') return;
+      let v = parseInt(e.target.value, 10);
+      if (!v || isNaN(v)) return;
+      // Nếu < 100,000 → là dạng ngàn, nhân 1000
+      if (v > 0 && v < 100000) {
+        v = v * 1000;
+        e.target.value = v;
+        const i = +e.target.dataset.i;
+        rows[i][k] = String(v);
+        saveDraft();
+      }
+    });
+  });
+  grid.querySelectorAll('.row-del').forEach(b =>
+    b.addEventListener('click', e => {
+      const i = +b.dataset.i;
+      rows.splice(i, 1);
+      // Adjust section indexes
+      sections = sections.map(s => s.idx > i ? { ...s, idx: s.idx - 1 } : s);
+      render();
+      saveDraft();
+    })
+  );
+  updateStats();
+}
+
+function esc(s) { return String(s ?? '').replace(/"/g, '&quot;'); }
+
+function updateStats() {
+  const filled = rows.filter(r => r.priceA || r.priceNew).length;
+  const total = rows.length * 2;
+  const filledCells = rows.reduce((n, r) => n + (r.priceA?1:0) + (r.priceNew?1:0), 0);
+  $('#stat-filled').textContent = filledCells;
+  $('#stat-total').textContent = total;
+}
+
+/* --- Save / Load --- */
+function saveDraft() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      rows, sections,
+      meta: {
+        shop: $('#meta-shop').value,
+        date: $('#meta-date').value,
+        note: $('#meta-note').value,
+      },
+      savedAt: new Date().toISOString(),
+    }));
+  } catch (e) { /* quota? */ }
+}
+function loadDraft(silent) {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) { if (!silent) alert('Chưa có nháp đã lưu.'); return; }
+    const obj = JSON.parse(raw);
+    if (obj.rows) rows = obj.rows;
+    if (obj.sections) sections = obj.sections;
+    if (obj.meta) {
+      $('#meta-shop').value = obj.meta.shop || '';
+      $('#meta-date').value = obj.meta.date || '';
+      $('#meta-note').value = obj.meta.note || '';
+    }
+    if (!silent) alert('Đã khôi phục nháp lưu lúc: ' + new Date(obj.savedAt).toLocaleString('vi-VN'));
+  } catch (e) { console.warn(e); }
+}
+
+/* --- Toolbar actions --- */
+$('#btn-save').addEventListener('click', () => { saveDraft(); alert('💾 Đã lưu nháp vào trình duyệt máy bạn.'); });
+$('#btn-load').addEventListener('click', () => { loadDraft(false); render(); });
+$('#btn-clear').addEventListener('click', () => {
+  if (!confirm('Xóa toàn bộ giá đã nhập? (giữ lại danh sách model)')) return;
+  rows.forEach(r => { r.priceA = ''; r.priceNew = ''; r.note = ''; });
+  saveDraft(); render();
+});
+
+$('#btn-add-custom').addEventListener('click', () => {
+  rows.push({ brand:'', model:'', memory:'', priceA:'', priceNew:'', note:'' });
+  render();
+  // Focus on the new row
+  const inputs = document.querySelectorAll('#grid .row input[data-k="model"]');
+  inputs[inputs.length - 1]?.focus();
+});
+
+$('#btn-add-section').addEventListener('click', () => {
+  const label = prompt('Tên section / nhóm:', '── Nhóm mới ──');
+  if (!label) return;
+  sections.push({ idx: rows.length, label });
+  render();
+});
+
+$('#opt-compact').addEventListener('change', e => {
+  document.querySelector('#grid').classList.toggle('compact', e.target.checked);
+});
+
+/* --- Template Excel --- */
+$('#btn-template').addEventListener('click', () => {
+  const header = ['Brand', 'Model', 'Memory', 'Giá A — Like new (ngàn ₩)', 'Giá NEW — Đập hộp (ngàn ₩)', 'Ghi chú'];
+  const data = [header];
+  let secMap = new Map(sections.map(s => [s.idx, s.label]));
+  rows.forEach((r, i) => {
+    if (secMap.has(i)) data.push([secMap.get(i), '', '', '', '', '']);
+    data.push([r.brand, r.model, r.memory, '', '', '']);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:10},{wch:28},{wch:18},{wch:20},{wch:20},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Bảng giá');
+  XLSX.writeFile(wb, `template-bang-gia-trong.xlsx`);
+});
+
+/* --- Import filled Excel/CSV --- */
+$('#import-file').addEventListener('change', async e => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  try {
+    const buf = await f.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const arr = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (arr.length < 2) throw new Error('File trống');
+
+    const head = arr[0].map(h => String(h).toLowerCase());
+    const findCol = (...names) => {
+      for (const n of names) {
+        const i = head.findIndex(h => h.includes(n));
+        if (i >= 0) return i;
+      }
+      return -1;
+    };
+    const ci = {
+      brand:  findCol('brand', 'hãng'),
+      model:  findCol('model'),
+      memory: findCol('memory', 'dung lượng', 'config'),
+      priceA: findCol('like new', 'hàng a', 'giá a', ' a '),
+      priceN: findCol('đập hộp', 'hàng new', 'giá new', 'new'),
+      note:   findCol('ghi chú', 'note'),
+    };
+    if (ci.model < 0) throw new Error('Không tìm thấy cột Model trong file');
+
+    const toNum = v => {
+      if (typeof v === 'number') return v;
+      const s = String(v).trim();
+      if (!s || /cập nhật|updating|^-$|n\/a/i.test(s)) return '';
+      const n = parseInt(s.replace(/[^\d]/g,''), 10);
+      if (isNaN(n) || n === 0) return '';
+      // Auto multiply if it looks like thousand-shorthand
+      if (n > 0 && n < 100000 && $('#opt-thousand').checked) return String(n * 1000);
+      return String(n);
+    };
+
+    rows = [];
+    sections = [];
+    arr.slice(1).forEach(r => {
+      const model = String(r[ci.model] || '').trim();
+      if (!model) return;
+      // Section detector: rows where Brand col looks like ─── ... ───
+      if (/^[─-]+/.test(model) || /^──/.test(String(r[0] || ''))) {
+        sections.push({ idx: rows.length, label: model || String(r[0] || '') });
+        return;
+      }
+      rows.push({
+        brand:    String(r[ci.brand]  || '').trim() || guessBrand(model),
+        model:    model,
+        memory:   String(r[ci.memory] || '').trim(),
+        priceA:   toNum(r[ci.priceA]),
+        priceNew: toNum(r[ci.priceN]),
+        note:     String(r[ci.note] || '').trim(),
+      });
+    });
+    saveDraft(); render();
+    alert(`✅ Đã import ${rows.length} dòng từ ${f.name}`);
+  } catch (err) {
+    alert('❌ Lỗi đọc file: ' + err.message);
+  }
+  e.target.value = '';
+});
+
+function guessBrand(model='') {
+  const m = model.toLowerCase();
+  if (m.includes('iphone') || m.includes('ipad')) return 'iPhone';
+  if (m.includes('airpods') || m.includes('macbook') || m.includes('watch')) return 'Apple';
+  if (m.includes('samsung') || m.includes('galaxy') || /\b(s|note|z\s?fold|z\s?flip|fold|flip)\b/i.test(m)) return 'Samsung';
+  if (m.includes('xiaomi') || m.includes('redmi')) return 'Xiaomi';
+  if (m.includes('oppo')) return 'Oppo';
+  if (m.includes('vivo')) return 'Vivo';
+  return 'Khác';
+}
+
+/* --- Export filled Excel --- */
+function buildExportSheet() {
+  const header = ['Brand', 'Model', 'Memory', 'Giá A — Like new (₩)', 'Trạng thái A', 'Giá NEW — Đập hộp (₩)', 'Trạng thái NEW', 'Ghi chú'];
+  const meta = [
+    ['Cửa hàng', $('#meta-shop').value || '', '', '', '', '', '', ''],
+    ['Ngày', $('#meta-date').value || '', '', '', '', '', '', ''],
+    ['Ghi chú', $('#meta-note').value || '', '', '', '', '', '', ''],
+    [], // empty row
+  ];
+  const body = [];
+  let secMap = new Map(sections.map(s => [s.idx, s.label]));
+  rows.forEach((r, i) => {
+    if (secMap.has(i)) body.push([secMap.get(i), '', '', '', '', '', '', '']);
+    body.push([
+      r.brand, r.model, r.memory,
+      r.priceA   ? Number(r.priceA)   : 'Đang cập nhật',
+      r.priceA   ? 'Còn hàng' : 'Đang cập nhật',
+      r.priceNew ? Number(r.priceNew) : 'Đang cập nhật',
+      r.priceNew ? 'Còn hàng' : 'Đang cập nhật',
+      r.note || '',
+    ]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet([...meta, header, ...body]);
+  ws['!cols'] = [{wch:10},{wch:28},{wch:18},{wch:18},{wch:14},{wch:20},{wch:14},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Bảng giá');
+  return wb;
+}
+
+$('#btn-export').addEventListener('click', () => {
+  const wb = buildExportSheet();
+  const stamp = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `bang-gia-${stamp}.xlsx`);
+});
+
+$('#btn-csv').addEventListener('click', () => {
+  const wb = buildExportSheet();
+  const csv = XLSX.utils.sheet_to_csv(wb.Sheets['Bảng giá']);
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bang-gia-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* --- Auto-save on meta change --- */
+['meta-shop', 'meta-date', 'meta-note'].forEach(id =>
+  $('#' + id).addEventListener('input', saveDraft)
+);
+
+/* --- Keyboard: Tab navigates priceA → priceNew → next row's priceA --- */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const t = e.target;
+  if (!t.dataset.k) return;
+  e.preventDefault();
+  const i = +t.dataset.i;
+  const k = t.dataset.k;
+  const next = (k === 'priceA') ? `[data-i="${i}"][data-k="priceNew"]`
+              : (k === 'priceNew') ? `[data-i="${i+1}"][data-k="priceA"]`
+              : null;
+  if (next) document.querySelector(next)?.focus();
+});
+
+init();
+</script>
+</body>
+</html>
