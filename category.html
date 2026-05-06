@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" data-mm-page="category">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Danh M?c - MultiMart KOREA</title>
+  <title>Danh Mục - MultiMart KOREA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,11 +30,11 @@
         <div id="cat-chips" class="flex gap-2 overflow-x-auto hide-scrollbar"></div>
         <div class="flex items-center gap-2">
           <select id="sort" class="field !py-2 text-xs">
-            <option value="default">M?c d?nh</option>
-            <option value="low">Gi� th?p ? cao</option>
-            <option value="high">Gi� cao ? th?p</option>
-            <option value="rating">��nh gi� t?t</option>
-            <option value="sold">B�n ch?y</option>
+            <option value="default">Mặc định</option>
+            <option value="low">Giá thấp → cao</option>
+            <option value="high">Giá cao → thấp</option>
+            <option value="rating">Đánh giá tốt</option>
+            <option value="sold">Bán chạy</option>
           </select>
         </div>
       </div>
@@ -42,7 +42,7 @@
       <!-- Grid -->
       <div id="prod-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
       <div id="empty" class="hidden text-center py-20 text-slate-400">
-        <i class="fas fa-box-open text-5xl mb-3"></i><p>Chua c� s?n ph?m n�o trong danh m?c n�y.</p>
+        <i class="fas fa-box-open text-5xl mb-3"></i><p>Chưa có sản phẩm nào trong danh mục này.</p>
       </div>
     </section>
   </div>
@@ -51,7 +51,8 @@
 <div data-mm="footer"></div>
 <div data-mm="bottomnav" data-active="cat"></div>
 
-<script src="assets/data/phones-images.js"></script><script src="assets/data/products.js"></script>
+<script src="assets/data/phones-images.js"></script>
+<script src="assets/data/products.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/state.js"></script>
 <script src="assets/js/components.js"></script>

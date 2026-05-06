@@ -272,9 +272,12 @@ document.addEventListener('DOMContentLoaded', () => {
         </a>`;
     }).join('');
 
-    /* Lazy-load ảnh thật từ Wikipedia */
+    /* Lazy-load ảnh thật từ Wikipedia (chỉ cho ảnh chưa có local) */
     if (window.MM_UTILS?.attachLazyPhoneImage) {
       phonesGrid.querySelectorAll('img[data-phone-search]').forEach(img => {
+        const src = img.getAttribute('src') || '';
+        // Đã có ảnh local thật → bỏ qua, không gọi Wikipedia (tránh ghi đè bằng URL fail)
+        if (src.startsWith('assets/images/phones/')) return;
         window.MM_UTILS.attachLazyPhoneImage(img, img.dataset.phoneSearch);
       });
     }
