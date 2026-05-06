@@ -67,16 +67,20 @@
       <button id="btn-clear" class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200">🗑️ Xóa hết</button>
     </div>
 
-    <details class="mt-3 text-xs text-slate-600">
+    <details class="mt-3 text-xs text-slate-600" open>
       <summary class="cursor-pointer hover:text-slate-900">⚙️ Tùy chọn nâng cao</summary>
       <div class="mt-2 p-3 bg-slate-50 rounded space-y-2">
         <label class="flex items-center gap-2">
-          <input type="checkbox" id="opt-merge" class="rounded">
-          Gộp kết quả nhiều ảnh thành 1 bảng (khử trùng theo Model + Config)
+          <input type="checkbox" id="opt-split" class="rounded" checked>
+          <b>Tự động chia ảnh trái-phải</b> (đề xuất ✅) — Quét nửa iPhone &amp; nửa Samsung riêng để không bỏ sót dòng
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" id="opt-merge" class="rounded" checked>
+          Gộp &amp; khử trùng (loại các dòng trùng Model + Memory)
         </label>
         <label class="block">
           Hint cho AI (tùy chọn):
-          <input type="text" id="opt-hint" placeholder="VD: Tháng 05/2026, đơn vị KRW, có cột Hàng A và Hàng New"
+          <input type="text" id="opt-hint" placeholder="VD: Tháng 01/2025, Kim Korea Mobile, có 2 bảng iPhone-Samsung"
             class="w-full mt-1 px-2 py-1 border border-slate-300 rounded text-xs">
         </label>
       </div>
@@ -175,7 +179,7 @@
 
 </div>
 
-<script src="../assets/js/cms.js?v=4"></script>
+<script src="../assets/js/cms.js?v=6"></script>
 <script>
 /* ==================================================
    QUÉT BẢNG GIÁ → EXCEL
@@ -294,16 +298,35 @@
     sp.classList.remove('hidden');
 
     const merge = $('#opt-merge').checked;
+    const split = $('#opt-split').checked;
     const hint  = $('#opt-hint').value.trim();
     let allItems = [];
     let errors   = 0;
     let lastErr  = '';
 
+    // Tạo danh sách "công việc": nếu split → mỗi ảnh thành 2 nửa (LEFT, RIGHT)
+    const tasks = [];
     for (let i = 0; i < pickedFiles.length; i++) {
-      lab.textContent = `Đang quét ảnh ${i+1}/${pickedFiles.length}...`;
+      const f = pickedFiles[i];
+      if (split) {
+        try {
+          const [L, R] = await splitImageHalves(f);
+          tasks.push({ file: L, label: `Ảnh ${i+1} - nửa TRÁI`, side: 'left' });
+          tasks.push({ file: R, label: `Ảnh ${i+1} - nửa PHẢI`, side: 'right' });
+        } catch (e) {
+          console.warn('Split fail, dùng ảnh gốc:', e);
+          tasks.push({ file: f, label: `Ảnh ${i+1}`, side: 'full' });
+        }
+      } else {
+        tasks.push({ file: f, label: `Ảnh ${i+1}`, side: 'full' });
+      }
+    }
+
+    for (let i = 0; i < tasks.length; i++) {
+      const t = tasks[i];
+      lab.textContent = `Đang quét ${t.label} (${i+1}/${tasks.length})...`;
       try {
-        const file = pickedFiles[i];
-        const res  = await callGroqWithHint(file, hint);
+        const res  = await callGroqWithHint(t.file, hint, t.side);
         const items = (res?.items || []).map(it => normalizeItem(it, res?.note));
         allItems = allItems.concat(items);
       } catch (err) {
@@ -326,9 +349,37 @@
     if (merge) allItems = dedupe(allItems);
 
     rows = allItems;
-    banner(`✅ Quét xong! Trích xuất được <b>${rows.length}</b> dòng từ ${pickedFiles.length} ảnh.${errors ? ' ('+errors+' lỗi đã bỏ qua)' : ''} Hãy kiểm tra & sửa nếu cần.`, 'ok');
+    const splitInfo = split ? ` (chia ${tasks.length} nửa)` : '';
+    banner(`✅ Quét xong! Trích xuất được <b>${rows.length}</b> dòng từ ${pickedFiles.length} ảnh${splitInfo}.${errors ? ' ('+errors+' lỗi đã bỏ qua)' : ''} Hãy kiểm tra & sửa nếu cần.`, 'ok');
     buildImageTabs();
     renderTable();
+  }
+
+  /* Crop ảnh thành 2 nửa trái + phải (overlap nhỏ ~4% để không cắt mất ô đường biên) */
+  async function splitImageHalves(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => {
+        const i = new Image();
+        i.onload = () => res(i);
+        i.onerror = rej;
+        i.src = url;
+      });
+      const w = img.naturalWidth, h = img.naturalHeight;
+      const cut = Math.floor(w * 0.52); // hơi nghiêng phải vì cột Samsung thường to hơn
+      const overlap = Math.floor(w * 0.04);
+      const make = (sx, sw, name) => new Promise((resolve) => {
+        const c = document.createElement('canvas');
+        c.width = sw; c.height = h;
+        c.getContext('2d').drawImage(img, sx, 0, sw, h, 0, 0, sw, h);
+        c.toBlob(b => resolve(new File([b], name, { type: 'image/jpeg' })), 'image/jpeg', 0.92);
+      });
+      const left  = await make(0, cut + overlap, 'left.jpg');
+      const right = await make(cut - overlap, w - (cut - overlap), 'right.jpg');
+      return [left, right];
+    } finally {
+      URL.revokeObjectURL(url);
+    }
   }
 
   /* --- Build sticky image preview tabs (split-pane verify) --- */
@@ -355,65 +406,90 @@
     img.onclick = () => pane.classList.toggle('zoom');
   }
 
-  /* Custom call with user hint (fallback to default if no hint) */
-  async function callGroqWithHint(file, hint) {
+  /* Custom call with user hint + side hint (left/right/full) */
+  async function callGroqWithHint(file, hint, side = 'full') {
     const base64 = await MM_CMS.util.fileToBase64(file);
     const mime = file.type || 'image/jpeg';
-    const prompt = `Bạn là chuyên gia OCR bảng giá điện thoại tiếng Việt. Đọc TOÀN BỘ ảnh và trích xuất CHÍNH XÁC từng dòng.
 
-═══ CẤU TRÚC BẢNG GIÁ ═══
-Ảnh có thể chứa 1 hoặc 2 bảng (bảng iPhone bên trái, bảng Samsung bên phải, hoặc các hãng khác).
-Mỗi bảng có 4 CỘT cố định theo thứ tự:
-  Cột 1: MODEL/MEMORY  → tên dòng máy (VD "IPHONE 17 PRO MAX", "S25 Ultra", "Fold 5", "zflip 4")
-  Cột 2: MEMORY/dung lượng (VD "256 GB", "512 GB", "1TB", "256/512", "256gb / 512gb")
-  Cột 3: A → giá máy LIKE-NEW / Hàng A (cũ 99%)
-  Cột 4: NEW → giá máy MỚI / đập hộp / nguyên seal
+    const sideHint = side === 'left'
+      ? '⚠️ Đây là NỬA TRÁI của bảng giá lớn — thường chứa các dòng iPhone (iPhone 17/16/15/14/13/12/11/8 Plus...). Đọc TẤT CẢ các dòng iPhone trong nửa này.'
+      : side === 'right'
+      ? '⚠️ Đây là NỬA PHẢI của bảng giá lớn — thường chứa các dòng Samsung (Galaxy S25/S24/S23/S22/S21/S20/Note 9-20/Z Fold 3-7/Z Flip 3-6...). Đọc TẤT CẢ các dòng Samsung trong nửa này, KHÔNG được bỏ sót dòng nào, kể cả các dòng nhỏ.'
+      : '';
 
-⚠️ CỘT MODEL THƯỜNG BỊ MERGE CELL: 1 ô tên model trải qua nhiều dòng dung lượng.
-Phải lặp lại tên model cho TỪNG dòng dung lượng. VD ô "IPHONE 17 PRO MAX" merge 3 dòng "1TB/2TB", "512 GB", "256 GB" → tạo 3 record với cùng model.
+    const prompt = `Bạn là chuyên gia OCR bảng giá điện thoại Hàn Quốc (Kim Korea / shop bán lẻ tại Hàn). Nhiệm vụ: đọc CHÍNH XÁC TỪNG DÒNG, KHÔNG BỎ SÓT.
 
-═══ QUY TẮC GIÁ ═══
-- Đơn vị: KRW (₩). Số trong ảnh là NGÀN ₩.
-  + "1140"   → 1140000
-  + "2330k"  → 2330000
-  + "1.49tr" → 1490000
-  + "1,490,000" hoặc "1.490.000" → 1490000
-- Nhiều giá / dấu phân cách "/" hoặc "~" hoặc "-": LẤY GIÁ THẤP NHẤT, ghi nguyên chuỗi gốc vào "note".
+${sideHint}
+
+═══ CẤU TRÚC BẢNG ═══
+Bảng có 4 CỘT theo thứ tự từ TRÁI sang PHẢI:
+  [1] MODEL    — tên dòng máy (VD "IPHONE 17 PRO MAX", "S25 Ultra", "Fold 5", "z flip 4", "NOTE 20 ULTRA")
+  [2] MEMORY   — dung lượng (VD "256 GB", "512 GB", "1TB", "256/512", "256gb / 512gb", "128GB")
+  [3] A        — giá máy HÀNG A / like-new / cũ 99%  (có thể trống)
+  [4] NEW      — giá máy ĐẬP HỘP / nguyên seal / mới 100% (có thể trống)
+
+═══ QUY TẮC QUAN TRỌNG #1: MERGE CELL CỘT MODEL ═══
+1 ô tên MODEL có thể merge trải qua NHIỀU dòng dung lượng.
+Phải LẶP LẠI tên model cho MỖI dòng memory.
+Ví dụ ô "IPHONE 17 PRO MAX" có 3 dòng dung lượng "1TB/2TB", "512 GB", "256 GB":
+  → Tạo 3 record:
+    { model:"iPhone 17 Pro Max", memory:"1TB/2TB", ... }
+    { model:"iPhone 17 Pro Max", memory:"512GB", ... }
+    { model:"iPhone 17 Pro Max", memory:"256GB", ... }
+
+═══ QUY TẮC #2: GIÁ ═══
+- Số trong ảnh là NGÀN ₩. "1140" → 1140000. "2330k" → 2330000. "1.49tr" → 1490000.
+- Nếu cell có nhiều giá ngăn cách bởi "/" "~" "-": LẤY GIÁ THẤP NHẤT, copy nguyên chuỗi vào "note".
   + "1420 /1580" → priceNew=1420000, note="1420/1580k"
-  + "699/720"    → 699000, note="699/720k"
-  + "1180~1260"  → 1180000, note="1180~1260k"
-- Ghi chú phức tạp như "cam,trắng 2040k, xanh 2030k" → priceNew=2030000, note="cam/trắng 2040k, xanh 2030k"
-- Ô TRỐNG (không có số) → giá = null. KHÔNG bịa số.
+  + "699/720"    → priceA=699000, note="699/720k"
+  + "1180~1260"  → priceA=1180000, note="1180~1260k"
+- Cell có chữ + số như "cam,trắng 2040k, xanh 2030k" → priceNew=2030000 (giá thấp), note="cam/trắng 2040k, xanh 2030k"
+- Cell TRỐNG (chỉ có khoảng trắng, gạch ngang, "—", không có chữ số) → priceA=null hoặc priceNew=null. KHÔNG được bịa số.
 
-═══ QUY TẮC STATUS ═══
-- statusA   = "in" nếu cột A có giá, "updating" nếu cột A trống.
-- statusNew = "in" nếu cột NEW có giá, "updating" nếu cột NEW trống.
+═══ QUY TẮC #3: STATUS ═══
+- statusA   = "in" nếu cột A CÓ GIÁ;  "updating" nếu cột A TRỐNG (chưa có máy)
+- statusNew = "in" nếu cột NEW CÓ GIÁ; "updating" nếu cột NEW TRỐNG
+
+═══ VÍ DỤ HOÀN CHỈNH (từ bảng giá Kim Korea Mobile) ═══
+Dòng "IPHONE 17 PRO MAX | 1TB/2TB | (trống) | 2590k":
+  { "model":"iPhone 17 Pro Max", "memory":"1TB/2TB", "brand":"iPhone",
+    "priceA":null, "priceNew":2590000, "statusA":"updating", "statusNew":"in", "note":"" }
+
+Dòng "IPHONE 17 PRO MAX | 256 GB | (trống) | cam,trắng 2040k, xanh 2030k":
+  { "model":"iPhone 17 Pro Max", "memory":"256GB", "brand":"iPhone",
+    "priceA":null, "priceNew":2030000, "statusA":"updating", "statusNew":"in",
+    "note":"cam/trắng 2040k, xanh 2030k" }
+
+Dòng "S25 Ultra | 256/512 | 1140 | 1420 /1580":
+  { "model":"Galaxy S25 Ultra", "memory":"256GB/512GB", "brand":"Samsung",
+    "priceA":1140000, "priceNew":1420000, "statusA":"in", "statusNew":"in",
+    "note":"NEW: 1420/1580k" }
+
+Dòng "Fold 4 | 256gb/ 512gb | 620 | 900k":
+  { "model":"Galaxy Z Fold 4", "memory":"256GB/512GB", "brand":"Samsung",
+    "priceA":620000, "priceNew":900000, "statusA":"in", "statusNew":"in", "note":"" }
+
+Dòng "S24 Plus | 256gb | 630 | (trống)":
+  { "model":"Galaxy S24 Plus", "memory":"256GB", "brand":"Samsung",
+    "priceA":630000, "priceNew":null, "statusA":"in", "statusNew":"updating", "note":"" }
 
 ═══ BRAND ═══
-Suy ra từ model:
-  iPhone/iPad → "iPhone"
-  AirPods/Watch/MacBook → "Apple"
-  Galaxy S/Note/Z Fold/Z Flip/A series → "Samsung"
-  Xiaomi/Redmi → "Xiaomi" · Oppo → "Oppo" · Vivo → "Vivo"
-  Khác → "Khác"
+- iPhone/iPad → "iPhone"
+- Galaxy S/Note/Z Fold/Z Flip/A series → "Samsung"
+- Xiaomi/Redmi → "Xiaomi", Oppo → "Oppo", Vivo → "Vivo"
+- Apple Watch/AirPods/MacBook → "Apple", còn lại → "Khác"
 
-═══ ĐỊNH DẠNG OUTPUT ═══
-TUYỆT ĐỐI KHÔNG bỏ sót dòng nào. Nếu có 30 dòng dung lượng trong ảnh → trả 30 items.
-
-Mỗi item:
-{
-  "model":     "iPhone 17 Pro Max",
-  "config":    "256GB",
-  "brand":     "iPhone",
-  "priceA":    null,
-  "priceNew":  2030000,
-  "statusA":   "updating",
-  "statusNew": "in",
-  "note":      "cam/trắng 2040k, xanh 2030k"
-}
+═══ QUAN TRỌNG ═══
+🚨 PHẢI LIỆT KÊ TẤT CẢ CÁC DÒNG. Đếm trước khi trả lời:
+  - Bao nhiêu dòng iPhone trong ảnh? (thường 15-25 dòng)
+  - Bao nhiêu dòng Samsung? (thường 25-40 dòng vì có S, Note, Fold, Flip)
+  - Tổng output items phải bằng tổng số dòng dung lượng đếm được.
+🚨 KHÔNG được dừng giữa chừng. Nếu nhiều dòng quá, vẫn phải trả đủ.
+🚨 Tên model BẰNG TIẾNG ANH CHUẨN ("Galaxy S25 Ultra" chứ không phải "S25 Ultra"; "iPhone 17 Pro Max" chứ không phải "IPHONE 17 PRO MAX").
 
 ${hint ? '═══ GỢI Ý TỪ CHỦ SHOP ═══\n' + hint + '\n' : ''}
-Trả về JSON duy nhất: { "items":[...], "shop":"tên cửa hàng nếu thấy", "date":"DD-MM-YYYY", "note":"" }`;
+Trả về JSON DUY NHẤT (không markdown, không text khác):
+{ "items":[...], "shop":"tên cửa hàng nếu thấy", "date":"DD-MM-YYYY", "note":"" }`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
