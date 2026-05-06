@@ -329,7 +329,67 @@ Trả JSON: { "topics": [{"topic":"...","keywords":"..."}] }`;
       return GH.putFile(path, newSrc, 'cms: cập nhật bảng giá điện thoại ' + (opts.month||''));
     },
 
-    /* Cập nhật window.MM_SIM.plans — merge theo id, không xóa các gói cũ */
+    /* ★ Cập nhật mảng phones: [...] (danh sách đầy đủ máy A/NEW) trong products.js
+       Input: [{ brand, model, config, priceA, priceNew, statusA, statusNew, note }, ...]
+       Tự động map img từ tên model → key trong _PI. */
+    async updatePhonesFull(newRows, opts = {}){
+      const path = 'assets/data/products.js';
+      const file = await GH.getFile(path);
+      if (!file) throw new Error('Không tìm thấy ' + path);
+      let src = file.content;
+
+      const pickImg = (m='') => {
+        const s = m.toLowerCase();
+        if (/iphone\s*1[5-9]\s*pro/.test(s) || /iphone\s*2\d\s*pro/.test(s)) return '_PI.ip15pro[0]';
+        if (/iphone\s*1[5-9]/.test(s)       || /iphone\s*2\d/.test(s))       return '_PI.ip15[0]';
+        if (/iphone\s*14\s*pro/.test(s))    return '_PI.ip14pro[0]';
+        if (/iphone\s*14/.test(s))          return '_PI.ip14[0]';
+        if (/iphone\s*13\s*pro/.test(s))    return '_PI.ip13pro[0]';
+        if (/iphone\s*13/.test(s))          return '_PI.ip13[0]';
+        if (/iphone\s*12/.test(s))          return '_PI.ip12[0]';
+        if (/iphone\s*(11|xs|x|se|8|7)/.test(s)) return '_PI.ipold[0]';
+        if (/z\s*fold/.test(s))             return '_PI.ssFold[0]';
+        if (/z\s*flip/.test(s))             return '_PI.ssFlip[0]';
+        if (/galaxy|samsung|note|^s\d/.test(s)) return '_PI.ssS[0]';
+        if (/watch/.test(s))                return '_PI.watch[0]';
+        if (/airpods/.test(s))              return '_PI.airpods[0]';
+        if (/macbook|mac/.test(s))          return '_PI.mac[0]';
+        return '_PI.ipold[0]';
+      };
+      const slug = (s='') => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+
+      const phonesRender = newRows.map((r, i) => {
+        const id = r.id || (slug(r.model) + '-' + slug(r.config||r.memory||'') + '-' + i);
+        const brand = r.brand || 'Khác';
+        const model = r.model || '';
+        const config = r.config || r.memory || '';
+        const priceA   = (r.priceA   === '' || r.priceA   == null) ? 'null' : Number(r.priceA);
+        const priceNew = (r.priceNew === '' || r.priceNew == null) ? 'null' : Number(r.priceNew);
+        // status tổng: 'in' nếu có ít nhất 1 giá; 'out' nếu cả 2 trống
+        const status = (priceA !== 'null' || priceNew !== 'null') ? 'in' : 'out';
+        const colors = r.note || r.colors || '';
+        const img = pickImg(model);
+        return `      { id:${JSON.stringify(id)}, brand:${JSON.stringify(brand)}, model:${JSON.stringify(model)}, config:${JSON.stringify(config)}, priceA:${priceA}, priceNew:${priceNew}, status:${JSON.stringify(status)}, colors:${colors ? JSON.stringify(colors) : 'null'}, img:${img} },`;
+      }).join('\n');
+
+      /* Replace toàn bộ phones: [...] (greedy, dừng ở dòng "],") */
+      const phonesRegex = /(phones\s*:\s*)\[[\s\S]*?\n\s*\](\s*[,}])/;
+      if (!phonesRegex.test(src)){
+        throw new Error('Không tìm thấy mảng phones trong products.js');
+      }
+      let newSrc = src.replace(phonesRegex, (_m, p1, p2) =>
+        p1 + '[\n' + phonesRender + '\n    ]' + p2
+      );
+
+      if (opts.month){
+        newSrc = newSrc.replace(/(month\s*:\s*)['"][^'"]*['"]/, (_m,p1) => p1 + JSON.stringify(opts.month));
+      }
+
+      return GH.putFile(path, newSrc,
+        `cms: cập nhật ${newRows.length} máy (A/NEW) ` + (opts.month || new Date().toISOString().slice(0,10)));
+    },
+
+
     async upsertSimPlans(newPlans){
       const path = 'assets/data/sim-plans.js';
       const file = await GH.getFile(path);

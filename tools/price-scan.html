@@ -165,6 +165,29 @@
       </button>
     </div>
 
+    <!-- ⭐ 1-CLICK PUBLISH -->
+    <div class="mt-4 p-4 border-2 border-blue-600 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="text-3xl">🚀</div>
+        <div class="flex-1">
+          <div class="font-bold text-blue-900">Đẩy thẳng lên website (1 cú click)</div>
+          <div class="text-xs text-blue-800 mt-0.5">Tự động cập nhật <code class="bg-white px-1 rounded">products.js</code> trên GitHub. Trang <a href="../price-board.html" target="_blank" class="underline font-semibold">Bảng giá</a> sẽ refresh sau ~30 giây.</div>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2 items-center">
+        <button id="btn-publish" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md disabled:opacity-50 flex items-center gap-2">
+          <span>🚀 Đẩy lên web ngay</span>
+          <span id="publish-spin" class="hidden animate-spin">⏳</span>
+        </button>
+        <label class="text-xs text-blue-900 flex items-center gap-1">
+          Tháng:
+          <input id="publish-month" class="px-2 py-1 border border-blue-300 rounded text-xs w-24" placeholder="05/2026">
+        </label>
+        <a href="../admin-cms.html" class="text-xs text-blue-700 underline">⚙️ Cấu hình GitHub token</a>
+      </div>
+      <div id="publish-status" class="mt-2 text-xs hidden"></div>
+    </div>
+
     <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-900">
       💡 <b>Mẹo:</b> File Excel sẽ có 2 sheet: <b>Bảng giá</b> (đầy đủ) và <b>Top 6</b> (đề xuất hot). Có thể chỉnh sửa rồi import lại bằng nút bên dưới.
     </div>
@@ -179,7 +202,7 @@
 
 </div>
 
-<script src="../assets/js/cms.js?v=6"></script>
+<script src="../assets/js/cms.js?v=7"></script>
 <script>
 /* ==================================================
    QUÉT BẢNG GIÁ → EXCEL
@@ -730,6 +753,81 @@ Trả về JSON DUY NHẤT (không markdown, không text khác):
     a.href = URL.createObjectURL(blob);
     a.download = `bang-gia-multimart-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
+  });
+
+  /* ⭐ 1-CLICK PUBLISH lên GitHub → tự động cập nhật website */
+  $('#btn-publish').addEventListener('click', async () => {
+    const btn = $('#btn-publish');
+    const spin = $('#publish-spin');
+    const out  = $('#publish-status');
+
+    const showStatus = (msg, type='info') => {
+      const colors = {
+        ok:    'bg-green-100 text-green-900 border-green-300',
+        error: 'bg-red-100 text-red-900 border-red-300',
+        info:  'bg-blue-100 text-blue-900 border-blue-300',
+      };
+      out.className = 'mt-2 text-xs p-2 border rounded ' + (colors[type] || colors.info);
+      out.innerHTML = msg;
+      out.classList.remove('hidden');
+    };
+
+    if (!rows.length) {
+      showStatus('❌ Chưa có dữ liệu để đẩy. Hãy quét/thêm dòng trước.', 'error');
+      return;
+    }
+    if (!window.MM_CMS || !MM_CMS.Serialize?.updatePhonesFull) {
+      showStatus('❌ cms.js chưa load đúng. Hard-reload (Ctrl+Shift+R).', 'error');
+      return;
+    }
+    const c = MM_CMS.cfg.all();
+    if (!c.ghToken || !c.ghOwner || !c.ghRepo) {
+      showStatus('❌ Chưa cấu hình GitHub. <a class="underline font-bold" href="../admin-cms.html">Vào trang Cấu hình</a> dán Personal Access Token + owner/repo.', 'error');
+      return;
+    }
+
+    /* Validate dữ liệu cơ bản */
+    const valid = rows.filter(r => (r.model || '').trim());
+    if (valid.length < rows.length) {
+      if (!confirm(`Có ${rows.length - valid.length} dòng thiếu Model sẽ bị bỏ qua. Vẫn đẩy ${valid.length} dòng?`)) return;
+    }
+
+    /* Confirm */
+    if (!confirm(`Đẩy ${valid.length} dòng lên GitHub repo "${c.ghOwner}/${c.ghRepo}"?\n\nThao tác này GHI ĐÈ toàn bộ mảng phones trong products.js.\n(Khuyến nghị: tải JSON backup trước nếu chưa.)`)) return;
+
+    btn.disabled = true;
+    spin.classList.remove('hidden');
+    showStatus('⏳ Đang đẩy lên GitHub...', 'info');
+
+    try {
+      // Map rows scan → schema phones
+      const payload = valid.map(r => ({
+        brand:    r.brand || '',
+        model:    r.model || '',
+        config:   r.config || r.memory || '',
+        priceA:   r.priceA   || null,
+        priceNew: r.priceNew || null,
+        note:     r.note || '',
+      }));
+      const month = $('#publish-month').value.trim() || new Date().toLocaleDateString('vi-VN', { month:'2-digit', year:'numeric' });
+      const res = await MM_CMS.Serialize.updatePhonesFull(payload, { month });
+      const sha = res?.commit?.sha?.slice(0,7) || '';
+      const repoUrl = `https://github.com/${c.ghOwner}/${c.ghRepo}`;
+      const liveUrl = `https://${c.ghOwner}.github.io/${c.ghRepo}/price-board.html`;
+      showStatus(
+        `✅ Đẩy thành công <b>${payload.length}</b> dòng! Commit <code>${sha}</code>.<br>` +
+        `🔗 <a class="underline font-semibold" target="_blank" href="${repoUrl}/commits/main">Xem commit</a> · ` +
+        `<a class="underline font-semibold" target="_blank" href="${liveUrl}">Mở Bảng giá live</a> ` +
+        `(GitHub Pages cần ~30-60 giây để build).`,
+        'ok'
+      );
+    } catch (err) {
+      console.error(err);
+      showStatus('❌ Lỗi đẩy lên: <code class="bg-white px-1 rounded">' + (err.message || err) + '</code>', 'error');
+    } finally {
+      btn.disabled = false;
+      spin.classList.add('hidden');
+    }
   });
 
   /* --- Import back from file --- */
