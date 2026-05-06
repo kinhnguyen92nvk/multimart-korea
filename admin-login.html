@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng nhập Admin — MultiMart KOREA</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+body{font-family:'Lexend',sans-serif;background:linear-gradient(135deg,#f0fdf4 0%,#fff 50%,#fef3c7 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#fff;border-radius:24px;padding:40px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.1)}
+.field{width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:inherit}
+.field:focus{outline:none;border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15)}
+.btn-primary{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;padding:13px;border-radius:12px;font-weight:800;width:100%;border:0;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(22,163,74,.3)}
+.tab-btn{flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;border:0;background:transparent;color:#64748b}
+.tab-btn.active{background:#fff;color:#0f172a;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="text-center mb-6">
+    <a href="index.html" class="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white items-center justify-center text-3xl font-black mb-3 no-underline mx-auto">M</a>
+    <h1 class="font-black text-2xl text-slate-900">MultiMart Admin</h1>
+    <p class="text-sm text-slate-500">Đăng nhập để quản trị website</p>
+  </div>
+
+  <div class="flex gap-1 bg-slate-100 p-1 rounded-xl mb-5">
+    <button class="tab-btn active" data-tab="passcode"><i class="fas fa-key"></i> Mã quản trị</button>
+    <button class="tab-btn" data-tab="google"><i class="fab fa-google"></i> Google</button>
+  </div>
+
+  <div data-pane="passcode">
+    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Mã quản trị</label>
+    <input id="passcode" type="password" class="field mt-1 mb-3" placeholder="Nhập mã" autocomplete="current-password">
+    <button id="btn-passcode" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Đăng nhập</button>
+    <p class="text-xs text-slate-400 mt-3 text-center">
+      Mã mặc định lần đầu: <code class="bg-amber-100 px-2 py-0.5 rounded font-bold">MULTIMART2026</code><br>
+      Đổi mã ngay sau khi vào: Admin → Cấu hình → Đổi mã quản trị
+    </p>
+  </div>
+
+  <div data-pane="google" class="hidden">
+    <p class="text-sm text-slate-600 mb-3">Đăng nhập bằng tài khoản Google đã được cấp quyền:</p>
+    <div id="google-btn"></div>
+    <details class="mt-4 text-xs text-slate-500">
+      <summary class="cursor-pointer font-bold">⚙️ Cấu hình Google Sign-In</summary>
+      <div class="mt-3 space-y-2 bg-slate-50 p-3 rounded-lg">
+        <div>
+          <label class="font-bold">Google OAuth Client ID</label>
+          <input id="cfg-clientid" class="field !text-xs !py-2" placeholder="xxxx.apps.googleusercontent.com">
+        </div>
+        <div>
+          <label class="font-bold">Email được phép (cách nhau dấu phẩy)</label>
+          <input id="cfg-emails" class="field !text-xs !py-2" placeholder="me@gmail.com, partner@gmail.com">
+        </div>
+        <button id="cfg-save-google" class="btn-primary !py-2 !text-xs"><i class="fas fa-save"></i> Lưu cấu hình</button>
+        <p class="text-[11px] text-slate-500 leading-relaxed">
+          Tạo tại <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-green-600 font-bold">console.cloud.google.com</a>
+          → OAuth 2.0 Client ID (Web) → Authorized JavaScript origins thêm domain của bạn (ví dụ <code>https://yourdomain.com</code>).
+        </p>
+      </div>
+    </details>
+  </div>
+
+  <div id="msg" class="text-sm mt-4 text-center"></div>
+
+  <div class="border-t mt-6 pt-4 text-center">
+    <a href="index.html" class="text-sm text-slate-500 hover:text-green-600 no-underline"><i class="fas fa-arrow-left"></i> Quay về trang chủ</a>
+  </div>
+</div>
+
+<script src="assets/js/auth.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const msg = (text, ok=false) => {
+  const el = $('#msg');
+  el.textContent = text;
+  el.className = 'text-sm mt-4 text-center font-bold ' + (ok?'text-green-600':'text-red-600');
+};
+
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(x => x.classList.toggle('active', x === b));
+    document.querySelectorAll('[data-pane]').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== b.dataset.tab));
+  });
+});
+
+$('#btn-passcode').addEventListener('click', () => {
+  const code = $('#passcode').value.trim();
+  const r = MM_AUTH.signInPasscode(code);
+  if (r.ok) {
+    msg('Đăng nhập thành công, đang chuyển trang...', true);
+    setTimeout(() => location.href = getReturnUrl(), 400);
+  } else msg(r.error);
+});
+$('#passcode').addEventListener('keydown', e => { if (e.key==='Enter') $('#btn-passcode').click(); });
+
+function getReturnUrl(){
+  const ret = new URLSearchParams(location.search).get('return');
+  if (ret && /^[a-zA-Z0-9_./?=&-]+$/.test(ret)) return decodeURIComponent(ret);
+  return 'admin.html';
+}
+
+const cfg = MM_AUTH.getConfig();
+if (cfg.googleClientId) $('#cfg-clientid').value = cfg.googleClientId;
+if (cfg.allowedEmails) $('#cfg-emails').value = (cfg.allowedEmails||[]).join(', ');
+
+$('#cfg-save-google').addEventListener('click', () => {
+  const c = MM_AUTH.getConfig();
+  c.googleClientId = $('#cfg-clientid').value.trim();
+  c.allowedEmails = $('#cfg-emails').value.split(',').map(s=>s.trim()).filter(Boolean);
+  MM_AUTH.saveConfig(c);
+  msg('Đã lưu. Tải lại trang để hiển thị nút Google.', true);
+  setTimeout(() => location.reload(), 1000);
+});
+
+function renderGoogle(){
+  const c = MM_AUTH.getConfig();
+  if (!c.googleClientId) {
+    $('#google-btn').innerHTML = '<div class="text-sm text-amber-700 bg-amber-50 p-3 rounded-lg">⚙️ Chưa cấu hình Google Client ID. Mở phần "Cấu hình" bên dưới.</div>';
+    return;
+  }
+  if (!window.google || !google.accounts) { setTimeout(renderGoogle, 300); return; }
+  google.accounts.id.initialize({
+    client_id: c.googleClientId,
+    callback: (res) => {
+      const r = MM_AUTH.signInGoogle(res.credential);
+      if (r.ok) { msg('Xin chào ' + r.user.name + '!', true); setTimeout(() => location.href = getReturnUrl(), 500); }
+      else msg(r.error);
+    },
+  });
+  google.accounts.id.renderButton($('#google-btn'), { theme:'filled_blue', size:'large', width: 360, text:'signin_with' });
+}
+renderGoogle();
+
+if (MM_AUTH.isLoggedIn()) {
+  msg('Bạn đã đăng nhập, đang chuyển...', true);
+  setTimeout(() => location.href = getReturnUrl(), 300);
+}
+</script>
+</body>
+</html>

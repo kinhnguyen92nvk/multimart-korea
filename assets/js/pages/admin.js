@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     products:  'Quản lý sản phẩm',
     orders:    'Quản lý đơn hàng',
     phones:    'Bảng giá điện thoại tháng',
+    bulk:      'Sửa giá hàng loạt',
+    quickstart:'Hướng dẫn sử dụng',
     banners:   'Banner & Khuyến mãi',
     customers: 'Khách hàng',
     settings:  'Cấu hình hệ thống',
@@ -233,16 +235,324 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
       </div>
-      <div class="text-right mt-4"><button class="btn btn-primary"><i class="fas fa-save"></i> Lưu cấu hình</button></div>
+
+      <div class="card !p-6 mt-4">
+        <h3 class="font-black mb-4">🔐 Bảo mật quản trị</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="lbl">Đổi mã quản trị</label>
+            <div class="flex gap-2">
+              <input id="new-pass" type="password" class="field" placeholder="Mã mới (6+ ký tự)">
+              <button id="btn-change-pass" class="btn btn-primary"><i class="fas fa-key"></i> Đổi</button>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Mặc định: <code>MULTIMART2026</code> — đổi ngay!</p>
+          </div>
+          <div>
+            <label class="lbl">Email Google được phép (cách nhau dấu phẩy)</label>
+            <div class="flex gap-2">
+              <input id="allow-emails" class="field" placeholder="me@gmail.com, partner@gmail.com">
+              <button id="btn-save-emails" class="btn btn-primary"><i class="fas fa-save"></i></button>
+            </div>
+          </div>
+          <div>
+            <label class="lbl">Google OAuth Client ID</label>
+            <div class="flex gap-2">
+              <input id="google-cid" class="field" placeholder="xxxx.apps.googleusercontent.com">
+              <button id="btn-save-cid" class="btn btn-primary"><i class="fas fa-save"></i></button>
+            </div>
+          </div>
+        </div>
+        <div id="sec-msg" class="text-sm mt-3"></div>
+      </div>
+
+      <div class="text-right mt-4"><button class="btn btn-primary"><i class="fas fa-save"></i> Lưu cấu hình chung</button></div>
     `,
+
+    bulk: () => `
+      <div class="card !p-6 mb-4">
+        <h3 class="font-black text-lg mb-2">📊 Sửa giá hàng loạt</h3>
+        <p class="text-sm text-slate-500 mb-4">Áp dụng % tăng/giảm cho mọi máy theo bộ lọc, xem trước trước khi lưu.</p>
+        <div class="grid md:grid-cols-4 gap-3 mb-4">
+          <div>
+            <label class="lbl">Lọc thương hiệu</label>
+            <select id="bulk-brand" class="field">
+              <option value="">Tất cả</option>
+              <option>iPhone</option><option>Samsung</option><option>Xiaomi</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">Lọc theo từ khoá tên</label>
+            <input id="bulk-q" class="field" placeholder="vd: 15 Pro Max">
+          </div>
+          <div>
+            <label class="lbl">% thay đổi</label>
+            <input id="bulk-pct" type="number" class="field" placeholder="-5 = giảm 5%, +10 = tăng 10%" value="-5">
+          </div>
+          <div>
+            <label class="lbl">Áp dụng cột</label>
+            <select id="bulk-col" class="field">
+              <option value="both">Cả A và New</option>
+              <option value="A">Chỉ A (đẹp keng)</option>
+              <option value="N">Chỉ New (mới)</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button id="bulk-preview" class="btn btn-ghost"><i class="fas fa-eye"></i> Xem trước</button>
+          <button id="bulk-apply" class="btn btn-primary"><i class="fas fa-check"></i> Áp dụng + tải file mới</button>
+          <button id="bulk-reset" class="btn btn-ghost"><i class="fas fa-undo"></i> Reset</button>
+        </div>
+        <div id="bulk-summary" class="text-sm mt-3"></div>
+      </div>
+
+      <div class="card !p-0 overflow-hidden">
+        <div class="overflow-x-auto" style="max-height:520px">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 sticky top-0">
+              <tr class="text-xs uppercase text-slate-500"><th class="p-3 text-left">Model</th><th class="text-left">Cấu hình</th><th class="text-right">Giá A</th><th class="text-right">Giá New</th><th class="text-right">A mới</th><th class="text-right">New mới</th></tr>
+            </thead>
+            <tbody id="bulk-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card !p-6 mt-4">
+        <h4 class="font-black mb-2">📤 Đẩy giá mới lên web</h4>
+        <p class="text-sm text-slate-500 mb-3">Sau khi áp dụng, file <code>products.js</code> mới sẽ được tải về. Mở <a href="admin-cms.html" class="text-green-600 font-bold no-underline">CMS AI</a> → tab Bảng giá → nút "Đẩy lên web (GitHub)" để publish.</p>
+        <div class="flex gap-2">
+          <a href="admin-cms.html" class="btn btn-primary no-underline"><i class="fas fa-rocket"></i> Mở CMS để publish</a>
+          <a href="tools/price-entry.html" class="btn btn-ghost no-underline"><i class="fas fa-keyboard"></i> Nhập tay đầy đủ</a>
+        </div>
+      </div>
+    `,
+
+    quickstart: () => `
+      <div class="card !p-6 mb-4">
+        <h3 class="font-black text-xl mb-2">🚀 Bắt đầu nhanh</h3>
+        <p class="text-sm text-slate-500">3 bước để bắt đầu vận hành website.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="card !p-5">
+          <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-black text-xl mb-3">1</div>
+          <div class="font-black mb-1">Đổi mã quản trị</div>
+          <p class="text-sm text-slate-500 mb-3">Mã mặc định <code>MULTIMART2026</code> — đổi ngay sang mã của bạn ở tab Cấu hình.</p>
+          <a href="#" onclick="window.__mm_setTab('settings');return false" class="btn btn-ghost text-xs no-underline"><i class="fas fa-arrow-right"></i> Tới Cấu hình</a>
+        </div>
+        <div class="card !p-5">
+          <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-black text-xl mb-3">2</div>
+          <div class="font-black mb-1">Cấp GitHub Token</div>
+          <p class="text-sm text-slate-500 mb-3">Tạo Personal Access Token (Fine-grained, quyền Contents: Read & Write) để 1 click publish.</p>
+          <a href="admin-cms.html" class="btn btn-ghost text-xs no-underline"><i class="fas fa-key"></i> Mở CMS</a>
+        </div>
+        <div class="card !p-5">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-xl mb-3">3</div>
+          <div class="font-black mb-1">Cấp Groq API Key</div>
+          <p class="text-sm text-slate-500 mb-3">Miễn phí tại <a href="https://console.groq.com" target="_blank" class="text-green-600 font-bold">console.groq.com</a> — dùng để AI quét bảng giá ảnh & viết blog.</p>
+          <a href="admin-cms.html" class="btn btn-ghost text-xs no-underline"><i class="fas fa-robot"></i> Mở CMS</a>
+        </div>
+      </div>
+
+      <div class="card !p-6 mb-4">
+        <h3 class="font-black text-lg mb-3">📚 Khu vực quản trị có gì?</h3>
+        <div class="grid md:grid-cols-2 gap-3 text-sm">
+          <div class="p-4 rounded-xl bg-slate-50">
+            <div class="font-black text-slate-900 mb-1">📊 Tổng quan / Đơn hàng / Khách hàng</div>
+            <p class="text-slate-600">Theo dõi doanh thu, đơn hàng, khách hàng (demo data).</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50">
+            <div class="font-black text-slate-900 mb-1">📱 Bảng giá điện thoại</div>
+            <p class="text-slate-600">Sửa từng dòng giá, đổi tháng áp dụng, thay ảnh bảng giá.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
+            <div class="font-black text-amber-900 mb-1">📊 Sửa giá hàng loạt <span class="text-[10px] bg-amber-500 text-white px-1.5 py-0.5 rounded">MỚI</span></div>
+            <p class="text-amber-800">Áp dụng % tăng/giảm cho mọi máy theo bộ lọc — chỉ vài giây cập nhật cả 167 dòng.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-green-50 border border-green-200">
+            <div class="font-black text-green-900 mb-1">🤖 CMS AI</div>
+            <p class="text-green-800">AI quét ảnh bảng giá → JSON → 1 click publish lên GitHub Pages. Còn có viết blog SEO tự động.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card !p-6 mb-4">
+        <h3 class="font-black text-lg mb-3">🛠️ Công cụ nhanh (1 click)</h3>
+        <div class="grid md:grid-cols-2 gap-3">
+          <a href="tools/price-entry.html" class="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 no-underline flex items-start gap-3">
+            <i class="fas fa-keyboard text-2xl text-indigo-500 mt-1"></i>
+            <div><div class="font-black text-slate-900">Nhập tay bảng giá điện thoại</div><div class="text-xs text-slate-500">100% chính xác, xuất Excel + JSON</div></div>
+          </a>
+          <a href="tools/price-scan.html" class="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 no-underline flex items-start gap-3">
+            <i class="fas fa-camera text-2xl text-green-500 mt-1"></i>
+            <div><div class="font-black text-slate-900">AI quét ảnh bảng giá</div><div class="text-xs text-slate-500">Chụp/upload ảnh → auto trích xuất</div></div>
+          </a>
+          <a href="tools/sim-entry.html" class="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 no-underline flex items-start gap-3">
+            <i class="fas fa-sim-card text-2xl text-amber-500 mt-1"></i>
+            <div><div class="font-black text-slate-900">Nhập tay gói SIM</div><div class="text-xs text-slate-500">Cập nhật cước SIM Hàn theo tháng</div></div>
+          </a>
+          <a href="tools/sim-scan.html" class="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 no-underline flex items-start gap-3">
+            <i class="fas fa-magic text-2xl text-purple-500 mt-1"></i>
+            <div><div class="font-black text-slate-900">AI quét bảng cước SIM</div><div class="text-xs text-slate-500">1 click → bảng cước mới</div></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="card !p-6">
+        <h3 class="font-black text-lg mb-3">🌐 Mua tên miền & deploy</h3>
+        <ol class="list-decimal pl-5 text-sm space-y-2 text-slate-700">
+          <li>Mua domain tại <a href="https://www.namecheap.com" target="_blank" class="text-green-600 font-bold">Namecheap</a> / <a href="https://domains.google" target="_blank" class="text-green-600 font-bold">Google Domains</a> / <a href="https://www.cloudflare.com/products/registrar/" target="_blank" class="text-green-600 font-bold">Cloudflare</a> (Cloudflare rẻ nhất, ~10$/năm).</li>
+          <li>Trên GitHub repo → Settings → Pages → Custom domain → nhập <code>yourdomain.com</code>.</li>
+          <li>Trên trang quản trị domain → thêm DNS record:
+            <ul class="list-disc pl-5 mt-1 text-xs">
+              <li>4 bản ghi A trỏ về 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153</li>
+              <li>Hoặc 1 bản ghi CNAME <code>www</code> → <code>username.github.io</code></li>
+            </ul>
+          </li>
+          <li>Đợi 5-30 phút cho DNS propagate → tick "Enforce HTTPS" trên GitHub Pages.</li>
+          <li>Xong! Truy cập <code>https://yourdomain.com/admin.html</code> để quản trị.</li>
+        </ol>
+      </div>
+    `,
+
+    /* keep settings entry below for backward — but we already redefined it above */
+    _settings_old: () => '',
   };
 
   const setTab = (tab) => {
     document.querySelectorAll('.side-link').forEach(l => l.classList.toggle('active', l.dataset.tab === tab));
     document.getElementById('page-title').textContent = TITLES[tab];
     document.getElementById('content').innerHTML = VIEWS[tab]();
+    if (tab === 'bulk') wireBulk();
+    if (tab === 'settings') wireSettings();
   };
   window.__mm_setTab = setTab;
   document.querySelectorAll('.side-link').forEach(l => l.addEventListener('click', e => { e.preventDefault(); setTab(l.dataset.tab); }));
+
+  /* ============ Avatar/logout ============ */
+  if (window.MM_AUTH) {
+    const s = window.MM_AUTH.getSession();
+    if (s) {
+      const nameEl = document.getElementById('admin-name');
+      const emailEl = document.getElementById('admin-email');
+      const avEl = document.getElementById('admin-avatar');
+      if (nameEl) nameEl.textContent = s.name || 'Admin';
+      if (emailEl) emailEl.textContent = s.email || (s.method==='passcode'?'Đăng nhập bằng mã':'Quản trị viên');
+      if (avEl && s.picture) avEl.src = s.picture;
+    }
+    const lo = document.getElementById('admin-logout');
+    if (lo) lo.addEventListener('click', () => { if (confirm('Đăng xuất?')) window.MM_AUTH.signOut(); });
+  }
+
+  /* ============ Bulk price update ============ */
+  let _bulkPreview = null;
+  function wireBulk(){
+    const tbody = document.getElementById('bulk-tbody');
+    const summary = document.getElementById('bulk-summary');
+    const phones = (window.MM_DATA.priceBoard && window.MM_DATA.priceBoard.phones) || [];
+
+    function applyFilter(){
+      const brand = document.getElementById('bulk-brand').value;
+      const q = document.getElementById('bulk-q').value.trim().toLowerCase();
+      return phones.filter(p =>
+        (!brand || (p.brand||'').toLowerCase()===brand.toLowerCase()) &&
+        (!q || (p.model||'').toLowerCase().includes(q))
+      );
+    }
+
+    function preview(){
+      const list = applyFilter();
+      const pct = parseFloat(document.getElementById('bulk-pct').value || '0');
+      const col = document.getElementById('bulk-col').value;
+      _bulkPreview = list.map(p => {
+        const newA = (col!=='N' && p.priceA)   ? Math.round(p.priceA * (1 + pct/100)) : p.priceA;
+        const newN = (col!=='A' && p.priceNew) ? Math.round(p.priceNew * (1 + pct/100)) : p.priceNew;
+        return { ref:p, newA, newN };
+      });
+      tbody.innerHTML = _bulkPreview.slice(0,500).map(r => `
+        <tr class="border-b border-slate-50">
+          <td class="p-2 font-bold">${r.ref.model||''}</td>
+          <td class="text-xs text-slate-500">${r.ref.config||''}</td>
+          <td class="text-right">${r.ref.priceA?formatKRW(r.ref.priceA):'-'}</td>
+          <td class="text-right">${r.ref.priceNew?formatKRW(r.ref.priceNew):'-'}</td>
+          <td class="text-right text-green-600 font-bold">${r.newA?formatKRW(r.newA):'-'}</td>
+          <td class="text-right text-green-600 font-bold">${r.newN?formatKRW(r.newN):'-'}</td>
+        </tr>
+      `).join('');
+      summary.innerHTML = `<i class="fas fa-info-circle text-blue-500"></i> Sẽ cập nhật <b>${list.length}</b> dòng với ${pct>0?'+':''}${pct}%. ${list.length>500?'(Hiển thị 500 dòng đầu)':''}`;
+    }
+
+    function apply(){
+      if (!_bulkPreview) preview();
+      _bulkPreview.forEach(r => {
+        if (r.newA !== r.ref.priceA) r.ref.priceA = r.newA;
+        if (r.newN !== r.ref.priceNew) r.ref.priceNew = r.newN;
+      });
+      summary.innerHTML = `<i class="fas fa-check-circle text-green-500"></i> Đã áp dụng vào <b>${_bulkPreview.length}</b> dòng. Mở CMS → Bảng giá → "Đẩy lên web (GitHub)" để publish.`;
+      preview();
+      /* Tải file products.js mới về để admin có thể commit thủ công nếu cần */
+      try {
+        const blob = new Blob([
+          `/* Updated by Bulk Price Tool ${new Date().toISOString()} */\n`,
+          `window.MM_PRICE_PATCH = ${JSON.stringify(window.MM_DATA.priceBoard.phones, null, 2)};`,
+        ], { type:'text/javascript' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `price-patch-${Date.now()}.js`;
+        a.click();
+      } catch(e){}
+    }
+
+    function reset(){
+      document.getElementById('bulk-pct').value = '-5';
+      document.getElementById('bulk-q').value = '';
+      document.getElementById('bulk-brand').value = '';
+      preview();
+    }
+
+    document.getElementById('bulk-preview').addEventListener('click', preview);
+    document.getElementById('bulk-apply').addEventListener('click', apply);
+    document.getElementById('bulk-reset').addEventListener('click', reset);
+    preview();
+  }
+
+  /* ============ Settings handlers ============ */
+  function wireSettings(){
+    if (!window.MM_AUTH) return;
+    const cfg = window.MM_AUTH.getConfig();
+    const ae = document.getElementById('allow-emails');
+    const cid = document.getElementById('google-cid');
+    if (ae) ae.value = (cfg.allowedEmails||[]).join(', ');
+    if (cid) cid.value = cfg.googleClientId || '';
+
+    const msg = (text, ok=false) => {
+      const m = document.getElementById('sec-msg');
+      if (m){ m.textContent = text; m.className = 'text-sm mt-3 font-bold ' + (ok?'text-green-600':'text-red-600'); }
+    };
+
+    const cp = document.getElementById('btn-change-pass');
+    if (cp) cp.addEventListener('click', () => {
+      const np = document.getElementById('new-pass').value.trim();
+      if (np.length < 6) return msg('Mã mới phải ít nhất 6 ký tự');
+      const c = window.MM_AUTH.getConfig();
+      c.passcode = np;
+      window.MM_AUTH.saveConfig(c);
+      document.getElementById('new-pass').value='';
+      msg('Đã đổi mã quản trị thành công.', true);
+    });
+    const se = document.getElementById('btn-save-emails');
+    if (se) se.addEventListener('click', () => {
+      const c = window.MM_AUTH.getConfig();
+      c.allowedEmails = ae.value.split(',').map(s=>s.trim()).filter(Boolean);
+      window.MM_AUTH.saveConfig(c);
+      msg('Đã lưu danh sách email cho phép.', true);
+    });
+    const sc = document.getElementById('btn-save-cid');
+    if (sc) sc.addEventListener('click', () => {
+      const c = window.MM_AUTH.getConfig();
+      c.googleClientId = cid.value.trim();
+      window.MM_AUTH.saveConfig(c);
+      msg('Đã lưu Google Client ID.', true);
+    });
+  }
+
   setTab('dashboard');
 });

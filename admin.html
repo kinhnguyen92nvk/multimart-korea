@@ -7,8 +7,11 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/main.css">
+  <meta name="robots" content="noindex,nofollow">
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/seo.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>if(!MM_AUTH.requireAdmin()) document.documentElement.style.display='none';</script>
   <style>
     .side-link.active { background: linear-gradient(135deg,#6366f1,#a855f7); color:#fff; }
     .side-link.active i { color: #fff; }
@@ -31,16 +34,18 @@
       <a href="#" data-tab="products"  class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800"><i class="fas fa-box w-5 text-indigo-400"></i> Sản phẩm</a>
       <a href="#" data-tab="orders"    class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800"><i class="fas fa-shopping-cart w-5 text-indigo-400"></i> Đơn hàng</a>
       <a href="#" data-tab="phones"    class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800"><i class="fas fa-mobile-alt w-5 text-indigo-400"></i> Bảng giá ĐT</a>
+      <a href="#" data-tab="bulk"      class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800"><i class="fas fa-percentage w-5 text-amber-400"></i> Sửa giá hàng loạt</a>
+      <a href="#" data-tab="quickstart" class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800"><i class="fas fa-book w-5 text-amber-400"></i> Hướng dẫn dùng</a>
       <a href="#" data-tab="banners"   class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800"><i class="fas fa-image w-5 text-indigo-400"></i> Banner & KM</a>
       <a href="#" data-tab="customers" class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800"><i class="fas fa-users w-5 text-indigo-400"></i> Khách hàng</a>
       <a href="admin-cms.html" class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800" style="background:linear-gradient(135deg,rgba(22,163,74,.18),rgba(245,158,11,.18))"><i class="fas fa-robot w-5 text-green-400"></i> CMS AI <span class="ml-auto text-[9px] bg-amber-500 text-slate-900 px-1.5 py-0.5 rounded font-black">NEW</span></a>
       <a href="#" data-tab="settings"  class="side-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold no-underline text-slate-300 hover:bg-slate-800"><i class="fas fa-cog w-5 text-indigo-400"></i> Cấu hình</a>
     </nav>
-    <a href="profile.html" class="bg-slate-800 rounded-xl p-3 flex items-center gap-3 no-underline mt-4">
-      <img src="https://ui-avatars.com/api/?name=Admin&background=a855f7&color=fff" class="w-10 h-10 rounded-lg">
-      <div class="flex-1 text-xs"><div class="font-bold text-white">Admin Duy</div><div class="text-slate-500">Quản trị viên</div></div>
-      <i class="fas fa-sign-out-alt text-slate-500"></i>
-    </a>
+    <div class="bg-slate-800 rounded-xl p-3 flex items-center gap-3 mt-4">
+      <img id="admin-avatar" src="https://ui-avatars.com/api/?name=Admin&background=a855f7&color=fff" class="w-10 h-10 rounded-lg">
+      <div class="flex-1 text-xs min-w-0"><div id="admin-name" class="font-bold text-white truncate">Admin</div><div id="admin-email" class="text-slate-500 truncate text-[10px]">Quản trị viên</div></div>
+      <button id="admin-logout" title="Đăng xuất" class="text-slate-400 hover:text-red-400"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
   </aside>
 
   <!-- Main -->

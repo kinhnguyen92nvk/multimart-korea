@@ -5,6 +5,8 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /admin-cms.html
+Disallow: /admin-login.html
+Disallow: /tools/
 Disallow: /checkout.html
 Disallow: /cart.html
 Disallow: /orders.html

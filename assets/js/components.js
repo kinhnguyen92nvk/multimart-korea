@@ -130,7 +130,8 @@
           <div class="flex gap-4">
             <a href="#" class="hover:text-white">Điều khoản</a>
             <a href="#" class="hover:text-white">Chính sách bảo mật (PIPA)</a>
-            <a href="#" class="hover:text-white">Sitemap</a>
+            <a href="sitemap.xml" class="hover:text-white">Sitemap</a>
+            <a href="admin-login.html" class="hover:text-amber-300 opacity-60" title="Khu vực quản trị"><i class="fas fa-lock"></i> Admin</a>
           </div>
         </div>
       </div>
