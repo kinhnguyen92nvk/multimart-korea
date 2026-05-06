@@ -152,13 +152,21 @@
     bindRowDelete('#price-tbody');
   }
   function priceRow(it, i){
+    const esc = s => String(s||'').replace(/"/g,'&quot;');
+    const pA  = it.priceA != null ? it.priceA : (it.price || '');
+    const pN  = it.priceNew != null ? it.priceNew : '';
+    const sA  = it.statusA || (pA ? 'in' : 'updating');
+    const sN  = it.statusNew || (pN ? 'in' : 'updating');
+    const mem = it.memory || it.config || '';
     return `<tr data-i="${i}">
-      <td><input data-k="model"  value="${(it.model||'').replace(/"/g,'&quot;')}"></td>
-      <td><input data-k="config" value="${(it.config||'').replace(/"/g,'&quot;')}"></td>
-      <td><input data-k="price"  type="number" value="${it.price||0}"></td>
-      <td><input data-k="status" value="${it.status||'in'}"></td>
-      <td><input data-k="trend"  type="number" value="${it.trend||0}"></td>
-      <td><input data-k="brand"  value="${it.brand||''}"></td>
+      <td><input data-k="model"     value="${esc(it.model)}"></td>
+      <td><input data-k="memory"    value="${esc(mem)}"></td>
+      <td><input data-k="priceA"    type="number" value="${pA||''}" placeholder="—"></td>
+      <td><input data-k="priceNew"  type="number" value="${pN||''}" placeholder="—"></td>
+      <td><input data-k="statusA"   value="${sA}"></td>
+      <td><input data-k="statusNew" value="${sN}"></td>
+      <td><input data-k="note"      value="${esc(it.note)}"></td>
+      <td><input data-k="brand"     value="${esc(it.brand)}"></td>
       <td><button class="row-del text-red-500"><i class="fas fa-trash"></i></button></td>
     </tr>`;
   }
@@ -173,7 +181,7 @@
     });
   }
   $('#price-add-row').addEventListener('click', () => {
-    $('#price-tbody').insertAdjacentHTML('beforeend', priceRow({status:'in',trend:0}, Date.now()));
+    $('#price-tbody').insertAdjacentHTML('beforeend', priceRow({statusA:'updating', statusNew:'updating'}, Date.now()));
     bindRowDelete('#price-tbody');
   });
   $('#price-export').addEventListener('click', () => {

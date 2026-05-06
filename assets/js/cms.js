@@ -64,14 +64,14 @@
     VISION_MODEL: 'meta-llama/llama-4-scout-17b-16e-instruct',
     TEXT_MODEL:   'llama-3.3-70b-versatile',
 
-    async _call(messages, { json = false, temperature = 0.4, vision = false } = {}) {
+    async _call(messages, { json = false, temperature = 0.4, vision = false, maxTokens = 8000 } = {}) {
       const key = cfg.get('groq');
       if (!key) throw new Error('Chưa cấu hình Groq API key — vào tab Cấu hình');
       const body = {
         model: vision ? this.VISION_MODEL : this.TEXT_MODEL,
         messages,
         temperature,
-        max_tokens: 8192,
+        max_tokens: Math.min(maxTokens, vision ? 8000 : 8192),
       };
       // vision models trên Groq không hỗ trợ response_format — chỉ dùng cho text model
       if (json && !vision) body.response_format = { type: 'json_object' };
@@ -93,31 +93,76 @@
       return text;
     },
 
-    /* OCR + parse bảng giá ĐIỆN THOẠI từ ảnh */
+    /* OCR + parse bảng giá ĐIỆN THOẠI từ ảnh — 4 cột Model | Memory | A | NEW */
     async parsePhonePrice(imageFile) {
       const base64 = await fileToBase64(imageFile);
       const mime   = imageFile.type || 'image/jpeg';
-      const prompt = `Bạn là chuyên gia OCR. Phân tích ảnh BẢNG GIÁ ĐIỆN THOẠI tiếng Việt/Hàn và trích xuất dữ liệu.
-Mỗi dòng máy thành 1 object JSON:
-{ "model": "iPhone 15 Pro Max", "config": "256GB · Hàng A", "price": 1490000, "status": "in", "trend": 0, "brand": "iPhone" }
-Quy tắc:
-- "price" số nguyên KRW (₩). "1,490,000" hoặc "1.49tr" → 1490000.
-- "config" = dung lượng + tình trạng (Hàng A = máy cũ 99%, Hàng New = đập hộp).
-- "status" = "in" | "out" | "low". Mặc định "in".
-- "trend" = 0 (giữ) | âm (giảm) | dương (tăng). Mặc định 0.
-- "brand": suy ra từ tên model.
-- Bỏ qua tiêu đề, ghi chú, footer.
-Trả về JSON: { "items": [...], "month": "MM/YYYY nếu thấy", "note": "ghi chú nếu có" }`;
+      const prompt = `Bạn là chuyên gia OCR bảng giá điện thoại tiếng Việt. Đọc TOÀN BỘ ảnh và trích xuất CHÍNH XÁC từng dòng máy.
+
+═══ CẤU TRÚC BẢNG GIÁ ═══
+Ảnh có thể chứa 1 hoặc 2 bảng (iPhone bên trái, Samsung/khác bên phải).
+Mỗi bảng có 4 CỘT cố định theo thứ tự:
+  Cột 1: MODEL  → tên dòng máy (VD "IPHONE 17 PRO MAX", "S25 Ultra", "Z Fold 5", "Z Flip 4")
+  Cột 2: MEMORY → dung lượng (VD "256 GB", "512 GB", "1TB", "256/512", "256gb / 512gb")
+  Cột 3: A      → giá Hàng A / like-new / cũ 99%
+  Cột 4: NEW    → giá Hàng NEW / đập hộp / nguyên seal
+
+⚠️ CỘT MODEL THƯỜNG BỊ MERGE CELL: 1 ô tên model trải qua nhiều dòng dung lượng.
+Phải LẶP LẠI tên model cho TỪNG dòng dung lượng.
+VD ô "IPHONE 17 PRO MAX" merge 3 dòng "1TB/2TB", "512 GB", "256 GB" → tạo 3 record với cùng model.
+
+⚠️ KHÔNG ĐƯỢC BỎ SÓT BẤT KỲ DÒNG NÀO. Đếm số dòng dung lượng trên ảnh, output đúng số đó.
+Phải đọc cả Samsung, Xiaomi, Oppo... nếu có trong ảnh — không chỉ iPhone.
+
+═══ QUY TẮC GIÁ ═══
+- Đơn vị: KRW (₩). Số trong ảnh thường là NGÀN ₩.
+  + "1140"   → 1140000
+  + "2330k"  → 2330000
+  + "1.49tr" → 1490000
+  + "1,490,000" hoặc "1.490.000" → 1490000
+- Nhiều giá / dấu phân cách "/" hoặc "~" hoặc "-": LẤY GIÁ THẤP NHẤT, ghi nguyên chuỗi gốc vào "note".
+  + "1420 /1580" → priceNew=1420000, note="1420/1580k"
+  + "699/720"    → 699000, note="699/720k"
+  + "1180~1260"  → 1180000, note="1180~1260k"
+- Ghi chú phức tạp như "cam,trắng 2040k, xanh 2030k" → priceNew=2030000, note="cam/trắng 2040k, xanh 2030k"
+- Ô TRỐNG hoặc "—" hoặc "đang cập nhật" → giá = null. KHÔNG bịa số.
+
+═══ QUY TẮC STATUS ═══
+- statusA   = "in" nếu cột A có giá, "updating" nếu cột A trống.
+- statusNew = "in" nếu cột NEW có giá, "updating" nếu cột NEW trống.
+
+═══ BRAND ═══
+Suy ra từ model:
+  iPhone/iPad → "iPhone"
+  AirPods/Watch/MacBook → "Apple"
+  Galaxy S/Note/Z Fold/Z Flip/A series → "Samsung"
+  Xiaomi/Redmi → "Xiaomi" · Oppo → "Oppo" · Vivo → "Vivo"
+  Khác → "Khác"
+
+═══ ĐỊNH DẠNG OUTPUT ═══
+Mỗi item có cấu trúc:
+{
+  "model":     "iPhone 17 Pro Max",
+  "memory":    "256GB",
+  "brand":     "iPhone",
+  "priceA":    null,
+  "priceNew":  2030000,
+  "statusA":   "updating",
+  "statusNew": "in",
+  "note":      "cam/trắng 2040k, xanh 2030k"
+}
+
+Trả về JSON duy nhất: { "items":[...], "shop":"tên cửa hàng nếu thấy", "month":"MM/YYYY", "note":"" }`;
       const txt = await this._call([{
         role: 'user',
         content: [
           { type: 'text', text: prompt },
           { type: 'image_url', image_url: { url: `data:${mime};base64,${base64}` } },
         ],
-      }], { json: true, temperature: 0.1, vision: true });
-      const m1 = txt.match(/\{[\s\S]*\}/);
-      if (!m1) throw new Error('Groq không trả JSON hợp lệ');
-      return JSON.parse(m1[0]);
+      }], { json: true, temperature: 0.05, vision: true, maxTokens: 8000 });
+      const m = txt.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error('Groq không trả JSON hợp lệ');
+      return JSON.parse(m[0]);
     },
 
     /* OCR + parse bảng giá SIM */
