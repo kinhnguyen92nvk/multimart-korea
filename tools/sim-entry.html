@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhập Bảng Giá SIM Hàn Quốc → Excel | MultiMart KOREA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-variant-numeric:tabular-nums}
+  .row{display:grid;grid-template-columns:160px 220px 90px 90px 110px 110px 110px 1fr 32px;gap:6px;align-items:center;padding:4px 8px;border-bottom:1px solid #f1f5f9}
+  .row:hover{background:#f8fafc}
+  .row.section-header{grid-template-columns:1fr;background:linear-gradient(90deg,#0ea5e9,#0284c7);color:#fff;font-weight:700;padding:10px 12px;border-radius:6px;margin:14px 0 6px}
+  .row input[type="text"],.row input[type="number"]{width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;background:#fff}
+  .row input:focus{outline:2px solid #0284c7;border-color:#0284c7}
+  .row input[type="number"]{text-align:right}
+  .col-head{display:grid;grid-template-columns:160px 220px 90px 90px 110px 110px 110px 1fr 32px;gap:6px;padding:8px;background:#0f172a;color:#fff;border-radius:6px;font-weight:600;font-size:12px;position:sticky;top:0;z-index:10}
+  .compact .row{padding:2px 8px}
+  .compact .row input{padding:3px 6px;font-size:12px}
+  .price-empty{background:#fef9c3 !important;color:#854d0e;font-style:italic}
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<div class="max-w-[1400px] mx-auto p-4 sm:p-6">
+
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">📶 Nhập Bảng Giá SIM Hàn Quốc</h1>
+      <p class="text-sm text-slate-600 mt-1">Preset 10 nhà mạng MVNO Hàn · Chuẩn 100% · Offline</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <a href="price-entry.html" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm hover:bg-slate-50">📱 Bảng giá máy</a>
+      <a href="sim-scan.html" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm hover:bg-slate-50">🔍 Quét SIM bằng AI</a>
+      <a href="../admin-cms.html" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm hover:bg-slate-50">← CMS</a>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4 flex flex-wrap items-center gap-2 sticky top-0 z-20 shadow-sm">
+    <button id="btn-template" class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">📥 Template Excel trống</button>
+    <label class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 cursor-pointer">
+      📤 Mở Excel đã điền
+      <input type="file" id="import-file" accept=".xlsx,.xls,.csv" class="hidden">
+    </label>
+    <button id="btn-export" class="px-3 py-2 bg-sky-600 text-white rounded-lg text-sm font-semibold hover:bg-sky-700">📊 Xuất Excel hoàn chỉnh</button>
+    <button id="btn-add"    class="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50">➕ Thêm gói trống</button>
+    <button id="btn-save"   class="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50">💾 Lưu nháp</button>
+    <button id="btn-load"   class="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50">↩️ Khôi phục</button>
+    <button id="btn-clear"  class="px-3 py-2 bg-white border border-slate-300 text-red-600 rounded-lg text-sm hover:bg-red-50">🗑️ Xóa hết</button>
+    <span class="ml-auto text-xs text-slate-600">
+      <span id="stat-filled" class="font-semibold text-sky-700">0</span>/<span id="stat-total">0</span> gói có giá
+    </span>
+  </div>
+
+  <!-- Hint -->
+  <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 mb-3 text-xs text-sky-900">
+    💡 <b>Cách dùng:</b> Điền giá tháng (cột <b>Phí/tháng ₩</b>) và phí mở SIM. Đơn vị mặc định: <b>ngàn ₩</b> (gõ <code>22</code> → 22.000 ₩). Để trống = "Đang cập nhật". Có thể sửa Tên gói / Thoại / Data theo khuyến mãi mới nhất.
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-3 flex flex-wrap items-center gap-3 text-sm">
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="opt-thousand" checked class="rounded">
+      Nhân ngàn tự động (<code>22</code> → 22.000 ₩)
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="opt-compact" class="rounded">
+      Hiển thị gọn
+    </label>
+    <span class="ml-auto text-xs text-slate-500">Auto-save khi gõ</span>
+  </div>
+
+  <!-- Header row -->
+  <div class="col-head">
+    <div>Nhà mạng</div>
+    <div>Tên gói</div>
+    <div>Thoại</div>
+    <div>SMS</div>
+    <div>Data/tháng</div>
+    <div class="text-right">Phí/tháng ₩</div>
+    <div class="text-right">Phí mở SIM ₩</div>
+    <div>Ghi chú</div>
+    <div></div>
+  </div>
+
+  <div id="rows-wrap" class="bg-white border border-slate-200 border-t-0 rounded-b-xl"></div>
+
+  <p class="text-center text-xs text-slate-500 mt-6">
+    100% chạy trên máy bạn · Không gửi data đi đâu · Lưu nháp tự động trong trình duyệt
+  </p>
+</div>
+
+<script>
+/* === PRESET nhà mạng + gói phổ biến (cập nhật 2025-2026) === */
+const PRESET = [
+  { sec: '── KT M Mobile (M모바일) ──' },
+  { carrier:'KT M Mobile', plan:'모두다 맘껏 11GB+',          voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'Phổ biến cho người Việt' },
+  { carrier:'KT M Mobile', plan:'모두다 맘껏 15GB+',          voice:'무제한', sms:'무제한', data:'15GB + 2GB/일', note:'' },
+  { carrier:'KT M Mobile', plan:'모두다 맘껏 100GB',          voice:'무제한', sms:'무제한', data:'100GB',         note:'' },
+  { carrier:'KT M Mobile', plan:'데이터 6GB',                voice:'100분',  sms:'무제한', data:'6GB',           note:'Gói rẻ' },
+  { carrier:'KT M Mobile', plan:'5G 데이터 마음껏 11GB+',     voice:'무제한', sms:'무제한', data:'11GB+1Mbps',    note:'5G' },
+
+  { sec: '── SK 7Mobile (SK세븐모바일) ──' },
+  { carrier:'SK 7Mobile',  plan:'데이터 맘껏 11GB+',          voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'' },
+  { carrier:'SK 7Mobile',  plan:'데이터 맘껏 15GB',           voice:'무제한', sms:'무제한', data:'15GB+3Mbps',    note:'' },
+  { carrier:'SK 7Mobile',  plan:'데이터 100GB',               voice:'무제한', sms:'무제한', data:'100GB',         note:'' },
+  { carrier:'SK 7Mobile',  plan:'데이터 6GB',                voice:'100분',  sms:'무제한', data:'6GB',           note:'' },
+
+  { sec: '── LG Hello Mobile (헬로모바일) ──' },
+  { carrier:'LG Hello',    plan:'더 착한 데이터 11GB+',       voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'' },
+  { carrier:'LG Hello',    plan:'더 착한 데이터 15GB',        voice:'무제한', sms:'무제한', data:'15GB+3Mbps',    note:'' },
+  { carrier:'LG Hello',    plan:'더 착한 데이터 100GB',       voice:'무제한', sms:'무제한', data:'100GB',         note:'' },
+  { carrier:'LG Hello',    plan:'알뜰 데이터 6GB',            voice:'100분',  sms:'무제한', data:'6GB',           note:'' },
+  { carrier:'LG Hello',    plan:'5G 데이터 11GB+',            voice:'무제한', sms:'무제한', data:'11GB+1Mbps',    note:'5G' },
+
+  { sec: '── U+ Mobile / 유모바일 ──' },
+  { carrier:'U+ Mobile',   plan:'유모바일 11GB+',             voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'' },
+  { carrier:'U+ Mobile',   plan:'유모바일 15GB',              voice:'무제한', sms:'무제한', data:'15GB',          note:'' },
+  { carrier:'U+ Mobile',   plan:'유모바일 100GB',             voice:'무제한', sms:'무제한', data:'100GB',         note:'' },
+
+  { sec: '── KCT (Korea Cable Telecom — Mobing) ──' },
+  { carrier:'Mobing',      plan:'모빙 11GB+',                 voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'' },
+  { carrier:'Mobing',      plan:'모빙 15GB',                  voice:'무제한', sms:'무제한', data:'15GB',          note:'' },
+  { carrier:'Mobing',      plan:'모빙 데이터 100GB',          voice:'무제한', sms:'무제한', data:'100GB',         note:'' },
+  { carrier:'Mobing',      plan:'모빙 6GB',                   voice:'100분',  sms:'무제한', data:'6GB',           note:'' },
+
+  { sec: '── EYES Mobile (아이즈모바일) ──' },
+  { carrier:'EYES Mobile', plan:'아이즈 11GB+',               voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'' },
+  { carrier:'EYES Mobile', plan:'아이즈 15GB',                voice:'무제한', sms:'무제한', data:'15GB',          note:'' },
+
+  { sec: '── Frequency (프리티) ──' },
+  { carrier:'Frequency',   plan:'프리티 11GB+',               voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'' },
+  { carrier:'Frequency',   plan:'프리티 100GB',               voice:'무제한', sms:'무제한', data:'100GB',         note:'' },
+
+  { sec: '── Insmobile / 인스모바일 ──' },
+  { carrier:'Insmobile',   plan:'인스 11GB+',                 voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'' },
+  { carrier:'Insmobile',   plan:'인스 5G 11GB+',              voice:'무제한', sms:'무제한', data:'11GB+1Mbps',    note:'5G' },
+
+  { sec: '── Sejong Telecom (세종텔레콤 — Snowman) ──' },
+  { carrier:'Snowman',     plan:'스노우맨 11GB+',             voice:'무제한', sms:'무제한', data:'11GB + 2GB/일', note:'' },
+  { carrier:'Snowman',     plan:'스노우맨 100GB',             voice:'무제한', sms:'무제한', data:'100GB',         note:'' },
+
+  { sec: '── 3 nhà mạng lớn (đối chứng) ──' },
+  { carrier:'SKT',         plan:'5G 슬림+',                   voice:'무제한', sms:'무제한', data:'6GB+400Kbps',   note:'Gói lớn' },
+  { carrier:'SKT',         plan:'T 다이렉트 5G 30GB',         voice:'무제한', sms:'무제한', data:'30GB',          note:'' },
+  { carrier:'KT',          plan:'5G 슬림',                    voice:'무제한', sms:'무제한', data:'10GB',          note:'' },
+  { carrier:'LG U+',       plan:'5G 라이트+',                 voice:'무제한', sms:'무제한', data:'12GB',          note:'' },
+
+  { sec: '── Gói SIM trả trước / du lịch ──' },
+  { carrier:'EG SIM',      plan:'EG SIM 30 ngày 5GB',         voice:'30 phút', sms:'-',     data:'5GB',           note:'Du lịch' },
+  { carrier:'EG SIM',      plan:'EG SIM 60 ngày 10GB',        voice:'60 phút', sms:'-',     data:'10GB',          note:'Du lịch' },
+  { carrier:'KT Tourist',  plan:'KT Tourist 30 ngày',         voice:'30 phút', sms:'-',     data:'unlimited',     note:'Du lịch' },
+];
+
+const STORAGE_KEY = 'mm_sim_entry_v1';
+let rows = [];
+const $ = s => document.querySelector(s);
+
+function init() {
+  rows = [];
+  PRESET.forEach(p => {
+    if (p.sec) rows.push({ type:'sec', label:p.sec });
+    else rows.push({
+      type:'item',
+      carrier: p.carrier || '',
+      plan: p.plan || '',
+      voice: p.voice || '',
+      sms: p.sms || '',
+      data: p.data || '',
+      priceMonth: '',
+      priceOpen: '',
+      note: p.note || ''
+    });
+  });
+  loadDraft(true);
+  render();
+}
+
+function render() {
+  const wrap = $('#rows-wrap');
+  wrap.innerHTML = '';
+  rows.forEach((r, i) => {
+    if (r.type === 'sec') {
+      const d = document.createElement('div');
+      d.className = 'row section-header';
+      d.textContent = r.label;
+      wrap.appendChild(d);
+      return;
+    }
+    const d = document.createElement('div');
+    d.className = 'row';
+    d.dataset.i = i;
+    d.innerHTML = `
+      <input type="text" data-k="carrier" value="${esc(r.carrier)}">
+      <input type="text" data-k="plan"    value="${esc(r.plan)}">
+      <input type="text" data-k="voice"   value="${esc(r.voice)}">
+      <input type="text" data-k="sms"     value="${esc(r.sms)}">
+      <input type="text" data-k="data"    value="${esc(r.data)}">
+      <input type="number" data-k="priceMonth" value="${r.priceMonth}" placeholder="22">
+      <input type="number" data-k="priceOpen"  value="${r.priceOpen}"  placeholder="0">
+      <input type="text" data-k="note"  value="${esc(r.note)}">
+      <button class="text-red-500 hover:text-red-700 text-lg leading-none" title="Xóa dòng">×</button>
+    `;
+    d.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', () => {
+        let v = inp.value;
+        if (inp.dataset.k.startsWith('price') && v && /^\d+$/.test(v)) {
+          // tô màu nếu trống xử lý ở stat
+        }
+        r[inp.dataset.k] = v;
+        updateStat();
+        saveDraft();
+      });
+      inp.addEventListener('blur', () => {
+        if (inp.dataset.k.startsWith('price') && $('#opt-thousand').checked) {
+          const n = parseInt(inp.value, 10);
+          if (n && n > 0 && n < 1000) {
+            inp.value = n * 1000;
+            r[inp.dataset.k] = inp.value;
+            saveDraft();
+          }
+        }
+      });
+    });
+    d.querySelector('button').addEventListener('click', () => {
+      rows.splice(i, 1);
+      render();
+      saveDraft();
+    });
+    wrap.appendChild(d);
+  });
+  updateStat();
+  wrap.parentElement.parentElement.classList.toggle('compact', $('#opt-compact').checked);
+}
+
+function esc(s){return String(s||'').replace(/"/g,'&quot;');}
+
+function updateStat() {
+  const items = rows.filter(r => r.type === 'item');
+  const filled = items.filter(r => r.priceMonth || r.priceOpen).length;
+  $('#stat-total').textContent = items.length;
+  $('#stat-filled').textContent = filled;
+}
+
+/* === Persistence === */
+function saveDraft() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); } catch {}
+}
+function loadDraft(silent) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) { if (!silent) alert('Chưa có nháp để khôi phục'); return; }
+    const saved = JSON.parse(raw);
+    if (Array.isArray(saved) && saved.length) rows = saved;
+  } catch (e) { console.error(e); }
+}
+
+/* === Toolbar === */
+$('#btn-save').onclick = () => { saveDraft(); flash('💾 Đã lưu nháp'); };
+$('#btn-load').onclick = () => { loadDraft(false); render(); };
+$('#btn-clear').onclick = () => {
+  if (!confirm('Xóa toàn bộ giá đã nhập?')) return;
+  rows.forEach(r => { if (r.type==='item') { r.priceMonth=''; r.priceOpen=''; } });
+  render(); saveDraft();
+};
+$('#btn-add').onclick = () => {
+  rows.push({ type:'item', carrier:'', plan:'', voice:'', sms:'', data:'', priceMonth:'', priceOpen:'', note:'' });
+  render(); saveDraft();
+};
+$('#opt-compact').onchange = render;
+
+/* === Export Excel === */
+function buildSheet() {
+  const header = ['STT','Nhà mạng','Tên gói','Thoại','SMS','Data/tháng','Phí/tháng (₩)','Phí mở SIM (₩)','Ghi chú'];
+  const data = [header];
+  let n = 0;
+  rows.forEach(r => {
+    if (r.type === 'sec') { data.push([r.label,'','','','','','','','']); return; }
+    n++;
+    data.push([
+      n,
+      r.carrier,
+      r.plan,
+      r.voice,
+      r.sms,
+      r.data,
+      r.priceMonth ? Number(r.priceMonth) : 'Đang cập nhật',
+      r.priceOpen  ? Number(r.priceOpen)  : 'Đang cập nhật',
+      r.note
+    ]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:5},{wch:14},{wch:30},{wch:10},{wch:10},{wch:18},{wch:14},{wch:14},{wch:24}];
+  return ws;
+}
+
+$('#btn-export').onclick = () => {
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, buildSheet(), 'Bảng giá SIM');
+  XLSX.writeFile(wb, `BangGiaSIM_${new Date().toISOString().slice(0,10)}.xlsx`);
+};
+
+$('#btn-template').onclick = () => {
+  // template = sheet hiện tại nhưng không có giá
+  const backup = rows.map(r => ({...r}));
+  rows.forEach(r => { if(r.type==='item'){ r.priceMonth=''; r.priceOpen=''; }});
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, buildSheet(), 'Template SIM');
+  XLSX.writeFile(wb, 'Template_BangGiaSIM.xlsx');
+  rows = backup;
+};
+
+/* === Import === */
+$('#import-file').onchange = async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const buf = await f.arrayBuffer();
+  const wb = XLSX.read(buf);
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const aoa = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+  if (!aoa.length) return;
+  // tìm header
+  let headerIdx = aoa.findIndex(r => r.join('|').toLowerCase().includes('nhà mạng') || r.join('|').toLowerCase().includes('carrier'));
+  if (headerIdx < 0) headerIdx = 0;
+  const head = aoa[headerIdx].map(s => String(s).toLowerCase());
+  const find = (...keys) => head.findIndex(h => keys.some(k => h.includes(k)));
+  const cCar = find('nhà mạng','carrier');
+  const cPln = find('tên gói','gói','plan');
+  const cVo  = find('thoại','voice','phút');
+  const cSm  = find('sms');
+  const cDt  = find('data');
+  const cPm  = find('phí/tháng','phí tháng','tháng','monthly','월');
+  const cPo  = find('mở sim','phí mở','open');
+  const cNt  = find('ghi chú','note');
+
+  const newRows = [];
+  for (let i = headerIdx+1; i < aoa.length; i++) {
+    const r = aoa[i];
+    if (!r || r.every(c => !String(c).trim())) continue;
+    const c0 = String(r[0]||'').trim();
+    if (/^─+/.test(c0) || c0.startsWith('──')) { newRows.push({type:'sec', label:c0}); continue; }
+    const priceM = String(r[cPm]||'').replace(/[^\d]/g,'');
+    const priceO = String(r[cPo]||'').replace(/[^\d]/g,'');
+    newRows.push({
+      type:'item',
+      carrier: String(r[cCar]||'').trim(),
+      plan:    String(r[cPln]||'').trim(),
+      voice:   String(r[cVo] ||'').trim(),
+      sms:     String(r[cSm] ||'').trim(),
+      data:    String(r[cDt] ||'').trim(),
+      priceMonth: priceM || '',
+      priceOpen:  priceO || '',
+      note:    String(r[cNt]||'').trim()
+    });
+  }
+  if (newRows.length) {
+    rows = newRows;
+    render(); saveDraft();
+    flash(`✅ Đã import ${newRows.filter(x=>x.type==='item').length} gói`);
+  }
+  e.target.value = '';
+};
+
+function flash(msg) {
+  const d = document.createElement('div');
+  d.textContent = msg;
+  d.className = 'fixed bottom-4 right-4 bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg text-sm z-50';
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 1800);
+}
+
+init();
+</script>
+</body>
+</html>

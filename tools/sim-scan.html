@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quét Bảng Giá SIM bằng AI → Excel | MultiMart KOREA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="../assets/js/cms.js"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-variant-numeric:tabular-nums}
+  .verify-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:1024px){.verify-grid{grid-template-columns:minmax(320px,38%) 1fr}}
+  .img-pane{position:sticky;top:8px;align-self:start;background:#0f172a;border-radius:12px;padding:8px;max-height:calc(100vh - 30px);overflow:auto}
+  .img-pane img{width:100%;display:block;border-radius:8px;cursor:zoom-in;transition:transform .2s;transform-origin:top left}
+  .img-pane.zoom img{cursor:zoom-out;transform:scale(2)}
+  .img-pane .img-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+  .img-pane .img-tabs button{padding:3px 8px;background:#1e293b;color:#cbd5e1;border-radius:4px;font-size:11px;font-weight:600}
+  .img-pane .img-tabs button.active{background:#0ea5e9;color:#fff}
+  .editable:focus{outline:2px solid #0ea5e9;background:#f0f9ff}
+  .drag-active{background:#dbeafe !important;border-color:#0ea5e9 !important}
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+<div class="max-w-[1500px] mx-auto p-4 sm:p-6">
+
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">📶 Quét Bảng Giá SIM bằng AI</h1>
+      <p class="text-sm text-slate-600 mt-1">AI tự động trích xuất → bạn liếc ảnh đối chiếu → xuất Excel</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <a href="sim-entry.html" class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700">📝 Nhập tay (100% chuẩn)</a>
+      <a href="price-scan.html" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm hover:bg-slate-50">📱 Quét máy</a>
+      <a href="../admin-cms.html" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm hover:bg-slate-50">← CMS</a>
+    </div>
+  </div>
+
+  <div id="status-banner" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+
+  <!-- Step 1 -->
+  <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5">
+    <h2 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+      <span class="w-7 h-7 bg-sky-600 text-white rounded-full flex items-center justify-center text-sm">1</span>
+      Tải ảnh bảng giá SIM
+    </h2>
+    <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center cursor-pointer hover:bg-slate-50">
+      <div class="text-4xl mb-2">📸</div>
+      <div class="font-medium text-slate-700">Kéo thả / click / dán Ctrl+V</div>
+      <input id="file-input" type="file" accept="image/*" multiple class="hidden">
+    </div>
+    <div id="thumbs" class="mt-3 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 hidden"></div>
+    <div class="mt-4 flex gap-2 flex-wrap">
+      <button id="btn-scan" disabled class="px-5 py-2.5 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 disabled:bg-slate-300">
+        <span id="spin" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        🔍 Quét bằng AI
+      </button>
+      <button id="btn-clear" class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-lg">🗑️ Xóa</button>
+    </div>
+  </section>
+
+  <!-- Step 2: split-pane -->
+  <section id="step2" class="hidden mb-5">
+    <div class="verify-grid">
+      <div class="img-pane">
+        <div class="img-tabs" id="img-tabs"></div>
+        <img id="img-current" src="" alt="Ảnh gốc">
+        <div class="text-[11px] text-slate-400 mt-2 px-1">💡 Click ảnh để zoom · Liếc đối chiếu từng dòng</div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h2 class="font-bold text-slate-900 flex items-center gap-2">
+            <span class="w-7 h-7 bg-sky-600 text-white rounded-full flex items-center justify-center text-sm">2</span>
+            Đối chiếu &amp; sửa (<span id="cnt">0</span>)
+          </h2>
+          <div class="flex gap-2 flex-wrap">
+            <button id="btn-add" class="px-3 py-1.5 bg-slate-100 rounded text-sm hover:bg-slate-200">➕</button>
+            <button id="btn-export" class="px-3 py-1.5 bg-sky-600 text-white rounded text-sm font-semibold">📊 Xuất Excel</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr class="text-left">
+                <th class="p-2 font-semibold w-8">#</th>
+                <th class="p-2 font-semibold min-w-[120px]">Nhà mạng</th>
+                <th class="p-2 font-semibold min-w-[180px]">Tên gói</th>
+                <th class="p-2 font-semibold min-w-[80px]">Thoại</th>
+                <th class="p-2 font-semibold min-w-[80px]">SMS</th>
+                <th class="p-2 font-semibold min-w-[110px]">Data</th>
+                <th class="p-2 font-semibold text-right min-w-[100px]">Phí/tháng ₩</th>
+                <th class="p-2 font-semibold text-right min-w-[100px]">Mở SIM ₩</th>
+                <th class="p-2 font-semibold">Ghi chú</th>
+                <th class="p-2 w-8"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let files = [];
+let rows = [];
+
+/* upload */
+const dz = $('#drop-zone'), fi = $('#file-input');
+dz.onclick = () => fi.click();
+fi.onchange = e => addFiles(e.target.files);
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag-active'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag-active'); }));
+dz.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+window.addEventListener('paste', e => { const items = [...(e.clipboardData?.items||[])]; const imgs = items.filter(i => i.type.startsWith('image/')).map(i => i.kind==='file' ? i.getAsFile() : null).filter(Boolean); if (imgs.length) addFiles(imgs); });
+
+function addFiles(list) {
+  for (const f of list) if (f.type.startsWith('image/')) files.push(f);
+  renderThumbs();
+}
+function renderThumbs() {
+  const w = $('#thumbs');
+  w.innerHTML = '';
+  if (!files.length) { w.classList.add('hidden'); $('#btn-scan').disabled = true; return; }
+  w.classList.remove('hidden');
+  files.forEach((f, i) => {
+    const url = URL.createObjectURL(f);
+    const d = document.createElement('div');
+    d.className = 'relative group';
+    d.innerHTML = `<img src="${url}" class="w-full h-24 object-cover rounded border"><button data-i="${i}" class="rm absolute top-1 right-1 w-6 h-6 bg-red-600 text-white rounded-full text-xs">×</button><div class="text-[10px] truncate">${f.name||'#'+(i+1)}</div>`;
+    w.appendChild(d);
+  });
+  w.querySelectorAll('.rm').forEach(b => b.onclick = e => { e.stopPropagation(); files.splice(+b.dataset.i,1); renderThumbs(); });
+  $('#btn-scan').disabled = false;
+}
+$('#btn-clear').onclick = () => { files=[]; renderThumbs(); banner('',''); };
+
+function banner(msg, type) {
+  const b = $('#status-banner');
+  if (!msg) { b.classList.add('hidden'); return; }
+  b.className = 'mb-4 p-3 rounded-lg text-sm ' + (type==='error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200');
+  b.innerHTML = msg; b.classList.remove('hidden');
+}
+
+/* scan */
+$('#btn-scan').onclick = scanAll;
+
+async function scanAll() {
+  if (!window.MM_CMS) { banner('❌ Chưa load cms.js','error'); return; }
+  const groq = MM_CMS.cfg.get('groq');
+  if (!groq) { banner('❌ Chưa cấu hình Groq key. <a class="underline" href="../admin-cms.html">Cấu hình</a>','error'); return; }
+  $('#spin').classList.remove('hidden');
+  $('#btn-scan').disabled = true;
+  let all = [];
+  for (let i=0; i<files.length; i++) {
+    try {
+      const items = await callGroq(files[i]);
+      all = all.concat(items);
+    } catch (e) { console.error(e); }
+  }
+  $('#spin').classList.add('hidden');
+  $('#btn-scan').disabled = false;
+  if (!all.length) { banner('❌ Không trích xuất được dữ liệu','error'); return; }
+  rows = all.map(normalize);
+  banner(`✅ Quét xong ${rows.length} gói từ ${files.length} ảnh. Đối chiếu ảnh bên trái và sửa nếu cần.`, 'ok');
+  buildImageTabs();
+  render();
+}
+
+function buildImageTabs() {
+  const tabs = $('#img-tabs'), img = $('#img-current'), pane = img.parentElement;
+  tabs.innerHTML = '';
+  files.forEach((f, i) => {
+    const url = URL.createObjectURL(f);
+    const b = document.createElement('button');
+    b.textContent = `Ảnh ${i+1}`;
+    b.onclick = () => { tabs.querySelectorAll('button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); img.src=url; pane.classList.remove('zoom'); };
+    tabs.appendChild(b);
+    if (i===0) { b.classList.add('active'); img.src = url; }
+  });
+  img.onclick = () => pane.classList.toggle('zoom');
+}
+
+async function callGroq(file) {
+  const base64 = await MM_CMS.util.fileToBase64(file);
+  const mime = file.type || 'image/jpeg';
+  const prompt = `Bạn là chuyên gia OCR bảng giá SIM Hàn Quốc. Đọc ảnh và trích xuất CHÍNH XÁC từng gói cước.
+
+Mỗi gói có thể có:
+- carrier (nhà mạng): KT M Mobile, SK 7Mobile, LG Hello, U+ Mobile, Mobing, EYES, Frequency, SKT, KT, LG U+, EG SIM ...
+- plan (tên gói): tiếng Hàn hoặc tiếng Anh, VD "모두다 맘껏 11GB+", "프리티 100GB"
+- voice (thoại): VD "무제한", "100분", "30 phút"
+- sms: VD "무제한", "-"
+- data (data/tháng): VD "11GB + 2GB/일", "100GB", "15GB+3Mbps"
+- priceMonth (phí/tháng tính bằng ₩, số nguyên): VD "22000", nếu thấy "22,000원" → 22000
+- priceOpen (phí mở SIM ₩): nếu không thấy → 0
+- note (ghi chú): khuyến mãi, 5G, du lịch...
+
+QUY TẮC:
+- Đọc TẤT CẢ các gói trên ảnh, không bỏ sót.
+- Giá ₩ là số nguyên (loại bỏ dấu phẩy/원).
+- Nếu ô trống/"미정"/"문의" → để chuỗi rỗng.
+- Trả về JSON array thuần, không markdown, không text khác.
+
+Ví dụ: [{"carrier":"KT M","plan":"모두다 맘껏 11GB+","voice":"무제한","sms":"무제한","data":"11GB+2GB/일","priceMonth":22000,"priceOpen":0,"note":""}]`;
+
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+MM_CMS.cfg.get('groq') },
+    body: JSON.stringify({
+      model:'meta-llama/llama-4-scout-17b-16e-instruct',
+      max_tokens:8192,
+      temperature:0.05,
+      messages:[{ role:'user', content:[
+        { type:'text', text:prompt },
+        { type:'image_url', image_url:{ url:`data:${mime};base64,${base64}` } }
+      ]}]
+    })
+  });
+  if (!res.ok) throw new Error('Groq '+res.status);
+  const j = await res.json();
+  let txt = j.choices?.[0]?.message?.content || '[]';
+  txt = txt.replace(/```json|```/g,'').trim();
+  const m = txt.match(/\[[\s\S]*\]/);
+  if (m) txt = m[0];
+  try { const arr = JSON.parse(txt); return Array.isArray(arr) ? arr : []; } catch { return []; }
+}
+
+function normalize(o) {
+  return {
+    carrier:String(o.carrier||'').trim(),
+    plan:String(o.plan||'').trim(),
+    voice:String(o.voice||'').trim(),
+    sms:String(o.sms||'').trim(),
+    data:String(o.data||'').trim(),
+    priceMonth: parseInt(String(o.priceMonth||'').replace(/[^\d]/g,''),10) || '',
+    priceOpen:  parseInt(String(o.priceOpen||0).replace(/[^\d]/g,''),10) || '',
+    note:String(o.note||'').trim()
+  };
+}
+
+function render() {
+  $('#step2').classList.remove('hidden');
+  $('#cnt').textContent = rows.length;
+  const tb = $('#tbody');
+  tb.innerHTML = '';
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-slate-100 hover:bg-slate-50';
+    tr.innerHTML = `
+      <td class="p-1 text-slate-500 text-xs">${i+1}</td>
+      ${['carrier','plan','voice','sms','data'].map(k =>
+        `<td class="p-1"><input class="editable w-full px-2 py-1 rounded" data-k="${k}" value="${esc(r[k])}"></td>`
+      ).join('')}
+      <td class="p-1"><input type="number" class="editable w-full px-2 py-1 rounded text-right" data-k="priceMonth" value="${r.priceMonth}"></td>
+      <td class="p-1"><input type="number" class="editable w-full px-2 py-1 rounded text-right" data-k="priceOpen"  value="${r.priceOpen}"></td>
+      <td class="p-1"><input class="editable w-full px-2 py-1 rounded" data-k="note" value="${esc(r.note)}"></td>
+      <td class="p-1 text-center"><button class="text-red-500 text-lg">×</button></td>
+    `;
+    tr.querySelectorAll('input').forEach(inp => inp.oninput = () => r[inp.dataset.k] = inp.value);
+    tr.querySelector('button').onclick = () => { rows.splice(i,1); render(); };
+    tb.appendChild(tr);
+  });
+}
+function esc(s){return String(s||'').replace(/"/g,'&quot;');}
+
+$('#btn-add').onclick = () => { rows.push({carrier:'',plan:'',voice:'',sms:'',data:'',priceMonth:'',priceOpen:'',note:''}); render(); };
+
+$('#btn-export').onclick = () => {
+  const head = ['STT','Nhà mạng','Tên gói','Thoại','SMS','Data','Phí/tháng (₩)','Mở SIM (₩)','Ghi chú'];
+  const data = [head, ...rows.map((r,i) => [i+1,r.carrier,r.plan,r.voice,r.sms,r.data,r.priceMonth?Number(r.priceMonth):'Đang cập nhật',r.priceOpen?Number(r.priceOpen):0,r.note])];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:5},{wch:14},{wch:30},{wch:10},{wch:8},{wch:18},{wch:14},{wch:12},{wch:24}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'SIM AI Scan');
+  XLSX.writeFile(wb, `BangGiaSIM_AI_${new Date().toISOString().slice(0,10)}.xlsx`);
+};
+</script>
+</body>
+</html>

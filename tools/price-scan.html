@@ -10,8 +10,15 @@
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
   .editable:focus{outline:2px solid #16a34a;background:#f0fdf4}
   table{font-variant-numeric:tabular-nums}
-  .drag-active{background:#dcfce7 !important;border-color:#16a34a !important}
-</style>
+  .drag-active{background:#dcfce7 !important;border-color:#16a34a !important}  /* Split-pane for verify mode */
+  .verify-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:1024px){.verify-grid{grid-template-columns:minmax(320px,40%) 1fr}}
+  .img-pane{position:sticky;top:8px;align-self:start;background:#0f172a;border-radius:12px;padding:8px;max-height:calc(100vh - 30px);overflow:auto}
+  .img-pane img{width:100%;display:block;border-radius:8px;cursor:zoom-in;transition:transform .2s;transform-origin:top left}
+  .img-pane.zoom img{cursor:zoom-out;transform:scale(2)}
+  .img-pane .img-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+  .img-pane .img-tabs button{padding:3px 8px;background:#1e293b;color:#cbd5e1;border-radius:4px;font-size:11px;font-weight:600}
+  .img-pane .img-tabs button.active{background:#16a34a;color:#fff}</style>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
@@ -76,44 +83,56 @@
     </details>
   </section>
 
-  <!-- Step 2: Review & Edit -->
-  <section id="step2" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5 hidden">
-    <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
-      <h2 class="font-bold text-slate-900 flex items-center gap-2">
-        <span class="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-sm">2</span>
-        Kiểm tra &amp; chỉnh sửa (<span id="row-count">0</span> dòng)
-      </h2>
-      <div class="flex gap-2 flex-wrap">
-        <button id="btn-add-row" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">➕ Thêm dòng</button>
-        <button id="btn-sort" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">🔤 Sắp xếp Brand → Model</button>
+  <!-- Step 2: Review & Edit (split-pane: ảnh gốc bên trái, bảng bên phải) -->
+  <section id="step2" class="hidden mb-5">
+    <div class="verify-grid">
+      <!-- LEFT: Original images for visual verification -->
+      <div class="img-pane">
+        <div class="img-tabs" id="img-tabs"></div>
+        <img id="img-current" src="" alt="Ảnh gốc">
+        <div class="text-[11px] text-slate-400 mt-2 px-1">💡 Click ảnh để zoom 2x · Cuộn để xem toàn bộ</div>
       </div>
-    </div>
 
-    <div class="text-xs text-slate-500 mb-2">💡 Click vào ô bất kỳ để sửa trực tiếp · Cột giá nhập số nguyên (VD: 1490000)</div>
+      <!-- RIGHT: Editable table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+          <h2 class="font-bold text-slate-900 flex items-center gap-2">
+            <span class="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-sm">2</span>
+            Đối chiếu &amp; sửa (<span id="row-count">0</span> dòng)
+          </h2>
+          <div class="flex gap-2 flex-wrap">
+            <button id="btn-add-row" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">➕ Thêm dòng</button>
+            <button id="btn-sort" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">🔤 Sắp xếp</button>
+          </div>
+        </div>
 
-    <div class="overflow-x-auto border border-slate-200 rounded-lg">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-50 border-b border-slate-200">
-          <tr class="text-left">
-            <th class="p-2 font-semibold text-slate-700 w-10">#</th>
-            <th class="p-2 font-semibold text-slate-700">Brand</th>
-            <th class="p-2 font-semibold text-slate-700 min-w-[160px]">Model</th>
-            <th class="p-2 font-semibold text-slate-700 min-w-[120px]">Memory</th>
-            <th class="p-2 font-semibold text-slate-700 text-right min-w-[140px]" title="Hàng A — máy like-new / cũ 99%">Giá A — Like new (₩)</th>
-            <th class="p-2 font-semibold text-slate-700 text-right min-w-[140px]" title="Máy mới đập hộp, nguyên seal">Giá NEW — Đập hộp (₩)</th>
-            <th class="p-2 font-semibold text-slate-700">Ghi chú</th>
-            <th class="p-2 font-semibold text-slate-700 w-10"></th>
-          </tr>
-        </thead>
-        <tbody id="data-tbody"></tbody>
-      </table>
-    </div>
+        <div class="text-xs text-slate-500 mb-2">💡 Liếc ảnh bên trái để đối chiếu · Sai chỗ nào click ô đó sửa</div>
 
-    <div class="mt-3 text-xs text-slate-600 grid grid-cols-2 sm:grid-cols-4 gap-2">
-      <div class="p-2 bg-slate-50 rounded">Tổng dòng: <b id="stat-total">0</b></div>
-      <div class="p-2 bg-slate-50 rounded">iPhone: <b id="stat-iphone">0</b></div>
-      <div class="p-2 bg-slate-50 rounded">Samsung: <b id="stat-samsung">0</b></div>
-      <div class="p-2 bg-slate-50 rounded">Khác: <b id="stat-other">0</b></div>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr class="text-left">
+                <th class="p-2 font-semibold text-slate-700 w-8">#</th>
+                <th class="p-2 font-semibold text-slate-700 min-w-[80px]">Brand</th>
+                <th class="p-2 font-semibold text-slate-700 min-w-[140px]">Model</th>
+                <th class="p-2 font-semibold text-slate-700 min-w-[100px]">Memory</th>
+                <th class="p-2 font-semibold text-slate-700 text-right min-w-[110px]" title="Hàng A — máy like-new / cũ 99%">Giá A (₩)</th>
+                <th class="p-2 font-semibold text-slate-700 text-right min-w-[110px]" title="Máy mới đập hộp, nguyên seal">Giá NEW (₩)</th>
+                <th class="p-2 font-semibold text-slate-700">Ghi chú</th>
+                <th class="p-2 font-semibold text-slate-700 w-8"></th>
+              </tr>
+            </thead>
+            <tbody id="data-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="mt-3 text-xs text-slate-600 grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div class="p-2 bg-slate-50 rounded">Tổng dòng: <b id="stat-total">0</b></div>
+          <div class="p-2 bg-slate-50 rounded">iPhone: <b id="stat-iphone">0</b></div>
+          <div class="p-2 bg-slate-50 rounded">Samsung: <b id="stat-samsung">0</b></div>
+          <div class="p-2 bg-slate-50 rounded">Khác: <b id="stat-other">0</b></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -305,7 +324,32 @@
 
     rows = allItems;
     banner(`✅ Quét xong! Trích xuất được <b>${rows.length}</b> dòng từ ${pickedFiles.length} ảnh.${errors ? ' ('+errors+' lỗi đã bỏ qua)' : ''} Hãy kiểm tra & sửa nếu cần.`, 'ok');
+    buildImageTabs();
     renderTable();
+  }
+
+  /* --- Build sticky image preview tabs (split-pane verify) --- */
+  function buildImageTabs() {
+    const tabs = document.getElementById('img-tabs');
+    const img  = document.getElementById('img-current');
+    const pane = img.parentElement;
+    if (!tabs || !img || !pickedFiles.length) return;
+    tabs.innerHTML = '';
+    pickedFiles.forEach((f, i) => {
+      const url = URL.createObjectURL(f);
+      const b = document.createElement('button');
+      b.textContent = `Ảnh ${i+1}`;
+      b.dataset.url = url;
+      b.addEventListener('click', () => {
+        tabs.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        img.src = url;
+        pane.classList.remove('zoom');
+      });
+      tabs.appendChild(b);
+      if (i === 0) { b.classList.add('active'); img.src = url; }
+    });
+    img.onclick = () => pane.classList.toggle('zoom');
   }
 
   /* Custom call with user hint (fallback to default if no hint) */
