@@ -169,14 +169,49 @@ document.addEventListener('DOMContentLoaded', () => {
     </a>`;
   };
 
-  /* ─── 4. Hot / sale products (horizontal scroll mobile + grid desktop) ─── */
-  const hotItems = products
-    .filter(p => p.oldPrice || p.tag)
-    .sort((a, b) => (b.oldPrice ? b.oldPrice - b.price : 0) - (a.oldPrice ? a.oldPrice - a.price : 0))
+  /* ─── 4. Hot / sale: 6 model điện thoại có giá tốt nhất từ bảng giá ─── */
+  const hotPhoneCard = (g) => {
+    const cat = window.MM_CATALOG?.[g.slug];
+    const prices = g.variants.flatMap(v => [v.priceA, v.priceNew].filter(Boolean));
+    const minPrice = prices.length ? Math.min(...prices) : 0;
+    return `
+      <a href="phone-spec.html?model=${encodeURIComponent(g.slug)}" class="pcard" style="background:#fff">
+        <div class="pcard__img" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">
+          <img src="${g.img}" loading="lazy" alt="${g.model}"
+               style="object-fit:contain;padding:8px;background:#fff" onerror="this.style.opacity='.3'">
+          <span class="pcard__badge" style="background:#ef4444">🔥 HOT</span>
+          <span class="pcard__badge sale" style="left:auto;right:0;border-radius:0 0 0 4px;background:#16a34a">${g.brand}</span>
+        </div>
+        <div class="pcard__info">
+          <p class="pcard__name" style="font-weight:700">${g.model}</p>
+          <div class="pcard__price">
+            <span class="krw" style="color:#dc2626">${formatKRW(minPrice)}</span>
+          </div>
+          <div class="pcard__meta">
+            <span><i class="fas fa-fire text-orange-500"></i> Bán chạy</span>
+            <span class="text-blue-600 font-bold">Xem →</span>
+          </div>
+        </div>
+      </a>`;
+  };
+  const phoneGroupsForHot = {};
+  (priceBoard.phones || []).forEach(p => {
+    const slug = p.catalog || p.model.toLowerCase().replace(/\s+/g,'-');
+    if (!phoneGroupsForHot[slug]) phoneGroupsForHot[slug] = { slug, model: p.model, brand: p.brand, img: p.img, variants: [] };
+    phoneGroupsForHot[slug].variants.push(p);
+  });
+  /* Pick top selling-style: iPhone 17 Pro Max, S26 Ultra, Z Fold 7, Z Flip 7, iPhone 16 Pro Max, S25 Ultra */
+  const hotPriority = ['iphone-17-pro-max','samsung-galaxy-s26-ultra','samsung-galaxy-z-fold-7','samsung-galaxy-z-flip-7','iphone-16-pro-max','samsung-galaxy-s25-ultra'];
+  const hotPhones = hotPriority
+    .map(s => phoneGroupsForHot[s])
+    .filter(Boolean)
+    .concat(Object.values(phoneGroupsForHot)) // fallback fill
+    .filter((v,i,a) => a.findIndex(x => x.slug === v.slug) === i)
     .slice(0, 6);
-  const hotHtml = renderList(hotItems, p => `<div style="width:140px;flex-shrink:0">${pcard(p)}</div>`);
+
+  const hotHtml = hotPhones.map(g => `<div style="width:160px;flex-shrink:0">${hotPhoneCard(g)}</div>`).join('');
   document.getElementById('hot-row').innerHTML = hotHtml;
-  document.getElementById('hot-grid').innerHTML = renderList(hotItems, pcard);
+  document.getElementById('hot-grid').innerHTML = hotPhones.map(hotPhoneCard).join('');
 
   /* ─── 5. Recently viewed ─── */
   const recentIds = window.MM_STATE.getRecent();
@@ -219,8 +254,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const searchTerm = cat?.searchTerm || g.model;
       return `
         <a href="phone-spec.html?model=${encodeURIComponent(g.slug)}" class="pcard" style="background:#fff">
-          <div class="pcard__img" style="background:#0f172a">
-            <img src="${g.img}" loading="lazy" alt="${g.model}" data-phone-search="${searchTerm}" onerror="this.style.opacity='.3'">
+          <div class="pcard__img" style="background:linear-gradient(135deg,#f8fafc,#e2e8f0)">
+            <img src="${g.img}" loading="lazy" alt="${g.model}" data-phone-search="${searchTerm}"
+                 style="object-fit:contain;padding:10px;background:#fff"
+                 onerror="this.style.opacity='.3'">
             <span class="pcard__badge" style="background:${brandColor(g.brand)}">${g.brand}</span>
             ${status === 'in'
               ? `<span class="pcard__badge sale" style="left:auto;right:0;border-radius:0 0 0 4px;background:#16a34a">● Còn</span>`

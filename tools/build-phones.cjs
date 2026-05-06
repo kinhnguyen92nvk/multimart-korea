@@ -64,7 +64,7 @@ rows.forEach((r, i) => {
   out.push(
     `      { id:${j(id)}, brand:${j(brand)}, model:${j(model)}, config:${j(memory)}, ` +
     `priceA:${priceA == null ? 'null' : priceA}, priceNew:${priceNew == null ? 'null' : priceNew}, ` +
-    `status:${j(status)}, colors:${note ? j(note) : 'null'}, catalog:${j(cat)}, img:${pickImg(model, brand)} },`
+    `status:${j(status)}, colors:${note ? j(note) : 'null'}, catalog:${j(cat)}, img:_phoneImg(${j(model)},${j(brand)}) },`
   );
 });
 
