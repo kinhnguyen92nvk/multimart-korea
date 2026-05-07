@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <input class="field" placeholder="🔍 Tìm sản phẩm...">
           <select class="field w-44"><option>Tất cả danh mục</option>${categories.map(c=>`<option>${c.name}</option>`).join('')}</select>
         </div>
-        <button class="btn btn-primary" data-action="add-product"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
+        <button class="btn btn-primary" onclick="window.__mm_addProduct()"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
       </div>
       <div class="card !p-0 overflow-hidden">
         <div class="overflow-x-auto">
@@ -114,8 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   <td class="text-center">${p.sold}</td>
                   <td class="text-center">${p.rating}★</td>
                   <td class="text-right pr-4">
-                    <button class="text-indigo-500 hover:text-indigo-700 mx-1" data-action="edit-product" data-pid="${p.id}" title="Sửa"><i class="fas fa-edit"></i></button>
-                    <button class="text-red-500 hover:text-red-700 mx-1" data-action="del-product" data-pid="${p.id}" title="Xoá"><i class="fas fa-trash"></i></button>
+                    <button class="text-indigo-500 hover:text-indigo-700 mx-1" onclick="window.__mm_editProduct('${p.id}')" title="Sửa"><i class="fas fa-edit"></i></button>
+                    <button class="text-red-500 hover:text-red-700 mx-1" onclick="window.__mm_delProduct('${p.id}')" title="Xoá"><i class="fas fa-trash"></i></button>
                   </td>
                 </tr>
               `).join('')}
@@ -426,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('content').innerHTML = VIEWS[tab]();
     if (tab === 'bulk') wireBulk();
     if (tab === 'settings') wireSettings();
-    if (tab === 'products') wireProducts();
   };
   window.__mm_setTab = setTab;
   document.querySelectorAll('.side-link').forEach(l => l.addEventListener('click', e => { e.preventDefault(); setTab(l.dataset.tab); }));
@@ -563,30 +562,49 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ============ Escape HTML helper ============ */
   function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  /* ============ Products tab wiring ============ */
-  function wireProducts(){
-    const content = document.getElementById('content');
-    content.addEventListener('click', e => {
-      const addBtn  = e.target.closest('[data-action="add-product"]');
-      const editBtn = e.target.closest('[data-action="edit-product"]');
-      const delBtn  = e.target.closest('[data-action="del-product"]');
-      if (addBtn) {
-        const blank = { id:'p'+Date.now(), name:'', cat:'phone', price:0, oldPrice:null, sold:0, rating:5.0, tag:'', img:'', imgs:[], desc:'', specs:[] };
-        products.push(blank);
-        openProductModal(blank, true);
-      }
-      if (editBtn) {
-        const prod = products.find(p => p.id === editBtn.dataset.pid);
-        if (prod) openProductModal(prod, false);
-      }
-      if (delBtn) {
-        if (confirm('Xoá sản phẩm này?')) {
-          const idx = products.findIndex(p => p.id === delBtn.dataset.pid);
-          if (idx !== -1) products.splice(idx, 1);
-          setTab('products');
-        }
-      }
+  /* ============ Products window-level handlers (inline onclick safe) ============ */
+  window.__mm_addProduct = function() {
+    const blank = { id:'p'+Date.now(), name:'', cat:'phone', price:0, oldPrice:null, sold:0, rating:5.0, tag:'', img:'', imgs:[], desc:'', specs:[] };
+    window.MM_DATA.products.push(blank);
+    openProductModal(blank, true);
+  };
+  window.__mm_editProduct = function(pid) {
+    const prod = window.MM_DATA.products.find(p => p.id === pid);
+    if (prod) openProductModal(prod, false);
+  };
+  window.__mm_delProduct = function(pid) {
+    if (!confirm('Xoá sản phẩm này?')) return;
+    const arr = window.MM_DATA.products;
+    const idx = arr.findIndex(p => p.id === pid);
+    if (idx !== -1) arr.splice(idx, 1);
+    setTab('products');
+  };
+
+  /* ============ GitHub image upload ============ */
+  async function ghUploadImage(file, destPath) {
+    const token  = localStorage.getItem('mm_cms_gh_token');
+    const owner  = localStorage.getItem('mm_cms_gh_owner');
+    const repo   = localStorage.getItem('mm_cms_gh_repo');
+    const branch = localStorage.getItem('mm_cms_gh_branch') || 'main';
+    if (!token || !owner || !repo)
+      throw new Error('Chưa có GitHub Token. Vào CMS AI → Cấu hình để nhập.');
+    const base64 = await new Promise((res, rej) => {
+      const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(file);
     });
+    const headers = {
+      'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json',
+    };
+    let sha;
+    const check = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${destPath}?ref=${branch}`, { headers });
+    if (check.ok) { const j = await check.json(); sha = j.sha; }
+    const body = { message: `upload: ${destPath}`, content: base64, branch };
+    if (sha) body.sha = sha;
+    const put = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${destPath}`, {
+      method: 'PUT', headers, body: JSON.stringify(body),
+    });
+    if (!put.ok) { const t = await put.text(); throw new Error('GitHub ' + put.status + ': ' + t.slice(0, 200)); }
+    return `https://${owner}.github.io/${repo}/${destPath}`;
   }
 
   /* ============ Product edit modal ============ */
@@ -599,38 +617,37 @@ document.addEventListener('DOMContentLoaded', () => {
     ).join('');
 
     const imgSrc = (typeof prod.img==='string' && prod.img && !prod.img.startsWith('data:image/svg')) ? prod.img : '';
-    const imgPreviewSrc = prod.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
     const specsHtml = (prod.specs||[]).map(row => `
       <div class="flex gap-2 mb-1 spec-row">
         <input class="field !py-1 text-xs w-36" value="${escHtml(row[0])}" placeholder="Tên">
         <input class="field !py-1 text-xs flex-1" value="${escHtml(row[1])}" placeholder="Giá trị">
-        <button type="button" class="text-red-400 hover:text-red-600 w-7 text-center" data-del-spec>✕</button>
+        <button type="button" class="del-spec text-red-400 hover:text-red-600 w-7 text-center">✕</button>
       </div>`).join('');
 
     modal.innerHTML = `
       <div class="fixed inset-0 bg-black/60 z-[999] flex items-center justify-center p-4" id="mm-prod-overlay">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[94vh] flex flex-col">
           <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
             <h2 class="font-black text-xl">${isNew?'➕ Thêm sản phẩm mới':'✏️ Sửa sản phẩm'}</h2>
             <button id="mm-modal-close" class="w-9 h-9 rounded-full hover:bg-slate-100 flex items-center justify-center text-2xl leading-none">×</button>
           </div>
           <div class="overflow-y-auto p-6 space-y-4 flex-1">
 
-            <!-- Ảnh -->
+            <!-- Ảnh drag-drop -->
             <div>
               <label class="lbl">Ảnh sản phẩm</label>
-              <div class="flex gap-3 items-start">
-                <img id="mm-img-preview" src="${imgPreviewSrc}" class="w-24 h-24 rounded-xl object-cover border border-slate-200 shrink-0" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect fill=\'%23e2e8f0\' width=\'100\' height=\'100\'/><text y=\'.9em\' font-size=\'70\' x=\'15\'>📷</text></svg>'">
-                <div class="flex-1 min-w-0">
-                  <input id="mm-img-url" class="field text-sm mb-2" placeholder="Dán URL ảnh mới (https://...)" value="${escHtml(imgSrc)}">
-                  <label class="btn btn-ghost text-xs cursor-pointer inline-flex items-center gap-1">
-                    <i class="fas fa-upload"></i> Upload từ máy tính
-                    <input type="file" id="mm-img-file" accept="image/*" class="hidden">
-                  </label>
-                  <p class="text-xs text-slate-400 mt-1">URL hoặc upload ảnh. Upload sẽ lưu dạng base64 trong trình duyệt — dùng CMS để publish ảnh thật lên web.</p>
+              <div id="mm-drop-zone" class="relative border-2 border-dashed border-indigo-300 rounded-2xl bg-indigo-50 hover:border-indigo-500 transition cursor-pointer overflow-hidden" style="min-height:160px">
+                <img id="mm-img-preview" src="${imgSrc||''}" class="${imgSrc?'absolute inset-0 w-full h-full object-contain rounded-2xl bg-slate-100':'hidden'}">
+                <div id="mm-drop-hint" class="${imgSrc?'hidden':'flex'} flex-col items-center justify-center gap-2 py-10 pointer-events-none absolute inset-0">
+                  <i class="fas fa-cloud-upload-alt text-4xl text-indigo-400"></i>
+                  <p class="font-bold text-indigo-600">Kéo ảnh vào đây hoặc click để chọn file</p>
+                  <p class="text-xs text-slate-400">JPG / PNG / WebP · Tự động đẩy lên GitHub hosting</p>
                 </div>
+                <input type="file" id="mm-img-file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
               </div>
+              <input id="mm-img-url" class="field text-sm mt-2" placeholder="Hoặc dán URL ảnh (https://...)" value="${escHtml(imgSrc)}">
+              <div id="mm-upload-status" class="text-xs mt-1 min-h-[1.2em] text-slate-400"></div>
             </div>
 
             <!-- Basic fields -->
@@ -678,7 +695,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button type="button" id="mm-add-spec" class="text-xs text-indigo-600 font-bold hover:text-indigo-800"><i class="fas fa-plus"></i> Thêm dòng</button>
               </div>
               <div id="mm-specs-list">${specsHtml}</div>
-              <p class="text-xs text-slate-400 mt-1">Dòng trống sẽ bị bỏ qua khi lưu.</p>
             </div>
 
           </div>
@@ -689,38 +705,75 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>`;
 
+    if (imgSrc) { const p = document.getElementById('mm-img-preview'); if(p) p.src = imgSrc; }
+
+    let _pendingImg = imgSrc;
+
     const close = () => { modal.innerHTML = ''; };
     document.getElementById('mm-modal-close').addEventListener('click', close);
     document.getElementById('mm-modal-cancel').addEventListener('click', close);
     document.getElementById('mm-prod-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) close(); });
 
-    // Image URL live preview
+    function setPreview(src) {
+      _pendingImg = src;
+      const prev = document.getElementById('mm-img-preview');
+      const hint = document.getElementById('mm-drop-hint');
+      prev.src = src;
+      prev.className = 'absolute inset-0 w-full h-full object-contain rounded-2xl bg-slate-100';
+      if (hint) hint.classList.add('hidden');
+    }
+
+    // URL paste preview
     document.getElementById('mm-img-url').addEventListener('input', e => {
-      const url = e.target.value.trim();
-      if (url) document.getElementById('mm-img-preview').src = url;
+      const url = e.target.value.trim(); if (url) setPreview(url);
     });
 
-    // File upload → base64
+    // File pick / drag-drop → auto GitHub upload
+    async function handleFile(file) {
+      const statusEl = document.getElementById('mm-upload-status');
+      setPreview(URL.createObjectURL(file));
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z]/g,'') || 'jpg';
+      const nameSlug = (document.getElementById('mm-f-name').value || prod.name || 'product')
+        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || prod.id;
+      const destPath = `assets/images/products/${nameSlug}-${Date.now()}.${ext}`;
+      if (!localStorage.getItem('mm_cms_gh_token')) {
+        statusEl.innerHTML = '<i class="fas fa-exclamation-triangle text-amber-500"></i> Chưa cấu hình GitHub Token — ảnh chỉ xem trước. <a href="admin-cms.html" class="text-indigo-600 font-bold underline">Cấu hình tại CMS AI</a>';
+        return;
+      }
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-indigo-500"></i> Đang tải lên GitHub...';
+      try {
+        const hostedUrl = await ghUploadImage(file, destPath);
+        _pendingImg = hostedUrl;
+        setPreview(hostedUrl);
+        document.getElementById('mm-img-url').value = hostedUrl;
+        statusEl.innerHTML = '<i class="fas fa-check-circle text-green-500"></i> Ảnh đã lên hosting! <a href="' + hostedUrl + '" target="_blank" class="text-green-600 font-bold underline">Xem ảnh</a> (mất ~1 phút để GitHub Pages cập nhật)';
+      } catch(err) {
+        statusEl.innerHTML = '<i class="fas fa-times-circle text-red-500"></i> Lỗi: ' + err.message;
+      }
+    }
+
     document.getElementById('mm-img-file').addEventListener('change', e => {
-      const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        document.getElementById('mm-img-preview').src = ev.target.result;
-        document.getElementById('mm-img-url').value = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+
+    const dz = document.getElementById('mm-drop-zone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('!border-indigo-500','!bg-indigo-100'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('!border-indigo-500','!bg-indigo-100'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('!border-indigo-500','!bg-indigo-100');
+      const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handleFile(file);
     });
 
     // Delete spec row
     document.getElementById('mm-specs-list').addEventListener('click', e => {
-      if (e.target.closest('[data-del-spec]')) e.target.closest('.spec-row').remove();
+      const btn = e.target.closest('.del-spec'); if (btn) btn.closest('.spec-row').remove();
     });
 
     // Add spec row
     document.getElementById('mm-add-spec').addEventListener('click', () => {
       const row = document.createElement('div');
       row.className = 'flex gap-2 mb-1 spec-row';
-      row.innerHTML = '<input class="field !py-1 text-xs w-36" placeholder="Tên"><input class="field !py-1 text-xs flex-1" placeholder="Giá trị"><button type="button" class="text-red-400 hover:text-red-600 w-7 text-center" data-del-spec>✕</button>';
+      row.innerHTML = '<input class="field !py-1 text-xs w-36" placeholder="Tên"><input class="field !py-1 text-xs flex-1" placeholder="Giá trị"><button type="button" class="del-spec text-red-400 hover:text-red-600 w-7 text-center">✕</button>';
       document.getElementById('mm-specs-list').appendChild(row);
     });
 
@@ -732,7 +785,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return [ins[0].value.trim(), ins[1].value.trim()];
       }).filter(s => s[0] || s[1]);
 
-      const imgVal = document.getElementById('mm-img-url').value.trim() || document.getElementById('mm-img-preview').src;
+      const urlInput = document.getElementById('mm-img-url').value.trim();
+      const finalImg = urlInput || (_pendingImg && !_pendingImg.startsWith('blob:') ? _pendingImg : '') || prod.img;
 
       prod.name     = document.getElementById('mm-f-name').value.trim();
       prod.cat      = document.getElementById('mm-f-cat').value;
@@ -743,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
       prod.rating   = parseFloat(document.getElementById('mm-f-rating').value) || 5;
       prod.desc     = document.getElementById('mm-f-desc').value.trim();
       prod.specs    = newSpecs;
-      if (imgVal && !imgVal.includes('data:image/gif')) { prod.img = imgVal; prod.imgs = [imgVal]; }
+      if (finalImg) { prod.img = finalImg; prod.imgs = [finalImg]; }
 
       close();
       setTab('products');
