@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <input class="field" placeholder="🔍 Tìm sản phẩm...">
           <select class="field w-44"><option>Tất cả danh mục</option>${categories.map(c=>`<option>${c.name}</option>`).join('')}</select>
         </div>
-        <button class="btn btn-primary"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
+        <button class="btn btn-primary" data-action="add-product"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
       </div>
       <div class="card !p-0 overflow-hidden">
         <div class="overflow-x-auto">
@@ -113,7 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   <td class="text-right font-black krw">${formatKRW(p.price)}</td>
                   <td class="text-center">${p.sold}</td>
                   <td class="text-center">${p.rating}★</td>
-                  <td class="text-right pr-4"><button class="text-indigo-500 hover:text-indigo-700 mx-1"><i class="fas fa-edit"></i></button><button class="text-red-500 hover:text-red-700 mx-1"><i class="fas fa-trash"></i></button></td>
+                  <td class="text-right pr-4">
+                    <button class="text-indigo-500 hover:text-indigo-700 mx-1" data-action="edit-product" data-pid="${p.id}" title="Sửa"><i class="fas fa-edit"></i></button>
+                    <button class="text-red-500 hover:text-red-700 mx-1" data-action="del-product" data-pid="${p.id}" title="Xoá"><i class="fas fa-trash"></i></button>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
@@ -423,6 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('content').innerHTML = VIEWS[tab]();
     if (tab === 'bulk') wireBulk();
     if (tab === 'settings') wireSettings();
+    if (tab === 'products') wireProducts();
   };
   window.__mm_setTab = setTab;
   document.querySelectorAll('.side-link').forEach(l => l.addEventListener('click', e => { e.preventDefault(); setTab(l.dataset.tab); }));
@@ -555,4 +559,200 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setTab('dashboard');
+
+  /* ============ Escape HTML helper ============ */
+  function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* ============ Products tab wiring ============ */
+  function wireProducts(){
+    const content = document.getElementById('content');
+    content.addEventListener('click', e => {
+      const addBtn  = e.target.closest('[data-action="add-product"]');
+      const editBtn = e.target.closest('[data-action="edit-product"]');
+      const delBtn  = e.target.closest('[data-action="del-product"]');
+      if (addBtn) {
+        const blank = { id:'p'+Date.now(), name:'', cat:'phone', price:0, oldPrice:null, sold:0, rating:5.0, tag:'', img:'', imgs:[], desc:'', specs:[] };
+        products.push(blank);
+        openProductModal(blank, true);
+      }
+      if (editBtn) {
+        const prod = products.find(p => p.id === editBtn.dataset.pid);
+        if (prod) openProductModal(prod, false);
+      }
+      if (delBtn) {
+        if (confirm('Xoá sản phẩm này?')) {
+          const idx = products.findIndex(p => p.id === delBtn.dataset.pid);
+          if (idx !== -1) products.splice(idx, 1);
+          setTab('products');
+        }
+      }
+    });
+  }
+
+  /* ============ Product edit modal ============ */
+  function openProductModal(prod, isNew){
+    let modal = document.getElementById('mm-product-modal');
+    if (!modal) { modal = document.createElement('div'); modal.id = 'mm-product-modal'; document.body.appendChild(modal); }
+
+    const catOptions = categories.map(c =>
+      `<option value="${c.id}" ${c.id===prod.cat?'selected':''}>${c.name}</option>`
+    ).join('');
+
+    const imgSrc = (typeof prod.img==='string' && prod.img && !prod.img.startsWith('data:image/svg')) ? prod.img : '';
+    const imgPreviewSrc = prod.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+    const specsHtml = (prod.specs||[]).map(row => `
+      <div class="flex gap-2 mb-1 spec-row">
+        <input class="field !py-1 text-xs w-36" value="${escHtml(row[0])}" placeholder="Tên">
+        <input class="field !py-1 text-xs flex-1" value="${escHtml(row[1])}" placeholder="Giá trị">
+        <button type="button" class="text-red-400 hover:text-red-600 w-7 text-center" data-del-spec>✕</button>
+      </div>`).join('');
+
+    modal.innerHTML = `
+      <div class="fixed inset-0 bg-black/60 z-[999] flex items-center justify-center p-4" id="mm-prod-overlay">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+            <h2 class="font-black text-xl">${isNew?'➕ Thêm sản phẩm mới':'✏️ Sửa sản phẩm'}</h2>
+            <button id="mm-modal-close" class="w-9 h-9 rounded-full hover:bg-slate-100 flex items-center justify-center text-2xl leading-none">×</button>
+          </div>
+          <div class="overflow-y-auto p-6 space-y-4 flex-1">
+
+            <!-- Ảnh -->
+            <div>
+              <label class="lbl">Ảnh sản phẩm</label>
+              <div class="flex gap-3 items-start">
+                <img id="mm-img-preview" src="${imgPreviewSrc}" class="w-24 h-24 rounded-xl object-cover border border-slate-200 shrink-0" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect fill=\'%23e2e8f0\' width=\'100\' height=\'100\'/><text y=\'.9em\' font-size=\'70\' x=\'15\'>📷</text></svg>'">
+                <div class="flex-1 min-w-0">
+                  <input id="mm-img-url" class="field text-sm mb-2" placeholder="Dán URL ảnh mới (https://...)" value="${escHtml(imgSrc)}">
+                  <label class="btn btn-ghost text-xs cursor-pointer inline-flex items-center gap-1">
+                    <i class="fas fa-upload"></i> Upload từ máy tính
+                    <input type="file" id="mm-img-file" accept="image/*" class="hidden">
+                  </label>
+                  <p class="text-xs text-slate-400 mt-1">URL hoặc upload ảnh. Upload sẽ lưu dạng base64 trong trình duyệt — dùng CMS để publish ảnh thật lên web.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Basic fields -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="col-span-2">
+                <label class="lbl">Tên sản phẩm</label>
+                <input id="mm-f-name" class="field" value="${escHtml(prod.name)}">
+              </div>
+              <div>
+                <label class="lbl">Danh mục</label>
+                <select id="mm-f-cat" class="field">${catOptions}</select>
+              </div>
+              <div>
+                <label class="lbl">Tag (Hàng A / Hàng New...)</label>
+                <input id="mm-f-tag" class="field" value="${escHtml(prod.tag||'')}">
+              </div>
+              <div>
+                <label class="lbl">Giá bán (KRW ₩)</label>
+                <input id="mm-f-price" type="number" class="field" value="${prod.price||''}">
+              </div>
+              <div>
+                <label class="lbl">Giá cũ (để trống nếu không)</label>
+                <input id="mm-f-oldprice" type="number" class="field" value="${prod.oldPrice||''}">
+              </div>
+              <div>
+                <label class="lbl">Đã bán</label>
+                <input id="mm-f-sold" type="number" class="field" value="${prod.sold||0}">
+              </div>
+              <div>
+                <label class="lbl">Đánh giá (0–5)</label>
+                <input id="mm-f-rating" type="number" step="0.1" min="0" max="5" class="field" value="${prod.rating||5}">
+              </div>
+            </div>
+
+            <!-- Mô tả -->
+            <div>
+              <label class="lbl">Mô tả sản phẩm</label>
+              <textarea id="mm-f-desc" class="field text-sm" rows="3">${escHtml(prod.desc||'')}</textarea>
+            </div>
+
+            <!-- Thông số -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="lbl !mb-0">Thông số kỹ thuật</label>
+                <button type="button" id="mm-add-spec" class="text-xs text-indigo-600 font-bold hover:text-indigo-800"><i class="fas fa-plus"></i> Thêm dòng</button>
+              </div>
+              <div id="mm-specs-list">${specsHtml}</div>
+              <p class="text-xs text-slate-400 mt-1">Dòng trống sẽ bị bỏ qua khi lưu.</p>
+            </div>
+
+          </div>
+          <div class="flex gap-3 px-6 py-4 border-t border-slate-100 shrink-0">
+            <button id="mm-prod-save" class="btn btn-primary flex-1"><i class="fas fa-save"></i> Lưu thay đổi</button>
+            <button id="mm-modal-cancel" class="btn btn-ghost flex-1">Huỷ</button>
+          </div>
+        </div>
+      </div>`;
+
+    const close = () => { modal.innerHTML = ''; };
+    document.getElementById('mm-modal-close').addEventListener('click', close);
+    document.getElementById('mm-modal-cancel').addEventListener('click', close);
+    document.getElementById('mm-prod-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) close(); });
+
+    // Image URL live preview
+    document.getElementById('mm-img-url').addEventListener('input', e => {
+      const url = e.target.value.trim();
+      if (url) document.getElementById('mm-img-preview').src = url;
+    });
+
+    // File upload → base64
+    document.getElementById('mm-img-file').addEventListener('change', e => {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.getElementById('mm-img-preview').src = ev.target.result;
+        document.getElementById('mm-img-url').value = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Delete spec row
+    document.getElementById('mm-specs-list').addEventListener('click', e => {
+      if (e.target.closest('[data-del-spec]')) e.target.closest('.spec-row').remove();
+    });
+
+    // Add spec row
+    document.getElementById('mm-add-spec').addEventListener('click', () => {
+      const row = document.createElement('div');
+      row.className = 'flex gap-2 mb-1 spec-row';
+      row.innerHTML = '<input class="field !py-1 text-xs w-36" placeholder="Tên"><input class="field !py-1 text-xs flex-1" placeholder="Giá trị"><button type="button" class="text-red-400 hover:text-red-600 w-7 text-center" data-del-spec>✕</button>';
+      document.getElementById('mm-specs-list').appendChild(row);
+    });
+
+    // Save
+    document.getElementById('mm-prod-save').addEventListener('click', () => {
+      const specRows = document.querySelectorAll('#mm-specs-list .spec-row');
+      const newSpecs = Array.from(specRows).map(row => {
+        const ins = row.querySelectorAll('input');
+        return [ins[0].value.trim(), ins[1].value.trim()];
+      }).filter(s => s[0] || s[1]);
+
+      const imgVal = document.getElementById('mm-img-url').value.trim() || document.getElementById('mm-img-preview').src;
+
+      prod.name     = document.getElementById('mm-f-name').value.trim();
+      prod.cat      = document.getElementById('mm-f-cat').value;
+      prod.tag      = document.getElementById('mm-f-tag').value.trim();
+      prod.price    = parseInt(document.getElementById('mm-f-price').value)    || 0;
+      prod.oldPrice = parseInt(document.getElementById('mm-f-oldprice').value) || null;
+      prod.sold     = parseInt(document.getElementById('mm-f-sold').value)     || 0;
+      prod.rating   = parseFloat(document.getElementById('mm-f-rating').value) || 5;
+      prod.desc     = document.getElementById('mm-f-desc').value.trim();
+      prod.specs    = newSpecs;
+      if (imgVal && !imgVal.includes('data:image/gif')) { prod.img = imgVal; prod.imgs = [imgVal]; }
+
+      close();
+      setTab('products');
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-2xl shadow-xl font-bold z-50 text-sm animate-bounce';
+      toast.innerHTML = '✅ Đã lưu thay đổi.<br><span class="font-normal text-xs">Dùng CMS → Publish để cập nhật lên web.</span>';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    });
+  }
 });
